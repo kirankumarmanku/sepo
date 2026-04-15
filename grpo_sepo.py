@@ -194,70 +194,75 @@ def grpo_step(
     seed_offset: int,
 ):
     """
-    One GRPO step.
+    One GRPO step — per-round advantage normalisation.
 
-    Group = one train-pool opponent. For each group we run n_rollouts independent
-    episodes and normalise advantages within that group. This ensures reward variance
-    is measured against the SAME opponent across rollouts, giving a meaningful signal
-    even when the model behaves consistently across opponent types.
+    Group = one train-pool opponent × n_rollouts episodes.
+    Advantage is computed PER ROUND across rollouts, not per episode.
 
-    Exploiter + collusive pool episodes are added to each rollout for the SEPO reward
-    but do NOT form their own advantage groups (their reward signal comes through the
-    combined SEPO scalar).
+    reward_t_r = payoff_t_r - SEPO_penalty_r
+    where SEPO_penalty_r = λe·e + λc·c + λx·x  (episode-level, shared across rounds)
+
+    Normalising per round means even 1 defect out of 16 rollouts at round t
+    produces a non-zero advantage signal for that decision.
     """
     all_pg_losses = []
     all_kl_terms  = []
     step_metrics  = []
 
-    # One group per train-pool opponent
     for g_idx, train_opp in enumerate(game.train_pool):
-        rollout_rewards = []
-        rollout_data    = []
+        # Collect n_rollouts episodes for this opponent
+        episodes = []  # (ep, inp_ids, gen_ids, old_lps, sepo_penalty, metrics)
 
         for r_idx in range(n_rollouts):
             seed_base = seed_offset + g_idx * 1000 + r_idx * 100
 
-            # Train episode for this group's opponent
             ep_train, (inp_ids, gen_ids, old_lps) = run_episode(
                 model, tokenizer, game, train_opp, "train",
-                seed=seed_base,
-                device=device, temperature=temperature,
+                seed=seed_base, device=device, temperature=temperature,
             )
-            rollout_episodes = [ep_train]
 
-            # Exploiter + collusive episodes for full SEPO reward (no grad)
+            # Aux episodes for SEPO penalty (exploiter + collusive)
+            aux = [ep_train]
             for opp in game.exploiter_pool:
                 ep, _ = run_episode(model, tokenizer, game, opp, "exploiter",
                                     seed=seed_base + 1, device=device, temperature=temperature)
-                rollout_episodes.append(ep)
+                aux.append(ep)
             for opp in game.collusive_pool:
                 ep, _ = run_episode(model, tokenizer, game, opp, "collusive",
                                     seed=seed_base + 2, device=device, temperature=temperature)
-                rollout_episodes.append(ep)
+                aux.append(ep)
 
-            reward, metrics = sepo_reward(rollout_episodes, game, lambda_e, lambda_c, lambda_x)
-            rollout_rewards.append(reward)
-            rollout_data.append(((inp_ids, gen_ids, old_lps), metrics))
+            _, metrics = sepo_reward(aux, game, lambda_e, lambda_c, lambda_x)
+            sepo_penalty = (lambda_e * metrics["exploitability"]
+                          + lambda_c * metrics["collusion"]
+                          + lambda_x * metrics["externality"])
+            episodes.append((ep_train, inp_ids, gen_ids, old_lps, sepo_penalty, metrics))
 
-        # Normalise advantages within this opponent group
-        rewards = np.array(rollout_rewards, dtype=np.float32)
-        adv = (rewards - rewards.mean()) / (rewards.std() + 1e-8) if rewards.std() > 1e-8 else np.zeros_like(rewards)
+        # Per-round advantage: normalise across rollouts at each round t
+        n_steps = len(episodes[0][0].payoffs)
+        for t in range(n_steps):
+            round_rewards = np.array(
+                [ep.payoffs[t] - sepo_pen for ep, _, _, _, sepo_pen, _ in episodes],
+                dtype=np.float32,
+            )
+            adv = ((round_rewards - round_rewards.mean()) / (round_rewards.std() + 1e-8)
+                   if round_rewards.std() > 1e-8 else np.zeros_like(round_rewards))
 
-        for r_idx, ((inp_ids, gen_ids, old_lps), metrics) in enumerate(rollout_data):
-            A = float(adv[r_idx])
-            new_lps = recompute_log_probs(model, inp_ids, gen_ids)
-            with torch.no_grad():
-                ref_lps = recompute_log_probs(ref_model, inp_ids, gen_ids)
-            for new_lp, old_lp, ref_lp in zip(new_lps, old_lps, ref_lps):
-                old_lp = old_lp.to(new_lp.device)
-                ratio   = torch.exp(new_lp - old_lp.detach())
-                clipped = ratio.clamp(1.0 - clip_eps, 1.0 + clip_eps)
-                pg  = -torch.min(ratio * A, clipped * A)
-                kl  = (new_lp - ref_lp.detach()).clamp(min=0)
-                all_pg_losses.append(pg)
-                all_kl_terms.append(kl)
+            for r_idx, (_, inp_ids, gen_ids, old_lps, _, _) in enumerate(episodes):
+                A = float(adv[r_idx])
+                new_lps = recompute_log_probs(model, [inp_ids[t]], [gen_ids[t]])
+                with torch.no_grad():
+                    ref_lps = recompute_log_probs(ref_model, [inp_ids[t]], [gen_ids[t]])
+                for new_lp, ref_lp in zip(new_lps, ref_lps):
+                    old_lp = old_lps[t].to(new_lp.device)
+                    ratio   = torch.exp(new_lp - old_lp.detach())
+                    clipped = ratio.clamp(1.0 - clip_eps, 1.0 + clip_eps)
+                    pg  = -torch.min(ratio * A, clipped * A)
+                    kl  = (new_lp - ref_lp.detach()).clamp(min=0)
+                    all_pg_losses.append(pg)
+                    all_kl_terms.append(kl)
 
-        step_metrics.append(rollout_data[-1][1])
+        step_metrics.append(episodes[-1][-1])
 
     if not all_pg_losses:
         return None, {}

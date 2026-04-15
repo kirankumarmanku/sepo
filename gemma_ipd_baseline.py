@@ -210,6 +210,43 @@ class TransformersBackend:
         return out[0]["generated_text"][-1]["content"]
 
 
+class PEFTBackend:
+    """HuggingFace base model + PEFT adapter (for SFT/GRPO checkpoints)."""
+
+    def __init__(self, adapter_repo: str, base_model: str, max_tokens: int, temperature: float):
+        print(f"Loading base model: {base_model}")
+        import torch
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        from peft import PeftModel
+
+        dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
+        self.tokenizer = AutoTokenizer.from_pretrained(adapter_repo)
+        base = AutoModelForCausalLM.from_pretrained(base_model, torch_dtype=dtype, device_map="auto")
+        self.model = PeftModel.from_pretrained(base, adapter_repo, autocast_adapter_dtype=False)
+        self.model.eval()
+        self.device = next(self.model.parameters()).device
+        self.max_tokens  = max_tokens
+        self.temperature = temperature
+        print(f"  Adapter loaded: {adapter_repo}")
+
+    def chat(self, system: str, user: str) -> str:
+        import torch
+        messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+        input_ids = self.tokenizer.apply_chat_template(
+            messages, return_tensors="pt", add_generation_prompt=True
+        ).to(self.device)
+        do_sample = self.temperature > 0
+        with torch.no_grad():
+            out = self.model.generate(
+                input_ids,
+                max_new_tokens=self.max_tokens,
+                do_sample=do_sample,
+                temperature=self.temperature if do_sample else None,
+                pad_token_id=self.tokenizer.eos_token_id,
+            )
+        return self.tokenizer.decode(out[0, input_ids.shape[1]:], skip_special_tokens=True)
+
+
 class OpenAIBackend:
     """OpenAI-compatible endpoint (Ollama, LM Studio, Google AI, etc.)."""
 
@@ -518,9 +555,11 @@ def write_markdown(gemma: dict, out_path: Path):
 def parse_args():
     p = argparse.ArgumentParser(description="Gemma 3 4B baseline for GTBench IPD")
     p.add_argument("--backend",     default="transformers",
-                   choices=["transformers", "openai"])
+                   choices=["transformers", "openai", "peft"])
     p.add_argument("--model",       default="google/gemma-3-4b-it",
                    help="Model name/path (HF) or model id (openai backend)")
+    p.add_argument("--base-model",  default="google/gemma-3-4b-it",
+                   help="Base model for peft backend")
     p.add_argument("--base-url",    default="http://localhost:11434/v1",
                    help="Base URL for openai-compat backend")
     p.add_argument("--api-key",     default="ollama",
@@ -550,6 +589,8 @@ if __name__ == "__main__":
     # Build backend
     if args.backend == "transformers":
         backend = TransformersBackend(args.model, args.max_tokens, args.temperature)
+    elif args.backend == "peft":
+        backend = PEFTBackend(args.model, args.base_model, args.max_tokens, args.temperature)
     else:
         backend = OpenAIBackend(args.base_url, args.api_key, args.model,
                                 args.max_tokens, args.temperature)

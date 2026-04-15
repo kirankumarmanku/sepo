@@ -184,7 +184,6 @@ def grpo_step(
     tokenizer,
     game: Game,
     device,
-    n_groups: int,
     n_rollouts: int,
     temperature: float,
     lambda_e: float,
@@ -197,64 +196,66 @@ def grpo_step(
     """
     One GRPO step.
 
-    Groups: each group = one opponent from train pool.
-    Rollouts: G independent episodes per group.
-    Reward: SEPO objective computed from all episodes in the rollout
-            (train pool utility + exploitability vs exploiter pool + collusion vs collusive pool).
-    """
-    all_pg_losses  = []  # clipped surrogate per token-step
-    all_kl_terms   = []  # KL per token-step
-    all_advantages = []
-    step_metrics   = []
+    Group = one train-pool opponent. For each group we run n_rollouts independent
+    episodes and normalise advantages within that group. This ensures reward variance
+    is measured against the SAME opponent across rollouts, giving a meaningful signal
+    even when the model behaves consistently across opponent types.
 
-    for g_idx in range(n_groups):
+    Exploiter + collusive pool episodes are added to each rollout for the SEPO reward
+    but do NOT form their own advantage groups (their reward signal comes through the
+    combined SEPO scalar).
+    """
+    all_pg_losses = []
+    all_kl_terms  = []
+    step_metrics  = []
+
+    # One group per train-pool opponent
+    for g_idx, train_opp in enumerate(game.train_pool):
         rollout_rewards = []
         rollout_data    = []
 
         for r_idx in range(n_rollouts):
             seed_base = seed_offset + g_idx * 1000 + r_idx * 100
-            rollout_episodes = []
-            rollout_ids = []
 
-            pools = {
-                "train":     game.train_pool,
-                "exploiter": game.exploiter_pool,
-                "collusive": game.collusive_pool,
-            }
-            for pool_name, opponents in pools.items():
-                for opp in opponents:
-                    ep, (inp_ids, gen_ids, old_lps) = run_episode(
-                        model, tokenizer, game, opp, pool_name,
-                        seed=seed_base + hash(opp.name) % 97,
-                        device=device, temperature=temperature,
-                    )
-                    rollout_episodes.append(ep)
-                    if pool_name == "train":
-                        rollout_ids.append((inp_ids, gen_ids, old_lps))
+            # Train episode for this group's opponent
+            ep_train, (inp_ids, gen_ids, old_lps) = run_episode(
+                model, tokenizer, game, train_opp, "train",
+                seed=seed_base,
+                device=device, temperature=temperature,
+            )
+            rollout_episodes = [ep_train]
+
+            # Exploiter + collusive episodes for full SEPO reward (no grad)
+            for opp in game.exploiter_pool:
+                ep, _ = run_episode(model, tokenizer, game, opp, "exploiter",
+                                    seed=seed_base + 1, device=device, temperature=temperature)
+                rollout_episodes.append(ep)
+            for opp in game.collusive_pool:
+                ep, _ = run_episode(model, tokenizer, game, opp, "collusive",
+                                    seed=seed_base + 2, device=device, temperature=temperature)
+                rollout_episodes.append(ep)
 
             reward, metrics = sepo_reward(rollout_episodes, game, lambda_e, lambda_c, lambda_x)
             rollout_rewards.append(reward)
-            rollout_data.append((rollout_ids, metrics))
+            rollout_data.append(((inp_ids, gen_ids, old_lps), metrics))
 
-        # GRPO advantage normalisation within this group
+        # Normalise advantages within this opponent group
         rewards = np.array(rollout_rewards, dtype=np.float32)
         adv = (rewards - rewards.mean()) / (rewards.std() + 1e-8) if rewards.std() > 1e-8 else np.zeros_like(rewards)
 
-        for r_idx, (rollout_ids, metrics) in enumerate(rollout_data):
+        for r_idx, ((inp_ids, gen_ids, old_lps), metrics) in enumerate(rollout_data):
             A = float(adv[r_idx])
-            for inp_ids, gen_ids, old_lps in rollout_ids:
-                new_lps = recompute_log_probs(model, inp_ids, gen_ids)
-                with torch.no_grad():
-                    ref_lps = recompute_log_probs(ref_model, inp_ids, gen_ids)
-                for new_lp, old_lp, ref_lp in zip(new_lps, old_lps, ref_lps):
-                    old_lp = old_lp.to(new_lp.device)
-                    ratio = torch.exp(new_lp - old_lp.detach())
-                    clipped = ratio.clamp(1.0 - clip_eps, 1.0 + clip_eps)
-                    pg = -torch.min(ratio * A, clipped * A)
-                    kl = (new_lp - ref_lp.detach()).clamp(min=0)
-                    all_pg_losses.append(pg)
-                    all_kl_terms.append(kl)
-                    all_advantages.append(A)
+            new_lps = recompute_log_probs(model, inp_ids, gen_ids)
+            with torch.no_grad():
+                ref_lps = recompute_log_probs(ref_model, inp_ids, gen_ids)
+            for new_lp, old_lp, ref_lp in zip(new_lps, old_lps, ref_lps):
+                old_lp = old_lp.to(new_lp.device)
+                ratio   = torch.exp(new_lp - old_lp.detach())
+                clipped = ratio.clamp(1.0 - clip_eps, 1.0 + clip_eps)
+                pg  = -torch.min(ratio * A, clipped * A)
+                kl  = (new_lp - ref_lp.detach()).clamp(min=0)
+                all_pg_losses.append(pg)
+                all_kl_terms.append(kl)
 
         step_metrics.append(rollout_data[-1][1])
 
@@ -367,7 +368,6 @@ def train(args):
             tokenizer=tokenizer,
             game=game,
             device=device,
-            n_groups=args.n_groups,
             n_rollouts=args.n_rollouts,
             temperature=args.temperature,
             lambda_e=args.lambda_e,
@@ -441,8 +441,7 @@ def main():
 
     # GRPO hyperparameters
     p.add_argument("--iters",        type=int,   default=500)
-    p.add_argument("--n-groups",     type=int,   default=2,   help="Groups per GRPO step (one opponent each)")
-    p.add_argument("--n-rollouts",   type=int,   default=16,  help="Rollouts per group (G) — more = better advantage estimates")
+    p.add_argument("--n-rollouts",   type=int,   default=8,   help="Rollouts per train-pool opponent per step")
     p.add_argument("--temperature",  type=float, default=0.8, help="Sampling temperature")
     p.add_argument("--lr",           type=float, default=1e-5)
     p.add_argument("--beta",         type=float, default=0.01, help="KL penalty weight")

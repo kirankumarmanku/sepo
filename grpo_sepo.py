@@ -311,7 +311,7 @@ def train(args):
             target_modules=["q_proj", "v_proj"],
             lora_dropout=0.05,
         )
-        model = get_peft_model(merged, lora_cfg)
+        model = get_peft_model(merged, lora_cfg, autocast_adapter_dtype=False)
         model.print_trainable_parameters()
     else:
         model = merged

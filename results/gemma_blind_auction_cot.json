@@ -1,0 +1,13 @@
+{
+  "label": "Gemma-3-4B Blind Auction",
+  "avg_profit": -0.261,
+  "win_rate": 0.411,
+  "nra": -1.0,
+  "bid_shading_ratio": 0.054,
+  "overbid_rate": 0.225,
+  "parse_failure_rate": 0.031,
+  "n_rounds_total": 360,
+  "elapsed_seconds": 6746.7,
+  "model": "gemma3:4b",
+  "reasoning": "cot"
+}

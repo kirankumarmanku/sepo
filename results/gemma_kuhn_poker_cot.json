@@ -1,0 +1,13 @@
+{
+  "label": "Gemma-3-4B Kuhn Poker",
+  "win_rate": 0.675,
+  "avg_profit": 0.263,
+  "nra": 1.0,
+  "bluff_rate": 0.325,
+  "fold_rate": 0.0,
+  "parse_failure_rate": 0.0,
+  "n_games": 80,
+  "elapsed_seconds": 145.6,
+  "model": "gemma3:4b",
+  "reasoning": "cot"
+}

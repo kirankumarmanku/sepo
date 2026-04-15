@@ -1,0 +1,12 @@
+{
+  "label": "Gemma-3-4B Negotiation",
+  "avg_score": 6.1,
+  "deal_rate": 0.975,
+  "nra": 0.017,
+  "fairness_index": 0.691,
+  "parse_failure_rate": 0.0,
+  "n_games": 40,
+  "elapsed_seconds": 124.2,
+  "model": "gemma3:4b",
+  "reasoning": "cot"
+}

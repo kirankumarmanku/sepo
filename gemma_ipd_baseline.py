@@ -233,18 +233,15 @@ class PEFTBackend:
     def chat(self, system: str, user: str) -> str:
         import torch
         messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
-        encoded = self.tokenizer.apply_chat_template(
-            messages, return_tensors="pt", add_generation_prompt=True, tokenize=True
+        # Two-step: format to string first, then tokenize — avoids BatchEncoding issues
+        text = self.tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
         )
-        # apply_chat_template may return a tensor or a BatchEncoding dict
-        if isinstance(encoded, dict):
-            input_ids = encoded["input_ids"].to(self.device)
-        else:
-            input_ids = encoded.to(self.device)
+        input_ids = self.tokenizer(text, return_tensors="pt")["input_ids"].to(self.device)
         do_sample = self.temperature > 0
         with torch.no_grad():
             out = self.model.generate(
-                input_ids=input_ids,
+                input_ids,
                 max_new_tokens=self.max_tokens,
                 do_sample=do_sample,
                 temperature=self.temperature if do_sample else None,

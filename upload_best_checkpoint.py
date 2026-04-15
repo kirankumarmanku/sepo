@@ -21,8 +21,16 @@ def main():
     out_dir = Path(args.output_dir)
 
     # ── Find best checkpoint ───────────────────────────────────────────────────
-    trainer_state = out_dir / "trainer_state.json"
-    with open(trainer_state) as f:
+    # trainer_state.json may be at top level or inside each checkpoint folder
+    top_state = out_dir / "trainer_state.json"
+    if top_state.exists():
+        state_path = top_state
+    else:
+        # Read from the last checkpoint
+        ckpts = sorted(out_dir.glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[1]))
+        state_path = ckpts[-1] / "trainer_state.json"
+
+    with open(state_path) as f:
         state = json.load(f)
 
     # Print all eval losses
@@ -33,7 +41,6 @@ def main():
 
     best_ckpt = state.get("best_model_checkpoint")
     if best_ckpt is None:
-        # fallback: pick lowest eval loss manually
         best = min(eval_entries, key=lambda x: x["eval_loss"])
         best_ckpt = str(out_dir / f"checkpoint-{best['step']}")
 

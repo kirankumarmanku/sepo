@@ -69,14 +69,16 @@ def run_episode(
     temperature: float = 0.8,
 ) -> Tuple[Episode, List[torch.Tensor]]:
     """
-    Run one full episode. Returns (Episode, list_of_per_step_log_probs).
-    log_probs are computed with no_grad — recomputed with grad during loss step.
+    Run one full episode.
+    Returns (Episode, (input_ids_list, gen_ids_list, old_log_probs_list)).
+    old_log_probs are computed under the current policy at generation time (no_grad).
     """
     rng = np.random.default_rng(seed)
     state = game.reset(opponent, rng)
 
-    all_input_ids = []      # store for log prob recomputation
-    all_gen_ids   = []
+    all_input_ids  = []
+    all_gen_ids    = []
+    all_old_lps    = []   # log probs at generation time, for importance ratio
     actions, opp_actions = [], []
     payoffs, opp_payoffs = [], []
 
@@ -105,6 +107,15 @@ def run_episode(
         gen_ids = out[0, encoding["input_ids"].shape[1]:]
         gen_text = tokenizer.decode(gen_ids, skip_special_tokens=True)
 
+        # Compute old log prob for the generated tokens (no_grad, generation-time policy)
+        full_ids = torch.cat([encoding["input_ids"][0], gen_ids], dim=0).unsqueeze(0)
+        tti = torch.zeros_like(full_ids)
+        logits = model(full_ids, token_type_ids=tti).logits[0]
+        n_inp = encoding["input_ids"].shape[1]
+        n_gen = gen_ids.shape[0]
+        pred_lp = F.log_softmax(logits[n_inp - 1: n_inp - 1 + n_gen], dim=-1)
+        old_lp = pred_lp[torch.arange(n_gen), gen_ids].sum().cpu()
+
         action = game.parse_action(gen_text)
         if action is None:
             action = game.fallback_action
@@ -113,6 +124,7 @@ def run_episode(
 
         all_input_ids.append(encoding["input_ids"])
         all_gen_ids.append(gen_ids)
+        all_old_lps.append(old_lp)
         actions.append(action)
         opp_actions.append(state["h_opp"][-1])
         payoffs.append(pay)
@@ -126,7 +138,7 @@ def run_episode(
         payoffs=payoffs,
         opp_payoffs=opp_payoffs,
     )
-    return episode, (all_input_ids, all_gen_ids)
+    return episode, (all_input_ids, all_gen_ids, all_old_lps)
 
 
 def recompute_log_probs(
@@ -179,6 +191,7 @@ def grpo_step(
     lambda_c: float,
     lambda_x: float,
     beta: float,
+    clip_eps: float,
     seed_offset: int,
 ):
     """
@@ -189,72 +202,68 @@ def grpo_step(
     Reward: SEPO objective computed from all episodes in the rollout
             (train pool utility + exploitability vs exploiter pool + collusion vs collusive pool).
     """
-    all_log_probs  = []  # List[Tensor] — one per (group, rollout, step)
-    all_ref_lps    = []
+    all_pg_losses  = []  # clipped surrogate per token-step
+    all_kl_terms   = []  # KL per token-step
     all_advantages = []
     step_metrics   = []
 
     for g_idx in range(n_groups):
         rollout_rewards = []
-        rollout_data    = []   # (episodes, input_ids_list, gen_ids_list) per rollout
+        rollout_data    = []
 
         for r_idx in range(n_rollouts):
             seed_base = seed_offset + g_idx * 1000 + r_idx * 100
             rollout_episodes = []
             rollout_ids = []
 
-            # Play vs all pools to compute full SEPO reward
             pools = {
-                "train":    game.train_pool,
+                "train":     game.train_pool,
                 "exploiter": game.exploiter_pool,
                 "collusive": game.collusive_pool,
             }
             for pool_name, opponents in pools.items():
                 for opp in opponents:
-                    ep, (inp_ids, gen_ids) = run_episode(
+                    ep, (inp_ids, gen_ids, old_lps) = run_episode(
                         model, tokenizer, game, opp, pool_name,
                         seed=seed_base + hash(opp.name) % 97,
                         device=device, temperature=temperature,
                     )
                     rollout_episodes.append(ep)
-                    if pool_name == "train":   # only train pool episodes enter gradient
-                        rollout_ids.append((inp_ids, gen_ids))
+                    if pool_name == "train":
+                        rollout_ids.append((inp_ids, gen_ids, old_lps))
 
             reward, metrics = sepo_reward(rollout_episodes, game, lambda_e, lambda_c, lambda_x)
             rollout_rewards.append(reward)
             rollout_data.append((rollout_ids, metrics))
 
-        # GRPO advantage normalization within this group
+        # GRPO advantage normalisation within this group
         rewards = np.array(rollout_rewards, dtype=np.float32)
         adv = (rewards - rewards.mean()) / (rewards.std() + 1e-8) if rewards.std() > 1e-8 else np.zeros_like(rewards)
 
         for r_idx, (rollout_ids, metrics) in enumerate(rollout_data):
             A = float(adv[r_idx])
-            for inp_ids, gen_ids in rollout_ids:
-                # Recompute with grad
-                lps = recompute_log_probs(model, inp_ids, gen_ids)
+            for inp_ids, gen_ids, old_lps in rollout_ids:
+                new_lps = recompute_log_probs(model, inp_ids, gen_ids)
                 with torch.no_grad():
                     ref_lps = recompute_log_probs(ref_model, inp_ids, gen_ids)
-                for lp, ref_lp in zip(lps, ref_lps):
-                    all_log_probs.append(lp)
-                    all_ref_lps.append(ref_lp.detach())
+                for new_lp, old_lp, ref_lp in zip(new_lps, old_lps, ref_lps):
+                    old_lp = old_lp.to(new_lp.device)
+                    ratio = torch.exp(new_lp - old_lp.detach())
+                    clipped = ratio.clamp(1.0 - clip_eps, 1.0 + clip_eps)
+                    pg = -torch.min(ratio * A, clipped * A)
+                    kl = (new_lp - ref_lp.detach()).clamp(min=0)
+                    all_pg_losses.append(pg)
+                    all_kl_terms.append(kl)
                     all_advantages.append(A)
 
-        step_metrics.append(rollout_data[-1][1])  # last rollout's metrics for logging
+        step_metrics.append(rollout_data[-1][1])
 
-    if not all_log_probs:
+    if not all_pg_losses:
         return None, {}
 
-    log_probs_t  = torch.stack(all_log_probs)
-    ref_lps_t    = torch.stack(all_ref_lps)
-    advantages_t = torch.tensor(all_advantages, device=device, dtype=log_probs_t.dtype)
-
-    # Policy gradient loss
-    pg_loss = -(advantages_t * log_probs_t).mean()
-
-    # KL penalty: KL(π || π_ref) ≈ mean(log π - log π_ref)
-    kl = (log_probs_t - ref_lps_t).mean()
-    loss = pg_loss + beta * kl
+    pg_loss = torch.stack(all_pg_losses).mean()
+    kl      = torch.stack(all_kl_terms).mean()
+    loss    = pg_loss + beta * kl
 
     avg_metrics = {k: float(np.mean([m[k] for m in step_metrics])) for k in step_metrics[0]}
     avg_metrics["kl"] = float(kl.detach())
@@ -365,6 +374,7 @@ def train(args):
             lambda_c=args.lambda_c,
             lambda_x=args.lambda_x,
             beta=args.beta,
+            clip_eps=args.clip_eps,
             seed_offset=step * 10000,
         )
 
@@ -431,11 +441,12 @@ def main():
 
     # GRPO hyperparameters
     p.add_argument("--iters",        type=int,   default=500)
-    p.add_argument("--n-groups",     type=int,   default=2,   help="Episodes per GRPO step")
-    p.add_argument("--n-rollouts",   type=int,   default=2,   help="Rollouts per group (G)")
+    p.add_argument("--n-groups",     type=int,   default=2,   help="Groups per GRPO step (one opponent each)")
+    p.add_argument("--n-rollouts",   type=int,   default=16,  help="Rollouts per group (G) — more = better advantage estimates")
     p.add_argument("--temperature",  type=float, default=0.8, help="Sampling temperature")
     p.add_argument("--lr",           type=float, default=1e-5)
     p.add_argument("--beta",         type=float, default=0.01, help="KL penalty weight")
+    p.add_argument("--clip-eps",     type=float, default=0.2,  help="PPO-style clip epsilon (DeepSeek-R1 default)")
     p.add_argument("--log-every",    type=int,   default=10)
     p.add_argument("--save-every",   type=int,   default=100)
 

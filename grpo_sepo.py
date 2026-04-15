@@ -87,18 +87,21 @@ def run_episode(
             {"role": "system", "content": game.system_prompt()},
             {"role": "user",   "content": user_msg},
         ]
-        input_ids = tokenizer.apply_chat_template(
-            messages, return_tensors="pt", add_generation_prompt=True
-        ).to(device)
+        text = tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
+        encoding = tokenizer(text, return_tensors="pt").to(device)
 
         out = model.generate(
-            input_ids,
+            **encoding,
             max_new_tokens=8,
             do_sample=(temperature > 0),
             temperature=temperature if temperature > 0 else None,
+            top_p=None,
+            top_k=None,
             pad_token_id=tokenizer.eos_token_id,
         )
-        gen_ids = out[0, input_ids.shape[1]:]
+        gen_ids = out[0, encoding["input_ids"].shape[1]:]
         gen_text = tokenizer.decode(gen_ids, skip_special_tokens=True)
 
         action = game.parse_action(gen_text)
@@ -107,7 +110,7 @@ def run_episode(
 
         state, pay, opp_pay, done = game.step(action, state, rng)
 
-        all_input_ids.append(input_ids)
+        all_input_ids.append(encoding["input_ids"])
         all_gen_ids.append(gen_ids)
         actions.append(action)
         opp_actions.append(state["h_opp"][-1])
@@ -274,7 +277,7 @@ def train(args):
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    load_kwargs = dict(torch_dtype=torch.bfloat16, device_map="auto")
+    load_kwargs = dict(dtype=torch.bfloat16, device_map="auto")
 
     if args.lora:
         from peft import get_peft_model, LoraConfig, TaskType
@@ -295,12 +298,12 @@ def train(args):
 
     # Reference model — frozen
     print("Loading reference model (frozen)...")
-    ref_model = AutoModelForCausalLM.from_pretrained(
-        args.model,
-        torch_dtype=torch.bfloat16,
-        device_map="auto",
-        load_in_4bit=args.ref_4bit,
-    )
+    ref_kwargs = dict(dtype=torch.bfloat16, device_map="auto")
+    if args.ref_4bit:
+        from transformers import BitsAndBytesConfig
+        ref_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
+        del ref_kwargs["dtype"]  # incompatible with 4bit quant
+    ref_model = AutoModelForCausalLM.from_pretrained(args.model, **ref_kwargs)
     ref_model.eval()
     for p in ref_model.parameters():
         p.requires_grad_(False)

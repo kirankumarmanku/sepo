@@ -214,21 +214,21 @@ class PEFTBackend:
     """HuggingFace base model + PEFT adapter (for SFT/GRPO checkpoints)."""
 
     def __init__(self, adapter_repo: str, base_model: str, max_tokens: int, temperature: float):
-        print(f"Loading base model: {base_model}")
+        print(f"Loading SFT checkpoint: {adapter_repo}  (base: {base_model})")
         import torch
         from transformers import AutoTokenizer, AutoModelForCausalLM
         from peft import PeftModel
 
         dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
         self.tokenizer = AutoTokenizer.from_pretrained(adapter_repo)
-        base = AutoModelForCausalLM.from_pretrained(base_model, torch_dtype=dtype, device_map="auto")
+        base = AutoModelForCausalLM.from_pretrained(base_model, dtype=dtype, device_map="auto")
         peft_model = PeftModel.from_pretrained(base, adapter_repo, autocast_adapter_dtype=False)
         self.model = peft_model.merge_and_unload()  # fuse adapter → plain HF model for inference
         self.model.eval()
         self.device = next(self.model.parameters()).device
         self.max_tokens  = max_tokens
         self.temperature = temperature
-        print(f"  Adapter loaded: {adapter_repo}")
+        print(f"  Adapter fused and ready.")
 
     def chat(self, system: str, user: str) -> str:
         import torch
@@ -237,17 +237,19 @@ class PEFTBackend:
         text = self.tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
         )
-        input_ids = self.tokenizer(text, return_tensors="pt")["input_ids"].to(self.device)
+        encoding = self.tokenizer(text, return_tensors="pt").to(self.device)
         do_sample = self.temperature > 0
         with torch.no_grad():
             out = self.model.generate(
-                input_ids,
+                **encoding,
                 max_new_tokens=self.max_tokens,
                 do_sample=do_sample,
                 temperature=self.temperature if do_sample else None,
+                top_p=None,
+                top_k=None,
                 pad_token_id=self.tokenizer.eos_token_id,
             )
-        return self.tokenizer.decode(out[0, input_ids.shape[1]:], skip_special_tokens=True)
+        return self.tokenizer.decode(out[0, encoding["input_ids"].shape[1]:], skip_special_tokens=True)
 
 
 class OpenAIBackend:

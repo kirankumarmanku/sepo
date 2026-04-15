@@ -157,9 +157,10 @@ def build_user_prompt(round_idx: int, n_rounds: int,
 def parse_action(text: str) -> Optional[int]:
     """Extract action from LLM output. Returns None if unparseable."""
     text = text.strip()
-    # Try exact token matches first
+    text_upper = text.upper()
+    # Try exact token matches (case-insensitive)
     for token, action in ACTION_PARSE.items():
-        if token in text:
+        if token in text_upper:
             return action
     # Fallback: look for C/D standalone
     if re.search(r'\bC\b', text, re.IGNORECASE):

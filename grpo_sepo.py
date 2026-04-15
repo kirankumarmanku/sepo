@@ -389,9 +389,10 @@ def main():
                    help="Game environment to train on")
 
     # SEPO objective weights
-    p.add_argument("--lambda-e", type=float, default=0.5,  help="Exploitability penalty weight")
-    p.add_argument("--lambda-c", type=float, default=2.0,  help="Collusion penalty weight")
-    p.add_argument("--lambda-x", type=float, default=1.0,  help="Externality penalty weight")
+    # Lambda values from paper (sepo_gtbench_ipd_results.md)
+    p.add_argument("--lambda-e", type=float, default=3.6,  help="Exploitability penalty weight")
+    p.add_argument("--lambda-c", type=float, default=3.2,  help="Collusion penalty weight")
+    p.add_argument("--lambda-x", type=float, default=2.4,  help="Externality penalty weight")
 
     # GRPO hyperparameters
     p.add_argument("--iters",        type=int,   default=500)

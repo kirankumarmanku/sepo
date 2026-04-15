@@ -91,6 +91,7 @@ def run_episode(
             messages, tokenize=False, add_generation_prompt=True
         )
         encoding = tokenizer(text, return_tensors="pt").to(device)
+        encoding["token_type_ids"] = torch.zeros_like(encoding["input_ids"])
 
         out = model.generate(
             **encoding,
@@ -138,7 +139,7 @@ def recompute_log_probs(
     log_probs = []
     for input_ids, gen_ids in zip(input_ids_list, gen_ids_list):
         full_ids = torch.cat([input_ids[0], gen_ids], dim=0).unsqueeze(0)
-        outputs = model(full_ids)
+        outputs = model(full_ids, token_type_ids=torch.zeros_like(full_ids))
         logits = outputs.logits[0]  # [seq_len, vocab]
 
         # Logits at positions predicting the generated tokens

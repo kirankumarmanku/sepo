@@ -318,6 +318,10 @@ def train(args):
         model = merged
 
     model.train()
+    if hasattr(model, "enable_input_require_grads"):
+        model.enable_input_require_grads()
+    if hasattr(model, "gradient_checkpointing_enable"):
+        model.gradient_checkpointing_enable()
 
     # Reference model — frozen SFT checkpoint (same merge, different copy)
     print("Loading reference model (frozen)...")
@@ -427,8 +431,8 @@ def main():
 
     # GRPO hyperparameters
     p.add_argument("--iters",        type=int,   default=500)
-    p.add_argument("--n-groups",     type=int,   default=4,   help="Episodes per GRPO step")
-    p.add_argument("--n-rollouts",   type=int,   default=4,   help="Rollouts per group (G)")
+    p.add_argument("--n-groups",     type=int,   default=2,   help="Episodes per GRPO step")
+    p.add_argument("--n-rollouts",   type=int,   default=2,   help="Rollouts per group (G)")
     p.add_argument("--temperature",  type=float, default=0.8, help="Sampling temperature")
     p.add_argument("--lr",           type=float, default=1e-5)
     p.add_argument("--beta",         type=float, default=0.01, help="KL penalty weight")

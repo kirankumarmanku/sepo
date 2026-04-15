@@ -55,7 +55,7 @@ def main():
         torch_dtype=torch.bfloat16,
         device_map="auto",
     )
-    model = PeftModel.from_pretrained(base, best_ckpt)
+    model = PeftModel.from_pretrained(base, best_ckpt, autocast_adapter_dtype=False)
 
     print(f"Uploading to {args.hf_repo} ...")
     tokenizer.push_to_hub(args.hf_repo, private=True)

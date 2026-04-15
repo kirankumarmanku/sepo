@@ -272,16 +272,38 @@ def train(args):
     print(f"Game: {game.name}")
 
     # Load tokenizer + model
-    print(f"Loading model: {args.model}")
+    # args.model may be a PEFT adapter repo (LoRA only, no base weights).
+    # If so, load the base model separately and merge the SFT adapter in.
+    from peft import PeftModel, get_peft_model, LoraConfig, TaskType
+    from pathlib import Path as _Path
+
+    is_peft = (_Path(args.model) / "adapter_config.json").exists() or (
+        # HF hub adapter repos always have adapter_config.json at root
+        not (_Path(args.model) / "config.json").exists()
+    )
+
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
     load_kwargs = dict(dtype=torch.bfloat16, device_map="auto")
 
+    def load_merged(model_id, base_model_id, kwargs):
+        """Load base model + fuse SFT LoRA adapter → plain HF model."""
+        print(f"  Loading base: {base_model_id}")
+        base = AutoModelForCausalLM.from_pretrained(base_model_id, **kwargs)
+        print(f"  Applying SFT adapter: {model_id}")
+        peft_m = PeftModel.from_pretrained(base, model_id, autocast_adapter_dtype=False)
+        return peft_m.merge_and_unload()
+
+    if is_peft:
+        print(f"Detected PEFT adapter: {args.model}  (base: {args.base_model})")
+        merged = load_merged(args.model, args.base_model, load_kwargs)
+    else:
+        print(f"Loading full model: {args.model}")
+        merged = AutoModelForCausalLM.from_pretrained(args.model, **load_kwargs)
+
     if args.lora:
-        from peft import get_peft_model, LoraConfig, TaskType
-        base_model = AutoModelForCausalLM.from_pretrained(args.model, **load_kwargs)
         lora_cfg = LoraConfig(
             task_type=TaskType.CAUSAL_LM,
             r=args.lora_rank,
@@ -289,21 +311,24 @@ def train(args):
             target_modules=["q_proj", "v_proj"],
             lora_dropout=0.05,
         )
-        model = get_peft_model(base_model, lora_cfg)
+        model = get_peft_model(merged, lora_cfg)
         model.print_trainable_parameters()
     else:
-        model = AutoModelForCausalLM.from_pretrained(args.model, **load_kwargs)
+        model = merged
 
     model.train()
 
-    # Reference model — frozen
+    # Reference model — frozen SFT checkpoint (same merge, different copy)
     print("Loading reference model (frozen)...")
     ref_kwargs = dict(dtype=torch.bfloat16, device_map="auto")
     if args.ref_4bit:
         from transformers import BitsAndBytesConfig
         ref_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
         del ref_kwargs["dtype"]  # incompatible with 4bit quant
-    ref_model = AutoModelForCausalLM.from_pretrained(args.model, **ref_kwargs)
+    if is_peft:
+        ref_model = load_merged(args.model, args.base_model, ref_kwargs)
+    else:
+        ref_model = AutoModelForCausalLM.from_pretrained(args.model, **ref_kwargs)
     ref_model.eval()
     for p in ref_model.parameters():
         p.requires_grad_(False)
@@ -381,9 +406,11 @@ def main():
     p = argparse.ArgumentParser(description="GRPO + SEPO Stage 2 Training")
 
     # Model
-    p.add_argument("--model", required=True, help="HF model path or repo (SFT checkpoint)")
+    p.add_argument("--model", required=True, help="HF model path or repo (SFT checkpoint; full model or PEFT adapter)")
+    p.add_argument("--base-model", default="google/gemma-3-4b-it",
+                   help="Base model to load before applying PEFT adapter (only used if --model is a LoRA adapter repo)")
     p.add_argument("--output-dir", default="grpo_output")
-    p.add_argument("--lora", action="store_true", help="Use LoRA (lower VRAM)")
+    p.add_argument("--lora", action="store_true", help="Use LoRA for GRPO policy (lower VRAM)")
     p.add_argument("--lora-rank", type=int, default=16)
     p.add_argument("--ref-4bit", action="store_true", help="Load reference model in 4-bit (saves VRAM)")
 

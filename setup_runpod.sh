@@ -1,13 +1,12 @@
 #!/bin/bash
-# RunPod Setup — SEPO Stage 2 GRPO Training
-# ==========================================
-# Run this once after the pod starts.
+# RunPod Setup — SEPO Training (Stage 1 SFT + Stage 2 GRPO)
+# ==========================================================
+# Run once after the pod starts.
 #
 # Recommended pods:
-#   Gemma 3 4B  (bf16, full finetune) → A40 48GB  or A100 40GB
-#   Gemma 3 4B  (LoRA + 4bit ref)     → RTX 4090 24GB
-#   Gemma 4 e2b (bf16, full finetune) → A100 80GB
-#   Gemma 4 e2b (LoRA + 4bit ref)     → A40 48GB
+#   Stage 1 SFT  (Gemma 3 4B LoRA)  → RTX 4090 24GB  (~$0.44/hr)
+#   Stage 2 GRPO (Gemma 3 4B LoRA)  → RTX 4090 24GB  (~$0.44/hr)
+#   Stage 2 GRPO (Gemma 4 e2b LoRA) → A40 48GB        (~$0.79/hr)
 #
 # Usage:
 #   bash setup_runpod.sh
@@ -15,29 +14,50 @@
 set -e
 
 echo "=== Installing dependencies ==="
-pip install -q torch transformers accelerate peft bitsandbytes huggingface_hub numpy scipy
+pip install -q torch transformers accelerate peft trl datasets \
+               bitsandbytes huggingface_hub numpy scipy openai
 
+echo ""
+echo "=== Cloning repo (grpo-stage2 branch) ==="
+git clone -b grpo-stage2 https://github.com/kirankumarmanku/sepo.git
+cd sepo
+
+echo ""
 echo "=== Logging into HuggingFace ==="
-echo "Run: huggingface-cli login"
-echo "Then paste your HF token (needs read access to private repos)"
+echo "Paste your HF token when prompted (needs read+write access)"
 huggingface-cli login
 
-echo "=== Downloading SFT checkpoint ==="
-echo "Choose one:"
-echo "  Gemma 3 4B: huggingface-cli download kartiinx/gemma-3-4b-sepo-sft --local-dir ./gemma3-sepo-sft"
-echo "  Gemma 4 e2b: huggingface-cli download kartiinx/gemma-4-e2b-sepo-sft --local-dir ./gemma4-sepo-sft"
-
 echo ""
-echo "=== Setup complete. Training commands: ==="
+echo "======================================================"
+echo "Setup complete. Choose what to run:"
+echo "======================================================"
 echo ""
-echo "# Gemma 3 4B — full finetune (needs A40/A100):"
-echo "python grpo_sepo.py --model ./gemma3-sepo-sft --game ipd --output-dir grpo_gemma3_ipd"
+echo "── Stage 1: SFT warm start (Gemma 3 4B) ─────────────"
 echo ""
-echo "# Gemma 3 4B — LoRA + 4bit ref (fits RTX 4090):"
-echo "python grpo_sepo.py --model ./gemma3-sepo-sft --game ipd --lora --ref-4bit --output-dir grpo_gemma3_ipd_lora"
+echo "  python sft_train.py \\"
+echo "    --hf-repo kartiinx/gemma-3-4b-sepo-sft-hf"
 echo ""
-echo "# Gemma 4 e2b — LoRA + 4bit ref (fits A40):"
-echo "python grpo_sepo.py --model ./gemma4-sepo-sft --game ipd --lora --ref-4bit --output-dir grpo_gemma4_ipd_lora"
+echo "  # With custom output dir:"
+echo "  python sft_train.py \\"
+echo "    --output-dir ./sft_gemma3 \\"
+echo "    --hf-repo kartiinx/gemma-3-4b-sepo-sft-hf"
 echo ""
-echo "# Custom SEPO weights:"
-echo "python grpo_sepo.py --model ./gemma3-sepo-sft --game ipd --lambda-e 0.5 --lambda-c 2.0 --lambda-x 1.0"
+echo "── Stage 2: GRPO (start after SFT adapter is on HF) ──"
+echo ""
+echo "  # Download SFT adapter first:"
+echo "  huggingface-cli download kartiinx/gemma-3-4b-sepo-sft-hf \\"
+echo "    --local-dir ./gemma3-sepo-sft"
+echo ""
+echo "  # RTX 4090 (LoRA + 4bit ref):"
+echo "  python grpo_sepo.py \\"
+echo "    --model ./gemma3-sepo-sft \\"
+echo "    --game ipd \\"
+echo "    --lora --ref-4bit \\"
+echo "    --output-dir grpo_gemma3_ipd"
+echo ""
+echo "  # A40/A100 (full finetune):"
+echo "  python grpo_sepo.py \\"
+echo "    --model ./gemma3-sepo-sft \\"
+echo "    --game ipd \\"
+echo "    --output-dir grpo_gemma3_ipd"
+echo ""

@@ -222,7 +222,8 @@ class PEFTBackend:
         dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
         self.tokenizer = AutoTokenizer.from_pretrained(adapter_repo)
         base = AutoModelForCausalLM.from_pretrained(base_model, torch_dtype=dtype, device_map="auto")
-        self.model = PeftModel.from_pretrained(base, adapter_repo, autocast_adapter_dtype=False)
+        peft_model = PeftModel.from_pretrained(base, adapter_repo, autocast_adapter_dtype=False)
+        self.model = peft_model.merge_and_unload()  # fuse adapter → plain HF model for inference
         self.model.eval()
         self.device = next(self.model.parameters()).device
         self.max_tokens  = max_tokens

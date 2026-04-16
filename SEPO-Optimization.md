@@ -136,7 +136,7 @@ Step 64 | loss=0.0000 | u=2.000 | e=5.000 | c=1.000 | x=0.083 | kl=0.0000
 
 Model regressed — coop rate went 0.75 → 1.00, exploitability 10 → 40. The zero-gradient run pushed the model toward always cooperating due to the unclamped negative KL dominating early steps.
 
-### Attempt 2 — Per-round reward (current)
+### Attempt 2 — Per-round reward, temp=0.8 (abandoned at step 12)
 
 **Key insight:** The SEPO reward aggregates 8 rounds into one scalar per episode, masking within-episode variance. Even if 2 of 8 rounds differ between rollouts, the aggregate hides it.
 
@@ -148,25 +148,64 @@ reward_t_r = payoff_t_r − SEPO_penalty_r
 
 Where:
 - `payoff_t_r` = immediate payoff at round t for rollout r (0, 1, 3, or 5)
-- `SEPO_penalty_r` = λe·e + λc·c + λx·x computed for the full episode (episode-level, shared across all rounds in that rollout)
+- `SEPO_penalty_r` = λe·e + λc·c + λx·x computed for the full episode (shared across all rounds in that rollout)
 - Advantage normalised across n_rollouts at each round t independently
 
-**Why this works:** Even if 15/16 rollouts cooperate at round t (payoff=0 vs AlwaysDefect), the 1 that defects gets payoff=5. After normalization, the defecting rollout gets a strong positive advantage at that round. Over many steps this pushes the model to defect against defectors.
+**Grouping:** One group per train-pool opponent (AlwaysDefect, TFT, GenerousTFT). Advantages normalized within each group independently.
 
-**Grouping:** One group per train-pool opponent (AlwaysDefect, TFT, GenerousTFT). Advantages normalized within each group independently. This keeps the variance signal clean — e.g., TFT episodes have their own distribution separate from AlwaysDefect.
+**Training log:**
+```
+Step  0 | loss=0.0199 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=1.9922
+Step  4 | loss=0.0167 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=1.6719
+Step  8 | loss=0.0040 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=0.4004
+Step 12 | loss=0.0014 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=0.1357
+```
+
+**Problem:** Loss (0.0199→0.0014) and KL (2.0→0.14) both collapsed to near-zero by step 12. Metrics completely frozen throughout.
+
+**Root cause:** Per-round reward is an improvement over episode-level reward — loss was non-zero at step 0 confirming some variance exists. However, the SFT model is still too deterministic at temperature=0.8. Almost all rollouts output `<SILENT>` every round → per-round payoffs are identical across rollouts → std≈0 → advantages≈0 → no gradient signal. The small initial loss came from rare temperature-induced defections but was insufficient to sustain training.
+
+**Note on SEPO penalty:** The penalty (λe·e + λc·c + λx·x ≈ 21.5) is constant across rollouts when all rollouts behave identically — it cancels out in advantage normalization and has no effect on variance. Tuning λ weights will not help until behavioral diversity between rollouts is established first.
 
 **Config:**
 ```bash
-python grpo_sepo.py \
-  --model kartiinx/gemma-3-4b-sepo-sft-hf \
-  --base-model google/gemma-3-4b-it \
-  --game ipd --lora --ref-4bit \
-  --n-rollouts 8 --iters 96 \
-  --log-every 4 --save-every 16 \
-  --output-dir grpo_gemma3_ipd_v2
+python grpo_sepo.py --model kartiinx/gemma-3-4b-sepo-sft-hf --base-model google/gemma-3-4b-it \
+  --game ipd --lora --ref-4bit --n-rollouts 8 --iters 96 \
+  --log-every 4 --save-every 16 --temperature 0.8 --output-dir grpo_gemma3_ipd_v2
 ```
 
-**Status:** In progress.
+---
+
+### Attempt 3 — Per-round reward, temp=1.2 (running)
+
+**Hypothesis:** Raising temperature to 1.2 forces the model to explore defection more frequently, creating non-zero per-round variance between rollouts even for a strongly cooperative SFT prior.
+
+**Config:**
+```bash
+python grpo_sepo.py --model kartiinx/gemma-3-4b-sepo-sft-hf --base-model google/gemma-3-4b-it \
+  --game ipd --lora --ref-4bit --n-rollouts 8 --iters 96 \
+  --log-every 4 --save-every 16 --temperature 1.2 --output-dir grpo_gemma3_ipd_v3
+```
+
+**Watch for:** Loss staying above 0.01 past step 12, and `c` or `e` beginning to shift by step 20-40.
+
+**Status:** Running.
+
+---
+
+## Experiment Tracker
+
+| # | Phase | Label | Config | Issue | Loss/KL | Exploit | Safety | Coop | Status |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | Pre-train | Base prompt | gemma3:4b, temp=0.0, prompt reasoning | Excessively cooperative, never retaliates | — | 40.0 | -105.9 | 0.815 | Done |
+| 2 | Pre-train | Base CoT | gemma3:4b, temp=0.0, CoT reasoning | Near-defect by accident, low robustness, 8066s runtime | — | 0.0 | +16.9 | 0.506 | Done |
+| 3 | SFT | SFT warm start | LoRA r=8, lr=1e-5, 1 epoch, bf16, no quant | Behavioral cloning — imitates TFT but cooperates unconditionally vs defectors | val_loss=0.012 | 10.0 | -12.6 | 0.750 | Done |
+| 4 | GRPO | Ep-reward, n_rollouts=2 | Episode-level SEPO scalar, 2 rollouts | KL went negative (−55 at step 20), optimizer maximized negative KL → always cooperate | loss→0, kl→−55 | — | — | — | Abandoned |
+| 5 | GRPO | Ep-reward, n_rollouts=4, KL fix | Episode-level reward, clamp(kl≥0), 4 rollouts | Metrics completely frozen (u=2, e=5, c=1 every step), loss→0. SFT model too deterministic → all rollouts identical → std=0 → zero advantages | loss→0, kl→0 | 40.0 | -104.2 | 1.000 | Abandoned (step_0016 eval showed regression) |
+| 6 | GRPO | Per-round reward, n_rollouts=8, temp=0.8 | Per-round advantage normalisation, clipped surrogate ε=0.2, per-opponent groups | Loss and KL collapsed to ~0 by step 12 (loss 0.0199→0.0014, kl 2.0→0.14 in 12 steps). Metrics frozen throughout (u=2, e=5, c=1). Model too deterministic at temp=0.8 — all rollouts output `<SILENT>` every round → zero variance even per-round | loss 0.02→0.001, kl 2.0→0.14 | — | — | 1.000 | Abandoned at step 12 |
+| 7 | GRPO | Per-round reward, temp=1.2 | Same as #6, temperature raised to 1.2, output dir grpo_gemma3_ipd_v3 | Planned — higher temperature forces action diversity between rollouts, creating non-zero per-round variance | TBD | TBD | TBD | TBD | Running |
+| 8 | GRPO | Multi-game joint | All 10 games, per-round reward, temp=1.2 | Planned — cross-game gradient diversity breaks IPD determinism indirectly | TBD | TBD | TBD | TBD | Phase 2 |
+| — | Target | SEPO paper | LLM optimizer (no fine-tuning) | Reference | — | 5.25 | +1.97 | 0.852 | Reference |
 
 ---
 

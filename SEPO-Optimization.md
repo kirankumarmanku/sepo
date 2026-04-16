@@ -187,9 +187,26 @@ python grpo_sepo.py --model kartiinx/gemma-3-4b-sepo-sft-hf --base-model google/
   --log-every 4 --save-every 16 --temperature 1.2 --output-dir grpo_gemma3_ipd_v3
 ```
 
-**Watch for:** Loss staying above 0.01 past step 12, and `c` or `e` beginning to shift by step 20-40.
+**Training log:**
+```
+Step  0 | loss=0.0405 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=4.0625
+Step  4 | loss=0.0327 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=3.2656
+Step  8 | loss=0.2930 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=2.0156
+Step 12 | loss=0.0117 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=1.1641
+Step 16 | loss=0.2393 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=0.4785
+Step 20 | loss=0.0015 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=0.1484
+Step 28 | loss=0.0002 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=0.0221
+```
 
-**Status:** Running.
+**Step_0016 eval:**
+
+| Payoff | Welfare | Exploit | Robust | Externality | Safety | Coop rate |
+|---|---|---|---|---|---|---|
+| 16.000 | 45.333 | 40.000 | 24.000 | 0.089 | -104.178 | 1.000 |
+
+**Result:** Loss spikes at steps 8 and 16 showed real gradient signal but collapsed by step 28. Step_0016 eval identical to the broken v2 run — greedy argmax never flipped despite logit shifts during training. The Gemma 3 SFT cooperative prior is too strong for GRPO to overcome with temperature + clipping alone.
+
+**Status:** Abandoned. Next: try combined n_rollouts=16, beta=0.001, clip=0.3 (exp #8). If that fails, switch to Gemma 4 (exp #9).
 
 ---
 
@@ -203,7 +220,9 @@ python grpo_sepo.py --model kartiinx/gemma-3-4b-sepo-sft-hf --base-model google/
 | 4 | GRPO | Ep-reward, n_rollouts=2 | Episode-level SEPO scalar, 2 rollouts | KL went negative (−55 at step 20), optimizer maximized negative KL → always cooperate | loss→0, kl→−55 | — | — | — | Abandoned |
 | 5 | GRPO | Ep-reward, n_rollouts=4, KL fix | Episode-level reward, clamp(kl≥0), 4 rollouts | Metrics completely frozen (u=2, e=5, c=1 every step), loss→0. SFT model too deterministic → all rollouts identical → std=0 → zero advantages | loss→0, kl→0 | 40.0 | -104.2 | 1.000 | Abandoned (step_0016 eval showed regression) |
 | 6 | GRPO | Per-round reward, n_rollouts=8, temp=0.8 | Per-round advantage normalisation, clipped surrogate ε=0.2, per-opponent groups | Loss and KL collapsed to ~0 by step 12 (loss 0.0199→0.0014, kl 2.0→0.14 in 12 steps). Metrics frozen throughout (u=2, e=5, c=1). Model too deterministic at temp=0.8 — all rollouts output `<SILENT>` every round → zero variance even per-round | loss 0.02→0.001, kl 2.0→0.14 | — | — | 1.000 | Abandoned at step 12 |
-| 7 | GRPO | Per-round reward, temp=1.2 | Same as #6, temperature raised to 1.2, output dir grpo_gemma3_ipd_v3 | Planned — higher temperature forces action diversity between rollouts, creating non-zero per-round variance | TBD | TBD | TBD | TBD | Running |
+| 7 | GRPO | Per-round reward, temp=1.2 | Same as #6, temperature=1.2, output dir grpo_gemma3_ipd_v3 | Loss spikes at steps 8 (0.293) and 16 (0.239) — real gradient signal. But collapsed by step 28 (loss=0.0002, kl=0.022). Step_0016 eval: coop=1.000, exploit=40, safety=-104. Spikes shifted logits temporarily but never flipped greedy argmax. SFT cooperative prior too strong. | loss spikes→0, kl 4.06→0.02 | 40.0 | -104.2 | 1.000 | Abandoned — SFT prior too strong |
+| 8 | GRPO | Per-round, temp=1.2, n_rollouts=16, beta=0.001, clip=0.3 | More rollouts for variance, reduced KL pull-back, wider clip to let spikes accumulate | TBD | TBD | TBD | TBD | TBD | Planned |
+| 9 | GRPO | Gemma 4 e4b — fresh start | Switch model if exp #8 fails. Different architecture, less peaked cooperative prior expected | TBD | TBD | TBD | TBD | TBD | Contingency |
 | 8 | GRPO | Multi-game joint | All 10 games, per-round reward, temp=1.2 | Planned — cross-game gradient diversity breaks IPD determinism indirectly | TBD | TBD | TBD | TBD | Phase 2 |
 | — | Target | SEPO paper | LLM optimizer (no fine-tuning) | Reference | — | 5.25 | +1.97 | 0.852 | Reference |
 

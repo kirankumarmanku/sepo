@@ -99,7 +99,7 @@ def main():
         lora_dropout=0.0,
         bias="none",
     )
-    model = get_peft_model(model, lora_cfg)
+    model = get_peft_model(model, lora_cfg, autocast_adapter_dtype=False)
     model.enable_input_require_grads()
     model.print_trainable_parameters()
     print(f"VRAM after model load: {torch.cuda.memory_allocated()/1e9:.2f} GB")

@@ -266,7 +266,12 @@ def grpo_step(
                 A = float(adv[r_idx])
                 new_lps = recompute_log_probs(model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids)
                 with torch.no_grad():
-                    ref_lps = recompute_log_probs(ref_model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids)
+                    if ref_model is None:
+                        # LoRA mode: disable adapters to get base model log probs
+                        with model.disable_adapter():
+                            ref_lps = recompute_log_probs(model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids)
+                    else:
+                        ref_lps = recompute_log_probs(ref_model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids)
                 for new_lp, ref_lp in zip(new_lps, ref_lps):
                     old_lp = old_lps[t].to(new_lp.device)
                     ratio   = torch.exp(new_lp - old_lp.detach())
@@ -353,20 +358,27 @@ def train(args):
     if hasattr(model, "gradient_checkpointing_enable"):
         model.gradient_checkpointing_enable()
 
-    # Reference model — frozen SFT checkpoint (same merge, different copy)
-    print("Loading reference model (frozen)...")
-    ref_kwargs = dict(dtype=torch.bfloat16, device_map="auto")
-    if args.ref_4bit:
-        from transformers import BitsAndBytesConfig
-        ref_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
-        del ref_kwargs["dtype"]  # incompatible with 4bit quant
-    if is_peft:
-        ref_model = load_merged(args.model, args.base_model, ref_kwargs)
+    # Reference model
+    # When using LoRA: base weights ARE the reference — disable adapters in-place
+    # instead of loading a second copy (saves ~10GB VRAM on 24GB GPU).
+    # When full fine-tune: load a separate frozen copy.
+    if args.lora:
+        print("LoRA mode: using base model (adapters disabled) as reference — no second copy loaded.")
+        ref_model = None  # signal to grpo_step to use disable_adapter()
     else:
-        ref_model = AutoModelForCausalLM.from_pretrained(args.model, **ref_kwargs)
-    ref_model.eval()
-    for p in ref_model.parameters():
-        p.requires_grad_(False)
+        print("Loading reference model (frozen)...")
+        ref_kwargs = dict(dtype=torch.bfloat16, device_map="auto")
+        if args.ref_4bit:
+            from transformers import BitsAndBytesConfig
+            ref_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
+            del ref_kwargs["dtype"]
+        if is_peft:
+            ref_model = load_merged(args.model, args.base_model, ref_kwargs)
+        else:
+            ref_model = AutoModelForCausalLM.from_pretrained(args.model, **ref_kwargs)
+        ref_model.eval()
+        for p in ref_model.parameters():
+            p.requires_grad_(False)
 
     optimizer = torch.optim.AdamW(
         [p for p in model.parameters() if p.requires_grad], lr=args.lr
@@ -465,7 +477,7 @@ def main():
     p.add_argument("--iters",           type=int,   default=500)
     p.add_argument("--n-rollouts",      type=int,   default=8,   help="Rollouts per train-pool opponent per step")
     p.add_argument("--temperature",     type=float, default=0.8, help="Sampling temperature")
-    p.add_argument("--max-new-tokens",  type=int,   default=512, help="Max tokens per generation (use 512+ for thinking models)")
+    p.add_argument("--max-new-tokens",  type=int,   default=1024, help="Max tokens per generation (use 1024+ for thinking models)")
     p.add_argument("--token-type-ids",  action="store_true",     help="Pass token_type_ids=zeros (required for Gemma 3, not Gemma 4)")
     p.add_argument("--lr",           type=float, default=1e-5)
     p.add_argument("--beta",         type=float, default=0.01, help="KL penalty weight")

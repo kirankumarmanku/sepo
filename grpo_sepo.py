@@ -67,6 +67,8 @@ def run_episode(
     seed: int,
     device,
     temperature: float = 0.8,
+    max_new_tokens: int = 512,
+    use_token_type_ids: bool = False,
 ) -> Tuple[Episode, List[torch.Tensor]]:
     """
     Run one full episode.
@@ -93,11 +95,12 @@ def run_episode(
             messages, tokenize=False, add_generation_prompt=True
         )
         encoding = tokenizer(text, return_tensors="pt").to(device)
-        encoding["token_type_ids"] = torch.zeros_like(encoding["input_ids"])
+        if use_token_type_ids:
+            encoding["token_type_ids"] = torch.zeros_like(encoding["input_ids"])
 
         out = model.generate(
             **encoding,
-            max_new_tokens=8,
+            max_new_tokens=max_new_tokens,
             do_sample=(temperature > 0),
             temperature=temperature if temperature > 0 else None,
             top_p=None,
@@ -109,8 +112,10 @@ def run_episode(
 
         # Compute old log prob for the generated tokens (no_grad, generation-time policy)
         full_ids = torch.cat([encoding["input_ids"][0], gen_ids], dim=0).unsqueeze(0)
-        tti = torch.zeros_like(full_ids)
-        logits = model(full_ids, token_type_ids=tti).logits[0]
+        fwd_kwargs = {}
+        if use_token_type_ids:
+            fwd_kwargs["token_type_ids"] = torch.zeros_like(full_ids)
+        logits = model(full_ids, **fwd_kwargs).logits[0]
         n_inp = encoding["input_ids"].shape[1]
         n_gen = gen_ids.shape[0]
         pred_lp = F.log_softmax(logits[n_inp - 1: n_inp - 1 + n_gen], dim=-1)
@@ -142,7 +147,8 @@ def run_episode(
 
 
 def recompute_log_probs(
-    model, input_ids_list: List[torch.Tensor], gen_ids_list: List[torch.Tensor]
+    model, input_ids_list: List[torch.Tensor], gen_ids_list: List[torch.Tensor],
+    use_token_type_ids: bool = False,
 ) -> List[torch.Tensor]:
     """
     Recompute log probs of generated tokens WITH gradients.
@@ -151,7 +157,10 @@ def recompute_log_probs(
     log_probs = []
     for input_ids, gen_ids in zip(input_ids_list, gen_ids_list):
         full_ids = torch.cat([input_ids[0], gen_ids], dim=0).unsqueeze(0)
-        outputs = model(full_ids, token_type_ids=torch.zeros_like(full_ids))
+        fwd_kwargs = {}
+        if use_token_type_ids:
+            fwd_kwargs["token_type_ids"] = torch.zeros_like(full_ids)
+        outputs = model(full_ids, **fwd_kwargs)
         logits = outputs.logits[0]  # [seq_len, vocab]
 
         # Logits at positions predicting the generated tokens
@@ -192,6 +201,8 @@ def grpo_step(
     beta: float,
     clip_eps: float,
     seed_offset: int,
+    max_new_tokens: int = 512,
+    use_token_type_ids: bool = False,
 ):
     """
     One GRPO step — per-round advantage normalisation.
@@ -219,17 +230,20 @@ def grpo_step(
             ep_train, (inp_ids, gen_ids, old_lps) = run_episode(
                 model, tokenizer, game, train_opp, "train",
                 seed=seed_base, device=device, temperature=temperature,
+                max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids,
             )
 
             # Aux episodes for SEPO penalty (exploiter + collusive)
             aux = [ep_train]
             for opp in game.exploiter_pool:
                 ep, _ = run_episode(model, tokenizer, game, opp, "exploiter",
-                                    seed=seed_base + 1, device=device, temperature=temperature)
+                                    seed=seed_base + 1, device=device, temperature=temperature,
+                                    max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
                 aux.append(ep)
             for opp in game.collusive_pool:
                 ep, _ = run_episode(model, tokenizer, game, opp, "collusive",
-                                    seed=seed_base + 2, device=device, temperature=temperature)
+                                    seed=seed_base + 2, device=device, temperature=temperature,
+                                    max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
                 aux.append(ep)
 
             _, metrics = sepo_reward(aux, game, lambda_e, lambda_c, lambda_x)
@@ -250,9 +264,9 @@ def grpo_step(
 
             for r_idx, (_, inp_ids, gen_ids, old_lps, _, _) in enumerate(episodes):
                 A = float(adv[r_idx])
-                new_lps = recompute_log_probs(model, [inp_ids[t]], [gen_ids[t]])
+                new_lps = recompute_log_probs(model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids)
                 with torch.no_grad():
-                    ref_lps = recompute_log_probs(ref_model, [inp_ids[t]], [gen_ids[t]])
+                    ref_lps = recompute_log_probs(ref_model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids)
                 for new_lp, ref_lp in zip(new_lps, ref_lps):
                     old_lp = old_lps[t].to(new_lp.device)
                     ratio   = torch.exp(new_lp - old_lp.detach())
@@ -381,6 +395,8 @@ def train(args):
             beta=args.beta,
             clip_eps=args.clip_eps,
             seed_offset=step * 10000,
+            max_new_tokens=args.max_new_tokens,
+            use_token_type_ids=args.token_type_ids,
         )
 
         if loss is None:
@@ -445,9 +461,11 @@ def main():
     p.add_argument("--lambda-x", type=float, default=2.4,  help="Externality penalty weight")
 
     # GRPO hyperparameters
-    p.add_argument("--iters",        type=int,   default=500)
-    p.add_argument("--n-rollouts",   type=int,   default=8,   help="Rollouts per train-pool opponent per step")
-    p.add_argument("--temperature",  type=float, default=0.8, help="Sampling temperature")
+    p.add_argument("--iters",           type=int,   default=500)
+    p.add_argument("--n-rollouts",      type=int,   default=8,   help="Rollouts per train-pool opponent per step")
+    p.add_argument("--temperature",     type=float, default=0.8, help="Sampling temperature")
+    p.add_argument("--max-new-tokens",  type=int,   default=512, help="Max tokens per generation (use 512+ for thinking models)")
+    p.add_argument("--token-type-ids",  action="store_true",     help="Pass token_type_ids=zeros (required for Gemma 3, not Gemma 4)")
     p.add_argument("--lr",           type=float, default=1e-5)
     p.add_argument("--beta",         type=float, default=0.01, help="KL penalty weight")
     p.add_argument("--clip-eps",     type=float, default=0.2,  help="PPO-style clip epsilon (DeepSeek-R1 default)")

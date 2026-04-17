@@ -307,12 +307,12 @@ def train(args):
     from peft import PeftModel, get_peft_model, LoraConfig, TaskType
     from pathlib import Path as _Path
 
-    is_peft = (_Path(args.model) / "adapter_config.json").exists() or (
-        # HF hub adapter repos always have adapter_config.json at root
-        not (_Path(args.model) / "config.json").exists()
-    )
+    # PEFT adapter if: local dir has adapter_config.json, OR --base-model was explicitly provided
+    _local = _Path(args.model)
+    is_peft = (_local.exists() and (_local / "adapter_config.json").exists()) or (args.base_model is not None)
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model)
+    tokenizer_id = args.base_model if is_peft else args.model
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_id)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -443,8 +443,8 @@ def main():
 
     # Model
     p.add_argument("--model", required=True, help="HF model path or repo (SFT checkpoint; full model or PEFT adapter)")
-    p.add_argument("--base-model", default="google/gemma-3-4b-it",
-                   help="Base model to load before applying PEFT adapter (only used if --model is a LoRA adapter repo)")
+    p.add_argument("--base-model", default=None,
+                   help="Base model to load before applying PEFT adapter. If set, --model is treated as a LoRA adapter repo.")
     p.add_argument("--output-dir", default="grpo_output")
     p.add_argument("--lora", action="store_true", help="Use LoRA for GRPO policy (lower VRAM)")
     p.add_argument("--lora-rank", type=int, default=16)

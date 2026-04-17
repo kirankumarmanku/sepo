@@ -125,7 +125,7 @@ def run_episode(
 
         action = game.parse_action(gen_text)
         if action is None:
-            print(f"      [PARSE FAIL] text={gen_text[:80]!r}", flush=True)
+            print(f"      [PARSE FAIL] full response:\n{gen_text}\n---", flush=True)
             action = game.fallback_action
 
         state, pay, opp_pay, done = game.step(action, state, rng)

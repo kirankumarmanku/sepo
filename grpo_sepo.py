@@ -247,8 +247,11 @@ def grpo_step(
     Normalising per round means even 1 defect out of 16 rollouts at round t
     produces a non-zero advantage signal for that decision.
     """
-    all_pg_losses = []
-    all_kl_terms  = []
+    # Pre-count terms so each backward() call is correctly normalised.
+    # Only one computation graph lives in memory at a time instead of n_total.
+    n_total = len(game.train_pool) * n_rollouts * game.n_steps
+    pg_loss_accum = 0.0
+    kl_accum      = 0.0
     step_metrics  = []
 
     for g_idx, train_opp in enumerate(game.train_pool):
@@ -313,23 +316,25 @@ def grpo_step(
                     clipped = ratio.clamp(1.0 - clip_eps, 1.0 + clip_eps)
                     pg  = -torch.min(ratio * A, clipped * A)
                     kl  = (new_lp - ref_lp.detach()).clamp(min=0)
-                    all_pg_losses.append(pg)
-                    all_kl_terms.append(kl)
+                    pg_loss_accum += pg.detach().item()
+                    kl_accum      += kl.detach().item()
+                    # Backward immediately — one graph at a time, no accumulation
+                    ((pg + beta * kl) / n_total).backward()
 
         step_metrics.append(episodes[-1][-1])
 
-    if not all_pg_losses:
+    if not step_metrics:
         return None, {}
 
-    pg_loss = torch.stack(all_pg_losses).mean()
-    kl      = torch.stack(all_kl_terms).mean()
-    loss    = pg_loss + beta * kl
+    avg_pg = pg_loss_accum / n_total
+    avg_kl = kl_accum / n_total
+    loss_val = avg_pg + beta * avg_kl
 
     avg_metrics = {k: float(np.mean([m[k] for m in step_metrics])) for k in step_metrics[0]}
-    avg_metrics["kl"] = float(kl.detach())
-    avg_metrics["pg_loss"] = float(pg_loss.detach())
+    avg_metrics["kl"]      = avg_kl
+    avg_metrics["pg_loss"] = avg_pg
 
-    return loss, avg_metrics
+    return loss_val, avg_metrics
 
 
 # ── Main training loop ────────────────────────────────────────────────────────
@@ -450,7 +455,6 @@ def train(args):
         if loss is None:
             continue
 
-        loss.backward()
         torch.nn.utils.clip_grad_norm_(
             [p for p in model.parameters() if p.requires_grad], 1.0
         )

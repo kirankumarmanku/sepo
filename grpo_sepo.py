@@ -41,6 +41,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 import torch
 import torch.nn.functional as F
+import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from games import Game, Episode
@@ -55,6 +56,23 @@ GAME_REGISTRY: Dict[str, Game] = {
     # "negotiation": NegotiationGame(), # TODO
     # "pressure":    PressureGame(),    # TODO
 }
+
+
+# ── Action stopping criteria ──────────────────────────────────────────────────
+
+class ActionStoppingCriteria(transformers.StoppingCriteria):
+    """Stop generation as soon as COOPERATE or DEFECT appears after any thinking block."""
+    def __init__(self, tokenizer, input_len: int):
+        self.tokenizer = tokenizer
+        self.input_len = input_len
+
+    def __call__(self, input_ids, scores, **kwargs):
+        generated = self.tokenizer.decode(
+            input_ids[0, self.input_len:], skip_special_tokens=True
+        )
+        if "<think>" in generated and "</think>" not in generated:
+            return False
+        return "COOPERATE" in generated or "DEFECT" in generated
 
 
 # ── Episode runner ─────────────────────────────────────────────────────────────
@@ -100,6 +118,9 @@ def run_episode(
         if use_token_type_ids:
             encoding["token_type_ids"] = torch.zeros_like(encoding["input_ids"])
 
+        stopping = transformers.StoppingCriteriaList([
+            ActionStoppingCriteria(tokenizer, encoding["input_ids"].shape[1])
+        ])
         out = model.generate(
             **encoding,
             max_new_tokens=max_new_tokens,
@@ -108,6 +129,7 @@ def run_episode(
             top_p=None,
             top_k=None,
             pad_token_id=tokenizer.eos_token_id,
+            stopping_criteria=stopping,
         )
         gen_ids = out[0, encoding["input_ids"].shape[1]:]
         gen_text = tokenizer.decode(gen_ids, skip_special_tokens=True)

@@ -223,6 +223,7 @@ def grpo_step(
     for g_idx, train_opp in enumerate(game.train_pool):
         # Collect n_rollouts episodes for this opponent
         episodes = []  # (ep, inp_ids, gen_ids, old_lps, sepo_penalty, metrics)
+        print(f"  [rollout] opp={train_opp.name} ({g_idx+1}/{len(game.train_pool)})", flush=True)
 
         for r_idx in range(n_rollouts):
             seed_base = seed_offset + g_idx * 1000 + r_idx * 100
@@ -251,6 +252,8 @@ def grpo_step(
                           + lambda_c * metrics["collusion"]
                           + lambda_x * metrics["externality"])
             episodes.append((ep_train, inp_ids, gen_ids, old_lps, sepo_penalty, metrics))
+            actions_str = "".join("C" if a == "SILENT" else "D" for a in ep_train.actions)
+            print(f"    r{r_idx+1:02d} actions={actions_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}", flush=True)
 
         # Per-round advantage: normalise across rollouts at each round t
         n_steps = len(episodes[0][0].payoffs)

@@ -171,8 +171,14 @@ def recompute_log_probs(
         n_gen   = gen_ids.shape[0]
         pred_logits = logits[n_input - 1 : n_input - 1 + n_gen]  # [n_gen, vocab]
 
-        lp = F.log_softmax(pred_logits, dim=-1)
-        step_lp = lp[torch.arange(n_gen), gen_ids].sum()
+        # Chunked log_softmax: Gemma 4 vocab=262144, n_gen up to 512 → 268 MB per
+        # log_softmax output. Process in chunks of 32 to stay within 24 GB VRAM.
+        _CHUNK = 32
+        selected = []
+        for _i in range(0, n_gen, _CHUNK):
+            _lp = F.log_softmax(pred_logits[_i : _i + _CHUNK], dim=-1)
+            selected.append(_lp[torch.arange(_lp.shape[0]), gen_ids[_i : _i + _CHUNK]])
+        step_lp = torch.cat(selected).sum()
         log_probs.append(step_lp)
     return log_probs
 

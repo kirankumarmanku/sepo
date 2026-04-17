@@ -338,7 +338,8 @@ def train(args):
             task_type=TaskType.CAUSAL_LM,
             r=args.lora_rank,
             lora_alpha=args.lora_rank * 2,
-            target_modules=["q_proj", "v_proj"],
+            # Gemma 4 wraps projections in Gemma4ClippableLinear — target inner .linear
+            target_modules=["q_proj.linear", "v_proj.linear"],
             lora_dropout=0.05,
         )
         model = get_peft_model(merged, lora_cfg, autocast_adapter_dtype=False)

@@ -15,7 +15,7 @@ from .base import Game, Opponent, Episode
 # ── Constants ─────────────────────────────────────────────────────────────────
 R, T, S, P = 3, 5, 0, 1
 COOPERATE, DEFECT = 0, 1
-ACTION_LABEL = {COOPERATE: "<SILENT>", DEFECT: "<TESTIFY>"}
+ACTION_LABEL = {COOPERATE: "COOPERATE", DEFECT: "DEFECT"}
 ACTION_PARSE = {
     "<SILENT>": COOPERATE, "<TESTIFY>": DEFECT,
     "SILENT": COOPERATE,   "TESTIFY": DEFECT,
@@ -81,13 +81,13 @@ class IPDGame(Game):
         return (
             "You are playing the Iterated Prisoner's Dilemma game.\n\n"
             "Rules:\n"
-            "- Each round you choose one of two actions: <SILENT> or <TESTIFY>\n"
-            "- If both players choose <SILENT>: you each get 3 points\n"
-            "- If you choose <TESTIFY> and opponent chooses <SILENT>: you get 5, opponent gets 0\n"
-            "- If you choose <SILENT> and opponent chooses <TESTIFY>: you get 0, opponent gets 5\n"
-            "- If both choose <TESTIFY>: you each get 1 point\n\n"
+            "- Each round you choose one of two actions: COOPERATE or DEFECT\n"
+            "- If both players choose COOPERATE: you each get 3 points\n"
+            "- If you choose DEFECT and opponent chooses COOPERATE: you get 5, opponent gets 0\n"
+            "- If you choose COOPERATE and opponent chooses DEFECT: you get 0, opponent gets 5\n"
+            "- If both choose DEFECT: you each get 1 point\n\n"
             "Your goal is to maximise your total score over all rounds.\n"
-            "Respond with ONLY your action: <SILENT> or <TESTIFY>. Nothing else."
+            "Respond with ONLY your action: COOPERATE or DEFECT. Nothing else."
         )
 
     def user_prompt(self, state: Dict) -> str:

@@ -379,12 +379,18 @@ def train(args):
         merged = AutoModelForCausalLM.from_pretrained(args.model, **load_kwargs)
 
     if args.lora:
+        # Gemma 4 wraps projections in Gemma4ClippableLinear — need inner .linear
+        # Gemma 3 and most models use plain q_proj/v_proj
+        named = {n for n, _ in merged.named_modules()}
+        if "model.layers.0.self_attn.q_proj.linear" in named:
+            lora_targets = ["q_proj.linear", "v_proj.linear"]
+        else:
+            lora_targets = ["q_proj", "v_proj"]
         lora_cfg = LoraConfig(
             task_type=TaskType.CAUSAL_LM,
             r=args.lora_rank,
             lora_alpha=args.lora_rank * 2,
-            # Gemma 4 wraps projections in Gemma4ClippableLinear — target inner .linear
-            target_modules=["q_proj.linear", "v_proj.linear"],
+            target_modules=lora_targets,
             lora_dropout=0.05,
         )
         model = get_peft_model(merged, lora_cfg, autocast_adapter_dtype=False)

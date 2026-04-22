@@ -57,6 +57,16 @@ class GrimTrigger(Opponent):
         return DEFECT if DEFECT in opp_h else COOPERATE
 
 
+class MixedStrategy(Opponent):
+    """Cooperates with probability p each round, independently."""
+    def __init__(self, p_cooperate: float = 0.5):
+        self.p_cooperate = p_cooperate
+        self.name = f"mixed-{p_cooperate:.2f}"
+
+    def act(self, my_h, opp_h, rng):
+        return COOPERATE if rng.random() < self.p_cooperate else DEFECT
+
+
 # ── Game ──────────────────────────────────────────────────────────────────────
 
 class IPDGame(Game):
@@ -64,7 +74,7 @@ class IPDGame(Game):
 
     def __init__(self, n_rounds: int = 8):
         self._n_rounds = n_rounds
-        self._train_pool    = [AlwaysDefect(), TitForTat(), GenerousTitForTat()]
+        self._train_pool    = [AlwaysDefect(), TitForTat(), GenerousTitForTat(), MixedStrategy(0.5)]
         self._shift_pool    = [GrimTrigger(), AlwaysCooperate()]
         self._exploiter_pool = [AlwaysDefect()]
         self._collusive_pool = [AlwaysDefect()]

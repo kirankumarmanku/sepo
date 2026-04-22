@@ -377,7 +377,10 @@ def train(args):
     print(f"Device: {device}")
 
     game = GAME_REGISTRY[args.game]
-    print(f"Game: {game.name}")
+    if args.n_rounds != 8:
+        from games.ipd import IPDGame as _IPDGame
+        game = _IPDGame(n_rounds=args.n_rounds)
+    print(f"Game: {game.name}  rounds={game.n_steps}")
 
     # Load tokenizer + model
     # args.model may be a PEFT adapter repo (LoRA only, no base weights).
@@ -573,6 +576,7 @@ def main():
     # GRPO hyperparameters
     p.add_argument("--iters",           type=int,   default=500)
     p.add_argument("--n-rollouts",      type=int,   default=8,   help="Rollouts per train-pool opponent per step")
+    p.add_argument("--n-rounds",        type=int,   default=8,   help="Rounds per episode (default 8)")
     p.add_argument("--temperature",     type=float, default=0.8, help="Sampling temperature")
     p.add_argument("--max-new-tokens",  type=int,   default=1024, help="Max tokens per generation (use 1024+ for thinking models)")
     p.add_argument("--token-type-ids",  action="store_true",     help="Pass token_type_ids=zeros (required for Gemma 3, not Gemma 4)")

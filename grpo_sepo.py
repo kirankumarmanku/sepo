@@ -135,6 +135,8 @@ def run_episode(
         )
         gen_ids = out[0, encoding["input_ids"].shape[1]:]
         gen_text = tokenizer.decode(gen_ids, skip_special_tokens=True)
+        if getattr(run_episode, "_show_gen", False):
+            print(f"        [gen] {repr(gen_text[:80])}", flush=True)
 
         # Compute old log prob for the generated tokens (no_grad, generation-time policy)
         full_ids = torch.cat([encoding["input_ids"][0], gen_ids], dim=0).unsqueeze(0)
@@ -594,7 +596,11 @@ def main():
     p.add_argument("--sepo-kl-threshold", type=float, default=0.5,
                    help="Also refresh SEPO when cumulative KL since last refresh exceeds this (default 0.5)")
 
+    p.add_argument("--show-gen", action="store_true",
+                   help="Print generated text for each round (verify model output)")
     args = p.parse_args()
+    if args.show_gen:
+        run_episode._show_gen = True
     train(args)
 
 

@@ -309,7 +309,10 @@ def grpo_step(
                 metrics = {"exploitability": 0.0, "collusion": 0.0, "externality": 0.0,
                            "utility": float(sum(ep_train.payoffs)) / game.n_steps}
             else:
-                aux = [ep_train]
+                # Use first_train_ep as fixed reference so SEPO penalty is
+                # constant across rollouts — penalty variance was creating
+                # false advantage signal unrelated to action differences.
+                aux = [first_train_ep]
                 aux += shared_exploit_eps if shared_exploit_eps is not None else \
                        [_replace(first_train_ep, pool="exploiter")]
                 aux += shared_collusive_eps if shared_collusive_eps is not None else \

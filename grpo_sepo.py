@@ -96,6 +96,13 @@ def run_episode(
     Returns (Episode, (input_ids_list, gen_ids_list, old_log_probs_list)).
     old_log_probs are computed under the current policy at generation time (no_grad).
     """
+    # Switch to eval mode for generation — dropout + gradient checkpointing in
+    # train mode causes repetitive garbage output during inference.
+    was_training = model.training
+    model.eval()
+    if hasattr(model, "gradient_checkpointing_disable"):
+        model.gradient_checkpointing_disable()
+
     rng = np.random.default_rng(seed)
     state = game.reset(opponent, rng)
 
@@ -172,6 +179,12 @@ def run_episode(
         payoffs=payoffs,
         opp_payoffs=opp_payoffs,
     )
+
+    if was_training:
+        model.train()
+        if hasattr(model, "gradient_checkpointing_enable"):
+            model.gradient_checkpointing_enable()
+
     return episode, (all_input_ids, all_gen_ids, all_old_lps)
 
 

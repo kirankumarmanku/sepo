@@ -221,10 +221,121 @@ Step 28 | loss=0.0002 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=0.0221
 | 5 | GRPO | Ep-reward, n_rollouts=4, KL fix | Episode-level reward, clamp(kl≥0), 4 rollouts | Metrics completely frozen (u=2, e=5, c=1 every step), loss→0. SFT model too deterministic → all rollouts identical → std=0 → zero advantages | loss→0, kl→0 | 40.0 | -104.2 | 1.000 | Abandoned (step_0016 eval showed regression) |
 | 6 | GRPO | Per-round reward, n_rollouts=8, temp=0.8 | Per-round advantage normalisation, clipped surrogate ε=0.2, per-opponent groups | Loss and KL collapsed to ~0 by step 12 (loss 0.0199→0.0014, kl 2.0→0.14 in 12 steps). Metrics frozen throughout (u=2, e=5, c=1). Model too deterministic at temp=0.8 — all rollouts output `<SILENT>` every round → zero variance even per-round | loss 0.02→0.001, kl 2.0→0.14 | — | — | 1.000 | Abandoned at step 12 |
 | 7 | GRPO | Per-round reward, temp=1.2 | Same as #6, temperature=1.2, output dir grpo_gemma3_ipd_v3 | Loss spikes at steps 8 (0.293) and 16 (0.239) — real gradient signal. But collapsed by step 28 (loss=0.0002, kl=0.022). Step_0016 eval: coop=1.000, exploit=40, safety=-104. Spikes shifted logits temporarily but never flipped greedy argmax. SFT cooperative prior too strong. | loss spikes→0, kl 4.06→0.02 | 40.0 | -104.2 | 1.000 | Abandoned — SFT prior too strong |
-| 8 | GRPO | Per-round, temp=1.2, n_rollouts=16, beta=0.001, clip=0.3 | More rollouts for variance, reduced KL pull-back, wider clip to let spikes accumulate | TBD | TBD | TBD | TBD | TBD | Planned |
-| 9 | GRPO | Gemma 4 e4b — fresh start | Switch model if exp #8 fails. Different architecture, less peaked cooperative prior expected | TBD | TBD | TBD | TBD | TBD | Contingency |
-| 8 | GRPO | Multi-game joint | All 10 games, per-round reward, temp=1.2 | Planned — cross-game gradient diversity breaks IPD determinism indirectly | TBD | TBD | TBD | TBD | Phase 2 |
+| 8 | SFT | SFT-v2 diverse data | Rebalanced weights: TFT 35%, AlwaysD 30%, Grim 25%. COOPERATE/DEFECT tokens. Reasoning traces. | Balanced C/D prior (57.8/42.2%). Model generates coherent reasoning + correct action words | val improved | — | — | 0.578 | Done |
+| 9 | GRPO | SFT-v2 + fixed pipeline | model.eval() during gen, SEPO cache fix, MixedStrategy opponent, ActionStoppingCriteria, n_rollouts=8, n_rounds=8, iters=200, temp=0.8 | Loss 0.508→0.265 (steps 0-5), KL 0.371→0.111, coherent reasoning in rollouts. Behavioral split emerging: CCCC vs TFT, DDDD vs AlwaysDefect | loss↓ kl↓ | 2.344 (step 0) | TBD | mixed | **RUNNING** |
 | — | Target | SEPO paper | LLM optimizer (no fine-tuning) | Reference | — | 5.25 | +1.97 | 0.852 | Reference |
+
+---
+
+### Stage 1 v2 — SFT with Diverse Demonstrations
+
+**Problem with v1 SFT:** Strategy distribution was TFT-dominated (85.2% TFT) → model learned unconditional cooperation, too strong a prior for GRPO to overcome.
+
+**Fix:** Rebalanced SEPO weights in `sft_data_gen.py`:
+
+| Opponent | Old weight | New weight |
+|---|---|---|
+| TFT | 85.2% | 35% |
+| AlwaysDefect | 2.0% | 30% |
+| GrimTrigger | 11.5% | 25% |
+| GenTFT | 0.8% | 5% |
+| AlwaysCooperate | 0.5% | 5% |
+
+Also added:
+- Strategy-aware reasoning traces (`make_reasoning()`) — model sees WHY to defect vs AlwaysDefect
+- COOPERATE/DEFECT action tokens (replaced `<SILENT>`/`<TESTIFY>` which caused repetition loops)
+- System prompt updated with reasoning instruction: "Think briefly about the opponent's pattern, then end your response with your action on the last line: COOPERATE or DEFECT"
+
+**Data:** 8000 examples (6400 train / 1600 valid), `sepo_sft_data_v2/`
+**Action distribution:** 57.8% cooperate / 42.2% defect (much more balanced than v1's ~95% cooperate)
+**Artifact:** `sft_gemma3_v2/final_adapter` (local RunPod)
+
+---
+
+### Attempt 4 — GRPO with SFT-v2, Fixed Pipeline (RUNNING)
+
+**Key fixes applied before this run:**
+
+1. **`model.eval()` during generation** — `model.train()` + gradient checkpointing were active during `run_episode()`, causing repetitive garbage output ("COCOCOCO", "OkayOKOK"). Fixed by switching to `model.eval()` + `gradient_checkpointing_disable()` before `model.generate()`, restoring train mode after.
+
+2. **SEPO cache zeroing bug** — After non-refresh steps, `sepo_cache` was being overwritten with 0 (cached metrics had e/c/x=0). Fixed by only updating cache on refresh steps.
+
+3. **MixedStrategy opponent added** to train pool — provides stochastic opponent behavior, creating per-round payoff variance across rollouts even if the model policy is deterministic.
+
+4. **ActionStoppingCriteria** — stops generation immediately when COOPERATE/DEFECT appears (after any `<think>...</think>` block). Reduces ~1024-token garbage runs to ~50-150 tokens per round.
+
+**Config:**
+```bash
+python grpo_sepo.py \
+  --model sft_gemma3_v2/final_adapter \
+  --base-model google/gemma-3-4b-it \
+  --game ipd --lora --n-rounds 8 --n-rollouts 8 --iters 200 \
+  --lambda-e 3.6 --lambda-c 3.2 --lambda-x 2.4 \
+  --temperature 0.8 --max-new-tokens 256 \
+  --token-type-ids --log-every 1 \
+  2>&1 | tee grpo_run.log
+```
+
+**Training log (steps 0–5):**
+```
+Step  0 | loss=-0.000015 | u=2.219 | e=2.344 | c=0.312 | x=0.385 | kl=0.000000 | pg=-0.000015
+Step  1 | loss=0.507866  | u=1.938 | e=0.000 | c=0.000 | x=0.000 | kl=0.370575 | pg=0.504160
+Step  2 | loss=0.427265  | u=2.250 | e=0.000 | c=0.000 | x=0.000 | kl=0.311859 | pg=0.369867
+Step  3 | loss=0.264665  | u=2.031 | e=1.562 | c=0.125 | x=0.443 | kl=0.193405 | pg=0.262731
+Step  4 | loss=0.372646  | u=1.812 | e=0.000 | c=0.000 | x=0.000 | kl=0.166443 | pg=0.370981
+Step  5 | loss=0.214605  | u=2.000 | e=2.500 | c=0.250 | x=0.349 | kl=0.110809 | pg=0.213497
+```
+
+> Note: `e/c/x=0` at non-refresh steps is a display artifact — the penalty IS applied (visible as `pen` in rollout lines), but the breakdown metrics are zeroed in the cached path. Real values appear at refresh steps (0, 3, 5...).
+
+**Sample rollouts (step 3):**
+```
+rollout opp=always-defect (1/4)
+  r01 llm=CCDDDCDD opp=DDDDDDDD u=5.0 pen=7.088
+  r04 llm=DDDDDDDD opp=DDDDDDDD u=8.0 pen=7.088
+  r08 llm=CCDDCDDD opp=DDDDDDDD u=5.0 pen=7.088
+
+rollout opp=tit-for-tat (2/4)
+  r01 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=7.088
+  r03 llm=DDDDDDDD opp=CDDDDDDD u=12.0 pen=7.088
+  r07 llm=DDDDDDDD opp=CDDDDDDD u=12.0 pen=7.088
+
+rollout opp=generous-tit-for-tat (3/4)
+  r02 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=7.088
+  r04 llm=DDDDDDDD opp=CDDDDCDD u=16.0 pen=7.088
+
+rollout opp=mixed-0.50 (4/4)
+  r07 llm=DDDDDDDD opp=CCDDCCCC u=32.0 pen=7.088
+  r04 llm=CCDDCCCC opp=CDDCCCCC u=21.0 pen=7.088
+```
+
+**Current trend:**
+- Loss decreasing (0.508 → 0.427 → 0.265) — model is learning
+- KL decreasing (0.371 → 0.312 → 0.193 → 0.166 → 0.111) — policy stabilizing
+- `u` in step log is normalized and fluctuates; raw rollout payoffs are the real signal
+- Generation is coherent — reasoning text appears, action words parsed correctly, ~10-15s per 8-round rollout
+
+**What we are looking for — the SEPO equilibrium:**
+
+The SEPO objective `J = u − λe·e − λc·c − λx·x` pushes toward a specific behavioral equilibrium:
+
+| Opponent | Target behavior | Why |
+|---|---|---|
+| AlwaysDefect | Defect from round 1 (DDDDDDDD) | Cooperating gives 0 points AND increases collusion penalty |
+| TFT | Cooperate consistently (CCCCCCCC) | Mutual cooperation = 24 pts (max), no exploitability |
+| GenTFT | Cooperate (CCCCCCCC) | Same as TFT — reciprocates cooperation |
+| Mixed | Adaptive — defect when opponent defects | Maximize payoff, avoid being exploited |
+
+**Target metric trajectory:**
+- `u` raw payoffs → ~8 vs AlwaysDefect, ~24 vs TFT/GenTFT (currently 3-8 and 12-24, mixed)
+- `e` (exploitability) → decrease from ~2.3 toward ~0.5 (AlwaysDefect earns more than model → close this gap)
+- `c` (collusion) → decrease from ~0.3 toward ~0.1 (model still cooperates with AlwaysDefect early)
+- `x` (externality) → decrease toward ~0.3 (social welfare improving)
+- **Net `J = u − pen`** → should increase over 200 steps
+
+The model already shows the key behavioral split: CCCCCCCC vs TFT (correct) and DDDDDDDD vs AlwaysDefect (correct) — but inconsistently across rollouts. GRPO should make this conditional strategy more reliable.
+
+**Status:** Running — 200 steps, ~9-10 min/step → ~30 hours total.
 
 ---
 
@@ -236,7 +347,7 @@ Step 28 | loss=0.0002 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=0.0221
 | Base (CoT) | 0.0 | +16.9 | 0.506 | Near-defect, low robustness |
 | SFT warm start | 10.0 | -12.6 | 0.750 | Good prior, needs RL |
 | GRPO attempt 1 (broken) | 40.0 | -104.2 | 1.000 | Zero variance collapse |
-| GRPO attempt 2 (per-round) | TBD | TBD | TBD | Running |
+| GRPO attempt 4 (SFT-v2 + fixed) | 2.344→? | TBD | mixed→? | Running (step 5/200) |
 | Target (SEPO paper) | 5.25 | +1.97 | ~0.852 | TFT-dominant strategy |
 
 ---

@@ -143,7 +143,7 @@ def run_episode(
         gen_ids = out[0, encoding["input_ids"].shape[1]:]
         gen_text = tokenizer.decode(gen_ids, skip_special_tokens=True)
         if getattr(run_episode, "_show_gen", False):
-            print(f"        [gen] {repr(gen_text[:80])}", flush=True)
+            print(f"        [gen] {repr(gen_text)}", flush=True)
 
         # Compute old log prob for the generated tokens (no_grad, generation-time policy)
         full_ids = torch.cat([encoding["input_ids"][0], gen_ids], dim=0).unsqueeze(0)

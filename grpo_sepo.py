@@ -545,12 +545,13 @@ def train(args):
         if step % args.log_every == 0:
             print(
                 f"[{datetime.now().strftime('%H:%M:%S')}] "
-                f"Step {step:4d} | loss={float(loss):.4f} | "
+                f"Step {step:4d} | loss={float(loss):.6f} | "
                 f"u={metrics.get('utility', 0):.3f} | "
                 f"e={metrics.get('exploitability', 0):.3f} | "
                 f"c={metrics.get('collusion', 0):.3f} | "
                 f"x={metrics.get('externality', 0):.3f} | "
-                f"kl={metrics.get('kl', 0):.4f}"
+                f"kl={metrics.get('kl', 0):.6f} | "
+                f"pg={metrics.get('pg_loss', 0):.6f}"
             )
 
         if step % args.save_every == 0 and step > 0:

@@ -584,7 +584,7 @@ def main():
     p.add_argument("--n-rollouts",      type=int,   default=8,   help="Rollouts per train-pool opponent per step")
     p.add_argument("--n-rounds",        type=int,   default=8,   help="Rounds per episode (default 8)")
     p.add_argument("--temperature",     type=float, default=0.8, help="Sampling temperature")
-    p.add_argument("--max-new-tokens",  type=int,   default=1024, help="Max tokens per generation (use 1024+ for thinking models)")
+    p.add_argument("--max-new-tokens",  type=int,   default=128,  help="Max tokens per generation")
     p.add_argument("--token-type-ids",  action="store_true",     help="Pass token_type_ids=zeros (required for Gemma 3, not Gemma 4)")
     p.add_argument("--lr",           type=float, default=1e-5)
     p.add_argument("--beta",         type=float, default=0.01, help="KL penalty weight")

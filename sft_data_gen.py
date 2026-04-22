@@ -85,7 +85,8 @@ Rules:
 - If both choose DEFECT: you each get 1 point
 
 Your goal is to maximise your total score over all rounds.
-Respond with ONLY your action: COOPERATE or DEFECT. Nothing else."""
+
+Think briefly about the opponent's pattern, then end your response with your action on the last line: COOPERATE or DEFECT."""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -137,6 +138,7 @@ def generate_episode(strategy, opponent, n_rounds: int,
             "strategy": strategy.name,
             "opponent": opponent.name,
             "round":    t,
+            "h_opp":    list(h_opp),
         })
 
         h_policy.append(action)
@@ -175,13 +177,48 @@ def generate_dataset(episodes_per_opponent: int, seed: int) -> List[dict]:
     return all_examples
 
 
+REASONING = {
+    # (strategy, opponent_pattern) -> reasoning template
+    "always-defect":    "Opponent always defects. I must defect to avoid being exploited.",
+    "always-cooperate": "Opponent always cooperates. I can cooperate for mutual benefit.",
+    "tit-for-tat":      "Opponent mirrors my last action. I'll cooperate to maintain mutual cooperation.",
+    "generous-tit-for-tat": "Opponent is forgiving. Cooperation is stable here.",
+    "grim-trigger":     "Opponent punishes any defection permanently. Cooperation is essential.",
+}
+
+
+def make_reasoning(example: dict) -> str:
+    strategy = example["strategy"]
+    action   = example["action"]
+    h_opp    = example.get("h_opp", [])
+
+    if strategy == "always-defect":
+        reason = "Opponent always defects. Defecting limits my losses."
+    elif strategy == "always-cooperate":
+        reason = "Opponent always cooperates. Cooperating maximises mutual payoff."
+    elif strategy in ("tit-for-tat", "generous-tit-for-tat"):
+        if h_opp and h_opp[-1] == 1:  # opponent defected last
+            reason = "Opponent defected last round. I should retaliate to discourage exploitation."
+        else:
+            reason = "Opponent cooperated last round. Cooperating maintains mutual benefit."
+    elif strategy == "grim-trigger":
+        if 1 in h_opp:
+            reason = "Opponent triggered grim — permanent defection. I must defect."
+        else:
+            reason = "No defection yet. Cooperating keeps the relationship stable."
+    else:
+        reason = "Choosing based on the opponent's pattern."
+
+    return f"{reason}\n{ACTION_LABEL[action]}"
+
+
 def to_chat_jsonl(example: dict) -> dict:
-    """Convert raw example to MLX-LM chat JSONL format."""
+    """Convert raw example to chat JSONL format with reasoning."""
     return {
         "messages": [
             {"role": "system",    "content": SYSTEM_PROMPT},
             {"role": "user",      "content": example["user"]},
-            {"role": "assistant", "content": ACTION_LABEL[example["action"]]},
+            {"role": "assistant", "content": make_reasoning(example)},
         ]
     }
 

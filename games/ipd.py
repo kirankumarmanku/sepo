@@ -20,7 +20,6 @@ ACTION_PARSE = {
     "<SILENT>": COOPERATE, "<TESTIFY>": DEFECT,
     "SILENT": COOPERATE,   "TESTIFY": DEFECT,
     "cooperate": COOPERATE, "defect": DEFECT,
-    "C": COOPERATE, "D": DEFECT,
 }
 PAYOFF_TABLE = {
     (COOPERATE, COOPERATE): (R, R),
@@ -96,8 +95,9 @@ class IPDGame(Game):
             "- If you choose DEFECT and opponent chooses COOPERATE: you get 5, opponent gets 0\n"
             "- If you choose COOPERATE and opponent chooses DEFECT: you get 0, opponent gets 5\n"
             "- If both choose DEFECT: you each get 1 point\n\n"
-            "Your goal is to maximise your total score over all rounds.\n"
-            "Respond with ONLY your action: COOPERATE or DEFECT. Nothing else."
+            "Your goal is to maximise your total score over all rounds.\n\n"
+            "Think briefly about the opponent's pattern, then end your response with "
+            "your action on the last line: COOPERATE or DEFECT."
         )
 
     def user_prompt(self, state: Dict) -> str:
@@ -117,12 +117,15 @@ class IPDGame(Game):
         return "\n".join(lines)
 
     def parse_action(self, text: str):
-        text = text.strip()
-        for token, action in ACTION_PARSE.items():
-            if token in text:
-                return action
-        if re.search(r'\bC\b', text, re.IGNORECASE): return COOPERATE
-        if re.search(r'\bD\b', text, re.IGNORECASE): return DEFECT
+        text_lower = text.strip().lower()
+        if "defect" in text_lower:
+            return DEFECT
+        if "cooperate" in text_lower:
+            return COOPERATE
+        if "testify" in text_lower:
+            return DEFECT
+        if "silent" in text_lower:
+            return COOPERATE
         return None
 
     @property

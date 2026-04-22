@@ -260,6 +260,34 @@ def grpo_step(
         episodes = []  # (ep, inp_ids, gen_ids, old_lps, sepo_penalty, metrics)
         print(f"  [{datetime.now().strftime('%H:%M:%S')}] rollout opp={train_opp.name} ({g_idx+1}/{len(game.train_pool)})", flush=True)
 
+        # Shared aux episodes for SEPO — run ONCE per opponent group, not per rollout.
+        # If train_opp is already in the exploiter/collusive pool, reuse a train
+        # episode (pool tag swapped) instead of running a duplicate game.
+        exploit_names  = {o.name for o in game.exploiter_pool}
+        collusive_names = {o.name for o in game.collusive_pool}
+        _seed_aux = seed_offset + g_idx * 1000 + 999
+        if train_opp.name in exploit_names:
+            shared_exploit_eps = None   # will reuse first train ep below
+        else:
+            shared_exploit_eps = []
+            for opp in game.exploiter_pool:
+                ep, _ = run_episode(model, tokenizer, game, opp, "exploiter",
+                                    seed=_seed_aux, device=device, temperature=temperature,
+                                    max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
+                shared_exploit_eps.append(ep)
+
+        if train_opp.name in collusive_names:
+            shared_collusive_eps = None  # will reuse first train ep below
+        else:
+            shared_collusive_eps = []
+            for opp in game.collusive_pool:
+                ep, _ = run_episode(model, tokenizer, game, opp, "collusive",
+                                    seed=_seed_aux + 1, device=device, temperature=temperature,
+                                    max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
+                shared_collusive_eps.append(ep)
+
+        first_train_ep = None  # set on first rollout for reuse
+
         for r_idx in range(n_rollouts):
             seed_base = seed_offset + g_idx * 1000 + r_idx * 100
 
@@ -268,19 +296,16 @@ def grpo_step(
                 seed=seed_base, device=device, temperature=temperature,
                 max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids,
             )
+            if first_train_ep is None:
+                first_train_ep = ep_train
 
-            # Aux episodes for SEPO penalty (exploiter + collusive)
+            # Build aux list — reuse train ep (pool-tag swapped) when possible
+            from dataclasses import replace as _replace
             aux = [ep_train]
-            for opp in game.exploiter_pool:
-                ep, _ = run_episode(model, tokenizer, game, opp, "exploiter",
-                                    seed=seed_base + 1, device=device, temperature=temperature,
-                                    max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
-                aux.append(ep)
-            for opp in game.collusive_pool:
-                ep, _ = run_episode(model, tokenizer, game, opp, "collusive",
-                                    seed=seed_base + 2, device=device, temperature=temperature,
-                                    max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
-                aux.append(ep)
+            aux += shared_exploit_eps if shared_exploit_eps is not None else \
+                   [_replace(first_train_ep, pool="exploiter")]
+            aux += shared_collusive_eps if shared_collusive_eps is not None else \
+                   [_replace(first_train_ep, pool="collusive")]
 
             _, metrics = sepo_reward(aux, game, lambda_e, lambda_c, lambda_x)
             sepo_penalty = (lambda_e * metrics["exploitability"]

@@ -235,6 +235,7 @@ def grpo_step(
     seed_offset: int,
     max_new_tokens: int = 512,
     use_token_type_ids: bool = False,
+    cached_sepo_penalty: float = None,
 ):
     """
     One GRPO step — per-round advantage normalisation.
@@ -261,32 +262,36 @@ def grpo_step(
         print(f"  [{datetime.now().strftime('%H:%M:%S')}] rollout opp={train_opp.name} ({g_idx+1}/{len(game.train_pool)})", flush=True)
 
         # Shared aux episodes for SEPO — run ONCE per opponent group, not per rollout.
-        # If train_opp is already in the exploiter/collusive pool, reuse a train
-        # episode (pool tag swapped) instead of running a duplicate game.
-        exploit_names  = {o.name for o in game.exploiter_pool}
+        # Aux episodes for SEPO metrics — skipped when a cached penalty is provided
+        # (caller refreshes the cache every sepo_eval_every steps).
+        # When not cached: run once per opponent group, reusing train ep if possible.
+        from dataclasses import replace as _replace
+        exploit_names   = {o.name for o in game.exploiter_pool}
         collusive_names = {o.name for o in game.collusive_pool}
         _seed_aux = seed_offset + g_idx * 1000 + 999
-        if train_opp.name in exploit_names:
-            shared_exploit_eps = None   # will reuse first train ep below
-        else:
-            shared_exploit_eps = []
-            for opp in game.exploiter_pool:
-                ep, _ = run_episode(model, tokenizer, game, opp, "exploiter",
-                                    seed=_seed_aux, device=device, temperature=temperature,
-                                    max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
-                shared_exploit_eps.append(ep)
 
-        if train_opp.name in collusive_names:
-            shared_collusive_eps = None  # will reuse first train ep below
-        else:
-            shared_collusive_eps = []
-            for opp in game.collusive_pool:
-                ep, _ = run_episode(model, tokenizer, game, opp, "collusive",
-                                    seed=_seed_aux + 1, device=device, temperature=temperature,
-                                    max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
-                shared_collusive_eps.append(ep)
+        if cached_sepo_penalty is None:
+            if train_opp.name in exploit_names:
+                shared_exploit_eps = None
+            else:
+                shared_exploit_eps = []
+                for opp in game.exploiter_pool:
+                    ep, _ = run_episode(model, tokenizer, game, opp, "exploiter",
+                                        seed=_seed_aux, device=device, temperature=temperature,
+                                        max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
+                    shared_exploit_eps.append(ep)
 
-        first_train_ep = None  # set on first rollout for reuse
+            if train_opp.name in collusive_names:
+                shared_collusive_eps = None
+            else:
+                shared_collusive_eps = []
+                for opp in game.collusive_pool:
+                    ep, _ = run_episode(model, tokenizer, game, opp, "collusive",
+                                        seed=_seed_aux + 1, device=device, temperature=temperature,
+                                        max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
+                    shared_collusive_eps.append(ep)
+
+        first_train_ep = None
 
         for r_idx in range(n_rollouts):
             seed_base = seed_offset + g_idx * 1000 + r_idx * 100
@@ -299,18 +304,20 @@ def grpo_step(
             if first_train_ep is None:
                 first_train_ep = ep_train
 
-            # Build aux list — reuse train ep (pool-tag swapped) when possible
-            from dataclasses import replace as _replace
-            aux = [ep_train]
-            aux += shared_exploit_eps if shared_exploit_eps is not None else \
-                   [_replace(first_train_ep, pool="exploiter")]
-            aux += shared_collusive_eps if shared_collusive_eps is not None else \
-                   [_replace(first_train_ep, pool="collusive")]
-
-            _, metrics = sepo_reward(aux, game, lambda_e, lambda_c, lambda_x)
-            sepo_penalty = (lambda_e * metrics["exploitability"]
-                          + lambda_c * metrics["collusion"]
-                          + lambda_x * metrics["externality"])
+            if cached_sepo_penalty is not None:
+                sepo_penalty = cached_sepo_penalty
+                metrics = {"exploitability": 0.0, "collusion": 0.0, "externality": 0.0,
+                           "utility": float(sum(ep_train.payoffs)) / game.n_steps}
+            else:
+                aux = [ep_train]
+                aux += shared_exploit_eps if shared_exploit_eps is not None else \
+                       [_replace(first_train_ep, pool="exploiter")]
+                aux += shared_collusive_eps if shared_collusive_eps is not None else \
+                       [_replace(first_train_ep, pool="collusive")]
+                _, metrics = sepo_reward(aux, game, lambda_e, lambda_c, lambda_x)
+                sepo_penalty = (lambda_e * metrics["exploitability"]
+                              + lambda_c * metrics["collusion"]
+                              + lambda_x * metrics["externality"])
             episodes.append((ep_train, inp_ids, gen_ids, old_lps, sepo_penalty, metrics))
             actions_str = "".join("C" if a == 0 else "D" for a in ep_train.actions)
             opp_str     = "".join("C" if a == 0 else "D" for a in ep_train.opp_actions)
@@ -460,12 +467,15 @@ def train(args):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     log = []
+    sepo_cache = None   # cached penalty refreshed every --sepo-eval-every steps
     print(f"\nStarting GRPO training — {args.iters} steps")
-    print(f"SEPO weights: λe={args.lambda_e}  λc={args.lambda_c}  λx={args.lambda_x}\n")
+    print(f"SEPO weights: λe={args.lambda_e}  λc={args.lambda_c}  λx={args.lambda_x}")
+    print(f"SEPO eval every {args.sepo_eval_every} step(s)\n")
 
     for step in range(args.iters):
         optimizer.zero_grad()
 
+        refresh = (step % args.sepo_eval_every == 0)
         loss, metrics = grpo_step(
             model=model,
             ref_model=ref_model,
@@ -482,7 +492,12 @@ def train(args):
             seed_offset=step * 10000,
             max_new_tokens=args.max_new_tokens,
             use_token_type_ids=args.token_type_ids,
+            cached_sepo_penalty=None if refresh else sepo_cache,
         )
+        if metrics:
+            sepo_cache = (args.lambda_e * metrics.get("exploitability", 0.0)
+                        + args.lambda_c * metrics.get("collusion", 0.0)
+                        + args.lambda_x * metrics.get("externality", 0.0))
 
         if loss is None:
             continue
@@ -554,8 +569,10 @@ def main():
     p.add_argument("--lr",           type=float, default=1e-5)
     p.add_argument("--beta",         type=float, default=0.01, help="KL penalty weight")
     p.add_argument("--clip-eps",     type=float, default=0.2,  help="PPO-style clip epsilon (DeepSeek-R1 default)")
-    p.add_argument("--log-every",    type=int,   default=10)
-    p.add_argument("--save-every",   type=int,   default=100)
+    p.add_argument("--log-every",       type=int,   default=10)
+    p.add_argument("--save-every",      type=int,   default=100)
+    p.add_argument("--sepo-eval-every", type=int,   default=1,
+                   help="Recompute SEPO aux episodes every N steps (1=every step, 5=every 5 steps)")
 
     args = p.parse_args()
     train(args)

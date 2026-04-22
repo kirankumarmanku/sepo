@@ -467,15 +467,24 @@ def train(args):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     log = []
-    sepo_cache = None   # cached penalty refreshed every --sepo-eval-every steps
+    sepo_cache = None
+    kl_since_sepo_refresh = 0.0   # accumulated KL since last SEPO eval
     print(f"\nStarting GRPO training — {args.iters} steps")
     print(f"SEPO weights: λe={args.lambda_e}  λc={args.lambda_c}  λx={args.lambda_x}")
-    print(f"SEPO eval every {args.sepo_eval_every} step(s)\n")
+    print(f"SEPO refresh: every {args.sepo_eval_every} steps OR when cumulative KL > {args.sepo_kl_threshold}\n")
 
     for step in range(args.iters):
         optimizer.zero_grad()
 
-        refresh = (step % args.sepo_eval_every == 0)
+        # Refresh SEPO aux episodes if: first step, periodic interval, or policy
+        # has drifted enough (cumulative KL since last refresh exceeds threshold).
+        refresh = (sepo_cache is None
+                   or step % args.sepo_eval_every == 0
+                   or kl_since_sepo_refresh > args.sepo_kl_threshold)
+        if refresh and step > 0:
+            print(f"  [SEPO refresh] step={step} cumKL={kl_since_sepo_refresh:.3f}", flush=True)
+            kl_since_sepo_refresh = 0.0
+
         loss, metrics = grpo_step(
             model=model,
             ref_model=ref_model,
@@ -498,6 +507,7 @@ def train(args):
             sepo_cache = (args.lambda_e * metrics.get("exploitability", 0.0)
                         + args.lambda_c * metrics.get("collusion", 0.0)
                         + args.lambda_x * metrics.get("externality", 0.0))
+            kl_since_sepo_refresh += metrics.get("kl", 0.0)
 
         if loss is None:
             continue
@@ -571,8 +581,10 @@ def main():
     p.add_argument("--clip-eps",     type=float, default=0.2,  help="PPO-style clip epsilon (DeepSeek-R1 default)")
     p.add_argument("--log-every",       type=int,   default=10)
     p.add_argument("--save-every",      type=int,   default=100)
-    p.add_argument("--sepo-eval-every", type=int,   default=1,
-                   help="Recompute SEPO aux episodes every N steps (1=every step, 5=every 5 steps)")
+    p.add_argument("--sepo-eval-every",    type=int,   default=5,
+                   help="Recompute SEPO aux episodes every N steps (default 5)")
+    p.add_argument("--sepo-kl-threshold", type=float, default=0.5,
+                   help="Also refresh SEPO when cumulative KL since last refresh exceeds this (default 0.5)")
 
     args = p.parse_args()
     train(args)

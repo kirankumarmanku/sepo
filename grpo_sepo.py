@@ -127,14 +127,14 @@ def run_episode(
             max_new_tokens=max_new_tokens,
             do_sample=(temperature > 0),
             temperature=temperature if temperature > 0 else None,
-            top_p=None,
-            top_k=None,
+            top_p=0.95,
+            top_k=50,
+            repetition_penalty=1.3,
             pad_token_id=tokenizer.eos_token_id,
             stopping_criteria=stopping,
         )
         gen_ids = out[0, encoding["input_ids"].shape[1]:]
         gen_text = tokenizer.decode(gen_ids, skip_special_tokens=True)
-        print(f"      [gen_len={len(gen_ids)} input_len={encoding['input_ids'].shape[1]}] text={repr(gen_text[:120])}", flush=True)
 
         # Compute old log prob for the generated tokens (no_grad, generation-time policy)
         full_ids = torch.cat([encoding["input_ids"][0], gen_ids], dim=0).unsqueeze(0)

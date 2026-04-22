@@ -526,9 +526,10 @@ def train(args):
             cached_sepo_penalty=None if refresh else sepo_cache,
         )
         if metrics:
-            sepo_cache = (args.lambda_e * metrics.get("exploitability", 0.0)
-                        + args.lambda_c * metrics.get("collusion", 0.0)
-                        + args.lambda_x * metrics.get("externality", 0.0))
+            if refresh:
+                sepo_cache = (args.lambda_e * metrics.get("exploitability", 0.0)
+                            + args.lambda_c * metrics.get("collusion", 0.0)
+                            + args.lambda_x * metrics.get("externality", 0.0))
             kl_since_sepo_refresh += metrics.get("kl", 0.0)
 
         if loss is None:

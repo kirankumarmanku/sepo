@@ -136,6 +136,19 @@ Rules:
 Your goal is to maximise your total score over all rounds.
 Think step by step, then end your response with your action on its own line: <SILENT> or <TESTIFY>."""
 
+GRPO_SYSTEM_PROMPT = """You are playing the Iterated Prisoner's Dilemma game.
+
+Rules:
+- Each round you choose one of two actions: COOPERATE or DEFECT
+- If both players choose COOPERATE: you each get 3 points
+- If you choose DEFECT and opponent chooses COOPERATE: you get 5, opponent gets 0
+- If you choose COOPERATE and opponent chooses DEFECT: you get 0, opponent gets 5
+- If both choose DEFECT: you each get 1 point
+
+Your goal is to maximise your total score over all rounds.
+
+Think briefly about the opponent's pattern, then end your response with your action on the last line: COOPERATE or DEFECT."""
+
 
 def build_user_prompt(round_idx: int, n_rounds: int,
                       my_history: List[int], opp_history: List[int]) -> str:
@@ -310,7 +323,9 @@ class LLMAgent:
     default_action: int = COOPERATE  # fallback when parse fails
 
     def _system(self):
-        return COT_SYSTEM_PROMPT if self.reasoning == "cot" else SYSTEM_PROMPT
+        if self.reasoning == "cot":  return COT_SYSTEM_PROMPT
+        if self.reasoning == "grpo": return GRPO_SYSTEM_PROMPT
+        return SYSTEM_PROMPT
 
     def act(self, my_history: List[int], opp_history: List[int],
             round_idx: int, n_rounds: int, rng=None) -> tuple[int, str]:
@@ -603,8 +618,8 @@ def parse_args():
                    help="Directory for JSON and markdown output")
     p.add_argument("--seed",        type=int, default=42)
     p.add_argument("--reasoning",   default="prompt",
-                   choices=["prompt", "cot"],
-                   help="prompt = direct, cot = chain-of-thought")
+                   choices=["prompt", "cot", "grpo"],
+                   help="prompt = direct, cot = chain-of-thought, grpo = COOPERATE/DEFECT prompt matching GRPO training")
     return p.parse_args()
 
 

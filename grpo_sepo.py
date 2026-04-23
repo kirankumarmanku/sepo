@@ -397,9 +397,8 @@ def train(args):
     print(f"Device: {device}")
 
     game = GAME_REGISTRY[args.game]
-    if args.n_rounds != 8:
-        from games.ipd import IPDGame as _IPDGame
-        game = _IPDGame(n_rounds=args.n_rounds)
+    if args.n_rounds != game.n_steps:
+        game = type(game)(n_rounds=args.n_rounds)
     print(f"Game: {game.name}  rounds={game.n_steps}")
 
     # Load tokenizer + model

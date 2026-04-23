@@ -56,7 +56,8 @@ import numpy as np
 
 R, T, S, P = 3, 5, 0, 1   # standard Axelrod payoffs: T>R>P>S
 COOPERATE, DEFECT = 0, 1
-ACTION_LABEL  = {COOPERATE: "<SILENT>", DEFECT: "<TESTIFY>"}
+ACTION_LABEL       = {COOPERATE: "<SILENT>", DEFECT: "<TESTIFY>"}
+GRPO_ACTION_LABEL  = {COOPERATE: "COOPERATE", DEFECT: "DEFECT"}
 ACTION_PARSE  = {"<SILENT>": COOPERATE, "<TESTIFY>": DEFECT,
                  "SILENT": COOPERATE, "TESTIFY": DEFECT,
                  "C": COOPERATE, "D": DEFECT,
@@ -151,11 +152,13 @@ Think briefly about the opponent's pattern, then end your response with your act
 
 
 def build_user_prompt(round_idx: int, n_rounds: int,
-                      my_history: List[int], opp_history: List[int]) -> str:
+                      my_history: List[int], opp_history: List[int],
+                      action_label: dict = None) -> str:
+    labels = action_label if action_label is not None else ACTION_LABEL
     lines = [f"Round {round_idx + 1} of {n_rounds}."]
     if my_history:
-        my_str  = ", ".join(ACTION_LABEL[a] for a in my_history)
-        opp_str = ", ".join(ACTION_LABEL[a] for a in opp_history)
+        my_str  = ", ".join(labels[a] for a in my_history)
+        opp_str = ", ".join(labels[a] for a in opp_history)
         lines.append(f"Your past actions:       {my_str}")
         lines.append(f"Opponent's past actions: {opp_str}")
         my_score  = sum(PAYOFF_TABLE[(m, o)][0] for m, o in zip(my_history, opp_history))
@@ -330,7 +333,8 @@ class LLMAgent:
 
     def act(self, my_history: List[int], opp_history: List[int],
             round_idx: int, n_rounds: int, rng=None) -> tuple[int, str]:
-        user   = build_user_prompt(round_idx, n_rounds, my_history, opp_history)
+        label_dict = GRPO_ACTION_LABEL if self.reasoning == "grpo" else ACTION_LABEL
+        user   = build_user_prompt(round_idx, n_rounds, my_history, opp_history, label_dict)
         raw    = self.backend.chat(self._system(), user)
         action = parse_action(raw)
         if action is None:

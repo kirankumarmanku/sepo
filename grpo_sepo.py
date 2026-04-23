@@ -46,15 +46,16 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from games import Game, Episode
 from games.ipd import IPDGame
+from games.resource import ResourceGame
+from games.auction import AuctionGame
+from games.negotiation import NegotiationGame
 
 # ── Game registry ─────────────────────────────────────────────────────────────
-# Add new games here as they are implemented.
 GAME_REGISTRY: Dict[str, Game] = {
-    "ipd": IPDGame(n_rounds=8),
-    # "resource":    ResourceGame(),    # TODO
-    # "auction":     AuctionGame(),     # TODO
-    # "negotiation": NegotiationGame(), # TODO
-    # "pressure":    PressureGame(),    # TODO
+    "ipd":         IPDGame(n_rounds=8),
+    "resource":    ResourceGame(n_rounds=8),
+    "auction":     AuctionGame(n_rounds=6),
+    "negotiation": NegotiationGame(n_rounds=4),
 }
 
 
@@ -586,7 +587,7 @@ def main():
 
     # Game
     p.add_argument("--game", default="ipd", choices=list(GAME_REGISTRY.keys()),
-                   help="Game environment to train on")
+                   help="Game environment to train on (ipd | resource | auction | negotiation)")
 
     # SEPO objective weights
     # Lambda values from paper (sepo_gtbench_ipd_results.md)

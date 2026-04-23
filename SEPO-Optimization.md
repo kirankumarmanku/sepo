@@ -335,7 +335,135 @@ The SEPO objective `J = u − λe·e − λc·c − λx·x` pushes toward a spec
 
 The model already shows the key behavioral split: CCCCCCCC vs TFT (correct) and DDDDDDDD vs AlwaysDefect (correct) — but inconsistently across rollouts. GRPO should make this conditional strategy more reliable.
 
-**Status:** Running — 200 steps, ~9-10 min/step → ~30 hours total.
+**Training progress:**
+
+| Step | loss | e | c | x | KL | Notes |
+|------|------|---|---|---|----|-------|
+| 0 | -0.000015 | 2.344 | 0.312 | 0.385 | 0.000 | baseline, no update |
+| 1 | 0.508 | — | — | — | 0.371 | first gradient, cache active |
+| 31 | 0.313 | **0.469** | 0.062 | 0.427 | 1.756 | e dropped 80%, model learning |
+| 57 | 0.195 | 0.469 | 0.000 | 0.487 | 5.837 | e plateaued, KL drifting high |
+| 144 | 0.190 | 0.469 | 0.062 | 0.495 | 3.236 | e stuck, x creeping up |
+
+**Outcome:** Stopped at step ~150 (after step 144 log). Best checkpoint: `grpo_output/step_0100`.
+
+**What worked:**
+- Exploitability dropped from 2.344 → 0.469 in first 30 steps (80% reduction)
+- Collusion near zero throughout
+- Model learned opponent-adaptive play: DDDDDDDD vs AlwaysDefect, CCCCCCCC vs TFT
+
+**What didn't:**
+- `e` plateaued at 0.469 after step 31 — no further improvement
+- `x` (externality) slowly increased 0.385 → 0.495 — alternating DCDCCCCD vs TFT hurts welfare
+- KL grew to 5.8 — policy drifted far from SFT reference (β=0.01 too weak)
+
+**Root cause of plateau:** Model found a local optimum — defect vs AlwaysDefect (good), but adopted alternating cooperation/defection vs TFT (probing for extra payoff). SEPO penalty not strong enough to push to pure cooperation.
+
+**Next run fixes:**
+- `--beta 0.05` (stronger KL anchor, prevent drift past KL=1)
+- `--lr 5e-6` (slower updates, more stable)
+- Consider removing TFT from train pool (contributes zero gradient when model cooperates consistently — identical payoffs across rollouts = zero advantage)
+
+**Eval pending:** `eval_step100/` running on RunPod with `--reasoning grpo`, temp=0.0, 20 episodes/opponent.
+
+---
+
+## Next Run Plan — Attempt 5
+
+```bash
+python grpo_sepo.py \
+  --model sft_gemma3_v2/final_adapter \
+  --base-model google/gemma-3-4b-it \
+  --game ipd --lora --n-rounds 8 --n-rollouts 8 --iters 200 \
+  --lambda-e 3.6 --lambda-c 3.2 --lambda-x 2.4 \
+  --beta 0.05 --lr 5e-6 \
+  --temperature 0.8 --max-new-tokens 256 \
+  --token-type-ids --log-every 1 \
+  2>&1 | tee grpo_run_v5.log
+```
+
+Key changes vs Attempt 4:
+- `β: 0.01 → 0.05` — stronger KL penalty keeps policy closer to SFT reference
+- `lr: 1e-5 → 5e-6` — slower policy drift, more stable convergence
+
+---
+
+## Multi-Game Plan
+
+### Game Implementations (complete)
+
+All four games are implemented as pluggable `Game` subclasses in `games/`:
+
+| Game | File | Rounds | Actions | Opponents (train) | Status |
+|------|------|--------|---------|-------------------|--------|
+| IPD | `games/ipd.py` | 8 | COOPERATE / DEFECT | AlwaysDefect, TFT, GenTFT, Mixed | **Done + GRPO tested** |
+| Resource | `games/resource.py` | 8 | LOW / MEDIUM / HIGH | HighExtract, MediumExtract, ScarcityAware | **Implemented** |
+| Auction | `games/auction.py` | 6 | LOW / MEDIUM / HIGH bid | AggressiveBid, TruthfulBid, ConservativeBid | **Implemented** |
+| Negotiation | `games/negotiation.py` | 4 | integer demand 1–9 | SelfishSplit, FairSplit, BalancedSplit | **Implemented** |
+
+All games share the same interface (`system_prompt`, `user_prompt`, `parse_action`, `step`, `sepo_metrics`) and are registered in `GAME_REGISTRY`. Run any game with `--game <name>`.
+
+### Per-Game SEPO Equilibrium Targets
+
+**Resource extraction:**
+- Target: extract MEDIUM (2) consistently, respond to opponent's pattern
+- vs HighExtract: quickly drop to LOW to conserve stock (avoid depletion penalty)
+- vs ScarcityAware: mutual MEDIUM sustainable
+- Exploitability: model should not over-extract when opponent cooperates sustainably
+
+**Auction:**
+- Target: bid truthfully (value/2) — maximizes surplus when winning
+- vs Aggressive: bid slightly higher to win occasionally
+- vs Collusive: resist bidding LOW when opponent bids LOW (collusion suppresses welfare)
+- Exploitability: model should not systematically lose to aggressive overbidders
+
+**Negotiation:**
+- Target: demand 5–6 (fair/slightly above) — sustainable deals, good payoff
+- vs Selfish (7): demand 3–4 to ensure deal (7+3=10 ≤ 10 → both get paid)
+- vs Hardball (8): demand ≤ 2 or let breakdown happen (signal unwillingness to be exploited)
+- Exploitability: opponent should not consistently get more than model
+
+### SFT Data Plan (per game)
+
+Each game needs its own SFT demonstration dataset before GRPO:
+
+| Game | Demonstrations needed | Key behaviors to show |
+|------|-----------------------|----------------------|
+| Resource | ~2000 episodes | LOW vs HighExtract, MEDIUM vs MediumExtract, stock-aware switching |
+| Auction | ~2000 episodes | Truthful bidding, adjust up vs aggressive, resist collusion |
+| Negotiation | ~2000 episodes | Fair demands, adapt to opponent greed, avoid breakdowns |
+
+Use same structure as `sft_data_gen.py` — generate optimal strategy traces per opponent, weighted by SEPO opponent distribution.
+
+### Multi-Game GRPO Training Plan
+
+**Phase 1 — Single game validation (current)**
+- IPD GRPO working ✓
+- Get eval numbers from step_0100 checkpoint
+- Confirm e/c/x improve over SFT baseline
+
+**Phase 2 — Extend to other games (sequential)**
+1. Generate SFT data for resource/auction/negotiation (`sft_data_gen.py` per game)
+2. SFT warm start per game (can reuse same base model, separate adapters)
+3. GRPO per game independently — verify each converges
+
+**Phase 3 — Multi-game joint GRPO (future)**
+- Single LoRA trained simultaneously on all 4 games
+- Outer loop over games, inner loop over opponents per game
+- Advantages normalized within each game's rollout group (never across games — different payoff scales)
+- SEPO metrics averaged across games for logging
+
+```python
+# Multi-game loss (pseudocode)
+for game in [ipd, resource, auction, negotiation]:
+    for opp in game.train_pool:
+        episodes = rollout(model, game, opp, n_rollouts)
+        advantages = per_round_normalize(episodes)  # within-game only
+        loss_game += pg_loss(advantages) + beta * kl
+total_loss = mean(loss_ipd, loss_resource, loss_auction, loss_negotiation)
+```
+
+**Why cross-game normalization is wrong:** IPD payoffs range 0–40/episode; negotiation 0–4/episode. Normalizing advantages across games would let IPD dominate all gradients. Each game must normalize internally.
 
 ---
 
@@ -347,7 +475,7 @@ The model already shows the key behavioral split: CCCCCCCC vs TFT (correct) and 
 | Base (CoT) | 0.0 | +16.9 | 0.506 | Near-defect, low robustness |
 | SFT warm start | 10.0 | -12.6 | 0.750 | Good prior, needs RL |
 | GRPO attempt 1 (broken) | 40.0 | -104.2 | 1.000 | Zero variance collapse |
-| GRPO attempt 4 (SFT-v2 + fixed) | 2.344→? | TBD | mixed→? | Running (step 5/200) |
+| GRPO attempt 4 (SFT-v2 + fixed, step 100) | ~0.5 | TBD | mixed | Eval pending |
 | Target (SEPO paper) | 5.25 | +1.97 | ~0.852 | TFT-dominant strategy |
 
 ---
@@ -358,5 +486,6 @@ The model already shows the key behavioral split: CCCCCCCC vs TFT (correct) and 
 - Gemma 3 requires `token_type_ids=zeros` in training mode (`modeling_gemma3.py` enforces this).
 - PEFT + Gemma 3 requires `autocast_adapter_dtype=False` to avoid `float8_e8m0fnu` error on older PyTorch.
 - Reference model loaded in 4-bit (`BitsAndBytesConfig`) to fit policy + ref in 24GB VRAM.
-- Gradient checkpointing enabled on policy model.
+- Gradient checkpointing enabled on policy model; **must call `model.eval()` + `gradient_checkpointing_disable()` during rollout generation** — training mode causes garbage output.
 - KL penalty clamped `≥ 0` to prevent optimizer from driving policy away from reference.
+- SEPO cache must only update on refresh steps — non-refresh metrics have e/c/x=0 and will zero out the cache if written back.

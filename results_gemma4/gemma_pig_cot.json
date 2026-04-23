@@ -1,0 +1,12 @@
+{
+  "label": "Gemma-3-4B Pig",
+  "win_rate": 0.558,
+  "avg_llm_score": 79.967,
+  "nra": 0.117,
+  "avg_turn_score": 17.64,
+  "parse_failure_rate": 0.0,
+  "n_games": 120,
+  "elapsed_seconds": 48472.4,
+  "model": "gemma4:e4b",
+  "reasoning": "cot"
+}

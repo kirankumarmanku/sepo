@@ -321,6 +321,7 @@ class LLMAgent:
     backend: object
     reasoning: str = "prompt"     # "prompt" or "cot"
     default_action: int = COOPERATE  # fallback when parse fails
+    label: str = "Gemma-3-4B (no SEPO)"
 
     def _system(self):
         if self.reasoning == "cot":  return COT_SYSTEM_PROMPT
@@ -497,7 +498,7 @@ def compute_metrics(agent: LLMAgent, n_rounds: int,
         per_opponent[opp_cls.name] = round(float(np.mean(scores)), 3)
 
     return {
-        "label":             "Gemma-3-4B (no SEPO)",
+        "label":             agent.label,
         "payoff":            round(payoff,        3),
         "welfare":           round(welfare,       3),
         "exploitability":    round(exploitability,3),
@@ -535,7 +536,7 @@ def print_comparison(gemma: dict):
     for label, row in SEPO_RESULTS.items():
         print(f"{label:<30} " + " ".join(f"{row[c]:>13.3f}" for c in cols))
     print(sep)
-    print(f"{'Gemma-3-4B (no SEPO)':<30} " + " ".join(f"{gemma[c]:>13.3f}" for c in cols))
+    print(f"{gemma['label']:<30} " + " ".join(f"{gemma[c]:>13.3f}" for c in cols))
     print(sep)
 
 
@@ -562,7 +563,7 @@ def write_markdown(gemma: dict, out_path: Path):
         )
     g = gemma
     lines.append(
-        f"| **Gemma-3-4B (no SEPO)** | **{g['payoff']:.3f}** | {g['welfare']:.3f} | "
+        f"| **{g['label']}** | **{g['payoff']:.3f}** | {g['welfare']:.3f} | "
         f"{g['exploitability']:.3f} | {g['robustness']:.3f} | "
         f"{g['externality']:.3f} | **{g['safety']:.3f}** |"
     )
@@ -636,7 +637,12 @@ if __name__ == "__main__":
         backend = OpenAIBackend(args.base_url, args.api_key, args.model,
                                 args.max_tokens, args.temperature)
 
-    agent = LLMAgent(backend, reasoning=args.reasoning)
+    if args.adapter:
+        adapter_name = Path(args.adapter).name
+        label = f"Gemma-3-4B ({adapter_name})"
+    else:
+        label = f"Gemma-3-4B (no SEPO)"
+    agent = LLMAgent(backend, reasoning=args.reasoning, label=label)
 
     print(f"\nRunning Gemma-3-4B baseline")
     print(f"  Rounds/episode: {args.rounds}  |  Episodes/opponent: {args.episodes}")

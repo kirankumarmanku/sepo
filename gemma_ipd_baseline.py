@@ -174,11 +174,16 @@ def parse_action(text: str) -> Optional[int]:
     """Extract action from LLM output. Returns None if unparseable."""
     text = text.strip()
     text_upper = text.upper()
-    # Try exact token matches (case-insensitive)
-    for token, action in ACTION_PARSE.items():
-        if token in text_upper:
-            return action
-    # Fallback: look for C/D standalone
+    # Full-word matches first (order matters: DEFECT before D, COOPERATE before C)
+    if re.search(r'\bCOOPERATE\b', text_upper):
+        return COOPERATE
+    if re.search(r'\bDEFECT\b', text_upper):
+        return DEFECT
+    if '<SILENT>' in text_upper or re.search(r'\bSILENT\b', text_upper):
+        return COOPERATE
+    if '<TESTIFY>' in text_upper or re.search(r'\bTESTIFY\b', text_upper):
+        return DEFECT
+    # Fallback: standalone C/D
     if re.search(r'\bC\b', text, re.IGNORECASE):
         return COOPERATE
     if re.search(r'\bD\b', text, re.IGNORECASE):

@@ -363,11 +363,31 @@ def generate_game(game_name: str, episodes_per_opponent: int, seed: int):
     return examples, game.system_prompt()
 
 
-def generate_all(episodes_per_opponent: int, seed: int):
+def balanced_episodes(episodes_per_opponent: int) -> dict[str, int]:
+    """Compute per-game episodes-per-opponent so all games produce equal total examples.
+
+    IPD is the reference (5 opponents × episodes_per_opponent × 8 rounds).
+    Other games scale up their episodes-per-opponent to match that total.
+    """
+    game_cls, _, _, opp_cls, _ = GAME_CONFIG["ipd"]
+    ipd_total = len(IPD_OPPONENTS) * episodes_per_opponent * game_cls().n_steps
+    result = {}
+    for name, (gcls, _, _, ocls, _) in GAME_CONFIG.items():
+        n_opps   = len(ocls)
+        n_rounds = gcls().n_steps
+        result[name] = max(1, round(ipd_total / (n_opps * n_rounds)))
+    return result
+
+
+def generate_all(episodes_per_opponent: int, seed: int, balance: bool = False):
+    eps_map = balanced_episodes(episodes_per_opponent) if balance else {
+        name: episodes_per_opponent for name in GAME_CONFIG
+    }
     all_examples, system_prompts, counts = [], {}, {}
     for name in GAME_CONFIG:
-        print(f"  [{name}] generating...", flush=True)
-        examples, sys_prompt = generate_game(name, episodes_per_opponent, seed)
+        eps = eps_map[name]
+        print(f"  [{name}] generating... ({eps} eps/opponent)", flush=True)
+        examples, sys_prompt = generate_game(name, eps, seed)
         all_examples.extend(examples)
         system_prompts[name] = sys_prompt
         counts[name] = len(examples)
@@ -386,6 +406,9 @@ def parse_args():
     ap.add_argument("--output-dir", default="sepo_sft_data_multi")
     ap.add_argument("--train-frac", type=float, default=0.8)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--balance-games", action="store_true",
+                    help="Scale episodes-per-opponent per game so all games contribute equal examples "
+                         "(IPD is the reference; others scale up to match)")
     ap.add_argument("--dry-run", action="store_true",
                     help="Print one example per game and exit without writing files")
     return ap.parse_args()
@@ -399,11 +422,13 @@ if __name__ == "__main__":
     print("  SEPO Multi-Game SFT Data Generation")
     print("=" * 60)
     print(f"  Games             : IPD, Resource, Auction, Negotiation")
-    print(f"  Episodes/opponent : {args.episodes_per_opponent}")
+    print(f"  Episodes/opponent : {args.episodes_per_opponent} (IPD reference)")
+    print(f"  Balance games     : {'yes — scaling others to match IPD total' if args.balance_games else 'no'}")
     print(f"  Random strategy   : 8% weight per game (exploration)")
     print()
 
-    raw_examples, system_prompts, counts = generate_all(args.episodes_per_opponent, args.seed)
+    raw_examples, system_prompts, counts = generate_all(
+        args.episodes_per_opponent, args.seed, balance=args.balance_games)
 
     total = len(raw_examples)
     print(f"\n  Total examples : {total}")

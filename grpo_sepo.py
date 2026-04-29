@@ -396,10 +396,15 @@ def train(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}")
 
-    game = GAME_REGISTRY[args.game]
-    if args.n_rounds != game.n_steps:
-        game = type(game)(n_rounds=args.n_rounds)
-    print(f"Game: {game.name}  rounds={game.n_steps}")
+    if args.game == "all":
+        games = list(GAME_REGISTRY.values())
+        print(f"Game: ALL ({', '.join(g.name for g in games)}) — joint multi-game GRPO")
+    else:
+        g = GAME_REGISTRY[args.game]
+        if args.n_rounds != g.n_steps:
+            g = type(g)(n_rounds=args.n_rounds)
+        games = [g]
+        print(f"Game: {g.name}  rounds={g.n_steps}")
 
     # Load tokenizer + model
     # args.model may be a PEFT adapter repo (LoRA only, no base weights).
@@ -489,8 +494,10 @@ def train(args):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     log = []
-    sepo_cache = None
-    kl_since_sepo_refresh = 0.0   # accumulated KL since last SEPO eval
+    # Per-game SEPO cache and KL tracker (works for single-game too)
+    sepo_caches   = {g.name: None for g in games}
+    kl_since_refresh = {g.name: 0.0 for g in games}
+
     print(f"\nStarting GRPO training — {args.iters} steps")
     print(f"SEPO weights: λe={args.lambda_e}  λc={args.lambda_c}  λx={args.lambda_x}")
     print(f"SEPO refresh: every {args.sepo_eval_every} steps OR when cumulative KL > {args.sepo_kl_threshold}\n")
@@ -498,41 +505,48 @@ def train(args):
     for step in range(args.iters):
         optimizer.zero_grad()
 
-        # Refresh SEPO aux episodes if: first step, periodic interval, or policy
-        # has drifted enough (cumulative KL since last refresh exceeds threshold).
-        refresh = (sepo_cache is None
-                   or step % args.sepo_eval_every == 0
-                   or kl_since_sepo_refresh > args.sepo_kl_threshold)
-        if refresh and step > 0:
-            print(f"  [SEPO refresh] step={step} cumKL={kl_since_sepo_refresh:.3f}", flush=True)
-            kl_since_sepo_refresh = 0.0
+        step_losses, step_metrics_list = [], []
 
-        loss, metrics = grpo_step(
-            model=model,
-            ref_model=ref_model,
-            tokenizer=tokenizer,
-            game=game,
-            device=device,
-            n_rollouts=args.n_rollouts,
-            temperature=args.temperature,
-            lambda_e=args.lambda_e,
-            lambda_c=args.lambda_c,
-            lambda_x=args.lambda_x,
-            beta=args.beta,
-            clip_eps=args.clip_eps,
-            seed_offset=step * 10000,
-            max_new_tokens=args.max_new_tokens,
-            use_token_type_ids=args.token_type_ids,
-            cached_sepo_penalty=None if refresh else sepo_cache,
-        )
-        if metrics:
-            if refresh:
-                sepo_cache = (args.lambda_e * metrics.get("exploitability", 0.0)
-                            + args.lambda_c * metrics.get("collusion", 0.0)
-                            + args.lambda_x * metrics.get("externality", 0.0))
-            kl_since_sepo_refresh += metrics.get("kl", 0.0)
+        for game in games:
+            refresh = (sepo_caches[game.name] is None
+                       or step % args.sepo_eval_every == 0
+                       or kl_since_refresh[game.name] > args.sepo_kl_threshold)
+            if refresh and step > 0:
+                print(f"  [SEPO refresh] game={game.name} step={step} cumKL={kl_since_refresh[game.name]:.3f}", flush=True)
+                kl_since_refresh[game.name] = 0.0
 
-        if loss is None:
+            loss, metrics = grpo_step(
+                model=model,
+                ref_model=ref_model,
+                tokenizer=tokenizer,
+                game=game,
+                device=device,
+                n_rollouts=args.n_rollouts,
+                temperature=args.temperature,
+                lambda_e=args.lambda_e,
+                lambda_c=args.lambda_c,
+                lambda_x=args.lambda_x,
+                beta=args.beta,
+                clip_eps=args.clip_eps,
+                seed_offset=step * 10000 + abs(hash(game.name)) % 10000,
+                max_new_tokens=args.max_new_tokens,
+                use_token_type_ids=args.token_type_ids,
+                cached_sepo_penalty=None if refresh else sepo_caches[game.name],
+            )
+            if metrics:
+                if refresh:
+                    sepo_caches[game.name] = (
+                        args.lambda_e * metrics.get("exploitability", 0.0)
+                        + args.lambda_c * metrics.get("collusion", 0.0)
+                        + args.lambda_x * metrics.get("externality", 0.0)
+                    )
+                kl_since_refresh[game.name] += metrics.get("kl", 0.0)
+
+            if loss is not None:
+                step_losses.append(loss)
+                step_metrics_list.append(metrics)
+
+        if not step_losses:
             continue
 
         torch.nn.utils.clip_grad_norm_(
@@ -540,19 +554,26 @@ def train(args):
         )
         optimizer.step()
 
-        log_entry = {"step": step, "loss": float(loss), **metrics}
+        # Average metrics across games for logging
+        avg_loss    = float(np.mean(step_losses))
+        avg_metrics = {k: float(np.mean([m[k] for m in step_metrics_list]))
+                       for k in step_metrics_list[0]}
+
+        log_entry = {"step": step, "loss": avg_loss,
+                     "games": [g.name for g in games], **avg_metrics}
         log.append(log_entry)
 
         if step % args.log_every == 0:
+            game_tag = f"[{','.join(g.name for g in games)}] " if len(games) > 1 else ""
             print(
                 f"[{datetime.now().strftime('%H:%M:%S')}] "
-                f"Step {step:4d} | loss={float(loss):.6f} | "
-                f"u={metrics.get('utility', 0):.3f} | "
-                f"e={metrics.get('exploitability', 0):.3f} | "
-                f"c={metrics.get('collusion', 0):.3f} | "
-                f"x={metrics.get('externality', 0):.3f} | "
-                f"kl={metrics.get('kl', 0):.6f} | "
-                f"pg={metrics.get('pg_loss', 0):.6f}"
+                f"Step {step:4d} {game_tag}| loss={avg_loss:.6f} | "
+                f"u={avg_metrics.get('utility', 0):.3f} | "
+                f"e={avg_metrics.get('exploitability', 0):.3f} | "
+                f"c={avg_metrics.get('collusion', 0):.3f} | "
+                f"x={avg_metrics.get('externality', 0):.3f} | "
+                f"kl={avg_metrics.get('kl', 0):.6f} | "
+                f"pg={avg_metrics.get('pg_loss', 0):.6f}"
             )
 
         if step % args.save_every == 0 and step > 0:
@@ -585,8 +606,9 @@ def main():
     p.add_argument("--ref-4bit", action="store_true", help="Load reference model in 4-bit (saves VRAM)")
 
     # Game
-    p.add_argument("--game", default="ipd", choices=list(GAME_REGISTRY.keys()),
-                   help="Game environment to train on (ipd | resource | auction | negotiation)")
+    p.add_argument("--game", default="ipd",
+                   choices=list(GAME_REGISTRY.keys()) + ["all"],
+                   help="Game environment: ipd | resource | auction | negotiation | all (joint multi-game GRPO)")
 
     # SEPO objective weights
     # Lambda values from paper (sepo_gtbench_ipd_results.md)

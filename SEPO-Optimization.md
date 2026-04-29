@@ -573,38 +573,95 @@ All games share the same interface (`system_prompt`, `user_prompt`, `parse_actio
 - vs Hardball (8): demand ≤ 2 or let breakdown happen (signal unwillingness to be exploited)
 - Exploitability: opponent should not consistently get more than model
 
-### SFT Data Plan (per game)
+### Multi-Game SFT Data Generation
 
-Each game needs its own SFT demonstration dataset before GRPO:
+**Script:** `sft_data_gen_multi.py`
 
-| Game | Demonstrations needed | Key behaviors to show |
-|------|-----------------------|----------------------|
-| Resource | ~2000 episodes | LOW vs HighExtract, MEDIUM vs MediumExtract, stock-aware switching |
-| Auction | ~2000 episodes | Truthful bidding, adjust up vs aggressive, resist collusion |
-| Negotiation | ~2000 episodes | Fair demands, adapt to opponent greed, avoid breakdowns |
+All 4 games are combined into a single dataset. Each game uses SEPO-optimal rule-based policies as demonstrations, shuffled together so the model learns to play any game from its system prompt alone.
 
-Use same structure as `sft_data_gen.py` — generate optimal strategy traces per opponent, weighted by SEPO opponent distribution.
+#### Strategy design per game
+
+| Game | Strategies | Weights | Random |
+|---|---|---|---|
+| IPD | TFT, AlwaysDefect, GrimTrigger, GenTFT, AlwaysCooperate | 33/27/22/5/5% | 8% |
+| Resource | ResTFT, ResGrim, ResScarcity, AlwaysLow | 40/22/18/12% | 8% |
+| Auction | ValueBid, AggressiveValue, AdaptiveBid | 44/28/20% | 8% |
+| Negotiation | FairDemand, BalancedDemand, NegConcede, NegTFT | 32/27/18/15% | 8% |
+
+**Weight design principle:** ~50-60% cooperative/adaptive, ~20-25% punishment/threat, 8% random exploration. The random strategy weight exposes the model to recovery from suboptimal moves and prevents over-specialisation on clean demonstrations.
+
+**Random strategy reasoning** (shown in assistant turn): "Testing a different action to gather information about the opponent's pattern." — models intentional exploration, not noise.
+
+#### Balancing games
+
+IPD has 5 opponents vs 3 for others, creating a natural imbalance. `--balance-games` auto-scales episodes-per-opponent for each game so all contribute equal total examples (IPD is the reference):
+
+| Game | Opponents | Rounds | eps/opp (balanced) | Examples |
+|---|---|---|---|---|
+| IPD | 5 | 8 | 200 | 8,000 |
+| Resource | 3 | 8 | 333 | ~7,992 |
+| Auction | 3 | 6 | 444 | ~7,992 |
+| Negotiation | 3 | 4 | 667 | ~8,004 |
+| **Total** | | | | **~32,000** |
+
+#### Generate data
+
+```bash
+python sft_data_gen_multi.py \
+  --episodes-per-opponent 200 \
+  --balance-games \
+  --output-dir sepo_sft_data_multi \
+  2>&1 | tee sft_data_gen_multi.log
+```
+
+Dry-run to inspect one example per game before generating:
+```bash
+python sft_data_gen_multi.py --episodes-per-opponent 2 --balance-games --dry-run
+```
+
+Faster option (~16k examples, ~1–1.5 hrs SFT):
+```bash
+python sft_data_gen_multi.py --episodes-per-opponent 100 --balance-games --output-dir sepo_sft_data_multi
+```
+
+Check the stats after generation:
+```bash
+cat sepo_sft_data_multi/stats.json
+```
+
+#### Start SFT training
+
+```bash
+python sft_train.py \
+  --model google/gemma-3-4b-it \
+  --data-dir sepo_sft_data_multi \
+  --output-dir sft_multi_v1 \
+  2>&1 | tee sft_multi.log
+```
+
+**Expected training time:** ~2–3 hrs (32k examples, 1 epoch, batch=4) on RTX 4090. Use 100 eps/opp to halve this.
+
+**Expected output:** `sft_multi_v1/final_adapter/` — LoRA adapter trained on all 4 games.
+
+**Val loss target:** ≤ 0.05 (IPD-only SFT hit 0.012 on 8k examples; multi-game is harder, expect slightly higher).
 
 ### Multi-Game GRPO Training Plan
 
-**Phase 1 — Single game validation (current)**
-- IPD GRPO working ✓
-- Get eval numbers from step_0100 checkpoint
-- Confirm e/c/x improve over SFT baseline
+**Phase 1 — IPD single-game validation** ✅ Done
+- Best checkpoint: `grpo_attempt6/final` (safety=+7.055, exploit=0)
 
-**Phase 2 — Extend to other games (sequential)**
-1. Generate SFT data for resource/auction/negotiation (`sft_data_gen.py` per game)
-2. SFT warm start per game (can reuse same base model, separate adapters)
-3. GRPO per game independently — verify each converges
+**Phase 2 — Multi-game SFT warm start** ← current
+- Single SFT on all 4 games combined (`sepo_sft_data_multi/`)
+- Eval each game after SFT to confirm warm start quality before GRPO
+- If any game shows weak SFT performance, rebalance data and retrain
 
-**Phase 3 — Multi-game joint GRPO (future)**
-- Single LoRA trained simultaneously on all 4 games
-- Outer loop over games, inner loop over opponents per game
-- Advantages normalized within each game's rollout group (never across games — different payoff scales)
-- SEPO metrics averaged across games for logging
+**Phase 3 — GRPO per game or joint** (decide after Phase 2 eval)
+- Option A: separate GRPO per game from shared SFT adapter
+- Option B: single multi-game GRPO (round-robin game sampling per step)
+- Choice based on Phase 2 eval — if games look balanced, do joint GRPO
 
+**Phase 4 — Multi-game joint GRPO (pseudocode)**
 ```python
-# Multi-game loss (pseudocode)
 for game in [ipd, resource, auction, negotiation]:
     for opp in game.train_pool:
         episodes = rollout(model, game, opp, n_rollouts)

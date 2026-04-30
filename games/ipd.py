@@ -97,7 +97,8 @@ class IPDGame(Game):
             "- If both choose DEFECT: you each get 1 point\n\n"
             "Your goal is to maximise your total score over all rounds.\n\n"
             "Think briefly about the opponent's pattern, then end your response with "
-            "your action on the last line: COOPERATE or DEFECT."
+            "your action on the last line: COOPERATE or DEFECT.\n\n"
+            "Respond only in English."
         )
 
     def user_prompt(self, state: Dict) -> str:

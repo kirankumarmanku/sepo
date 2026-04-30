@@ -97,7 +97,8 @@ class ResourceGame(Game):
             "- Your payoff each round = units you extracted (minus penalty if stock depleted)\n\n"
             "Your goal is to maximise your total payoff over all rounds.\n\n"
             "Think briefly about the stock level and opponent's extraction pattern, "
-            "then end your response with your choice on the last line: LOW, MEDIUM, or HIGH."
+            "then end your response with your choice on the last line: LOW, MEDIUM, or HIGH.\n\n"
+            "Respond only in English."
         )
 
     def user_prompt(self, state: Dict) -> str:

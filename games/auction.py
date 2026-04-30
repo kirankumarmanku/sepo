@@ -88,7 +88,8 @@ class AuctionGame(Game):
             "- Bidding above your value risks a loss if you win\n\n"
             "Your goal is to maximise your total payoff over all rounds.\n\n"
             "Think briefly about the opponent's bidding pattern and your current value, "
-            "then end your response with your bid on the last line: LOW, MEDIUM, or HIGH."
+            "then end your response with your bid on the last line: LOW, MEDIUM, or HIGH.\n\n"
+            "Respond only in English."
         )
 
     def user_prompt(self, state: Dict) -> str:

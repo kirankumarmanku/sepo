@@ -92,7 +92,8 @@ class NegotiationGame(Game):
             "- Example: you demand 7, opponent demands 7 → both get 0\n\n"
             "Your goal is to maximise your total payoff over all rounds.\n\n"
             "Think briefly about what the opponent typically demands and what split is sustainable, "
-            "then end your response with your demand on the last line as a single number (1–9)."
+            "then end your response with your demand on the last line as a single number (1–9).\n\n"
+            "Respond only in English."
         )
 
     def user_prompt(self, state: Dict) -> str:

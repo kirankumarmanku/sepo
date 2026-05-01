@@ -94,7 +94,7 @@ def run_episode(model, tokenizer, game, opponent, pool: str, seed: int,
             {"role": "user",   "content": game.user_prompt(state)},
         ]
         text = tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True
+            messages, tokenize=False, add_generation_prompt=True, enable_thinking=False
         )
         enc = tokenizer(text, return_tensors="pt").to(device)
         if use_token_type_ids:

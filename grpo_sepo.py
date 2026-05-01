@@ -74,7 +74,9 @@ class ActionStoppingCriteria(transformers.StoppingCriteria):
         if "<think>" in generated and "</think>" not in generated:
             return False
         up = generated.upper()
-        return "COOPERATE" in up or "DEFECT" in up or "SILENT" in up or "TESTIFY" in up
+        return ("COOPERATE" in up or "DEFECT" in up or "DEFLECT" in up
+                or "SILENT" in up or "TESTIFY" in up
+                or "LOW" in up or "MEDIUM" in up or "HIGH" in up)
 
 
 # ── Episode runner ─────────────────────────────────────────────────────────────

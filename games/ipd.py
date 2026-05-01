@@ -118,15 +118,15 @@ class IPDGame(Game):
         return "\n".join(lines)
 
     def parse_action(self, text: str):
-        text_lower = text.strip().lower()
-        if "defect" in text_lower:
-            return DEFECT
-        if "cooperate" in text_lower:
-            return COOPERATE
-        if "testify" in text_lower:
-            return DEFECT
-        if "silent" in text_lower:
-            return COOPERATE
+        import re
+        up = text.strip().upper()
+        if re.search(r'\bCOOPERATE\b', up): return COOPERATE
+        if re.search(r'\bDEFECT\b',    up): return DEFECT
+        if re.search(r'\bDEFLECT\b',   up): return DEFECT   # common model typo
+        if re.search(r'\bSILENT\b',    up): return COOPERATE
+        if re.search(r'\bTESTIFY\b',   up): return DEFECT
+        if re.search(r'\bC\b', up):         return COOPERATE
+        if re.search(r'\bD\b', up):         return DEFECT
         return None
 
     @property

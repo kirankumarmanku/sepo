@@ -119,15 +119,29 @@ class IPDGame(Game):
 
     def parse_action(self, text: str):
         import re
+
+        def _check(s):
+            if re.search(r'\bCOOPERATE\b', s): return COOPERATE
+            if re.search(r'\bDEFECT\b',    s): return DEFECT
+            if re.search(r'\bDEFLECT\b',   s): return DEFECT
+            if re.search(r'\bSILENT\b',    s): return COOPERATE
+            if re.search(r'\bTESTIFY\b',   s): return DEFECT
+            # stem forms: cooperation, cooperated, defection
+            if re.search(r'\bCOOPERAT',    s): return COOPERATE
+            if re.search(r'\bDEFECTI',     s): return DEFECT
+            if re.search(r'\bC\b',         s): return COOPERATE
+            if re.search(r'\bD\b',         s): return DEFECT
+            return None
+
         up = text.strip().upper()
-        if re.search(r'\bCOOPERATE\b', up): return COOPERATE
-        if re.search(r'\bDEFECT\b',    up): return DEFECT
-        if re.search(r'\bDEFLECT\b',   up): return DEFECT   # common model typo
-        if re.search(r'\bSILENT\b',    up): return COOPERATE
-        if re.search(r'\bTESTIFY\b',   up): return DEFECT
-        if re.search(r'\bC\b', up):         return COOPERATE
-        if re.search(r'\bD\b', up):         return DEFECT
-        return None
+        # Check last non-empty line first — system prompt asks for action there
+        lines = [l.strip().upper() for l in text.strip().split('\n') if l.strip()]
+        if lines:
+            result = _check(lines[-1])
+            if result is not None:
+                return result
+        # Fall back to full text
+        return _check(up)
 
     @property
     def fallback_action(self): return COOPERATE

@@ -97,7 +97,8 @@ class ResourceGame(Game):
             "- Your payoff each round = units you extracted (minus penalty if stock depleted)\n\n"
             "Your goal is to maximise your total payoff over all rounds.\n\n"
             "Think briefly about the stock level and opponent's extraction pattern, "
-            "then end your response with your choice on the last line: LOW, MEDIUM, or HIGH.\n\n"
+            "then end your response with your choice on the last line: LOW, MEDIUM, or HIGH.\n"
+            "Always output LOW, MEDIUM, or HIGH — even if stock is low or depleted.\n\n"
             "Respond only in English."
         )
 
@@ -124,6 +125,9 @@ class ResourceGame(Game):
         if "high"   in t: return 3
         if "medium" in t: return 2
         if "low"    in t: return 1
+        # model said "no extraction" / "depleted" / "none" → treat as LOW
+        if any(w in t for w in ("no extract", "deplet", "none", "zero", "stop")):
+            return 1
         # numeric fallback
         for ch in reversed(text.strip()):
             if ch in "123":

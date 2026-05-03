@@ -129,6 +129,9 @@ class AuctionGame(Game):
     @property
     def fallback_action(self): return 2
 
+    @property
+    def action_vocab(self): return {"LOW": 1, "MEDIUM": 2, "HIGH": 3}
+
     # ── Simulation ────────────────────────────────────────────────────────────
 
     def reset(self, opponent: Opponent, rng) -> Dict:

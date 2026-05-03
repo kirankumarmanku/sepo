@@ -128,6 +128,9 @@ class NegotiationGame(Game):
     @property
     def fallback_action(self): return 5
 
+    @property
+    def action_vocab(self): return {str(i): i for i in range(1, 10)}
+
     # ── Simulation ────────────────────────────────────────────────────────────
 
     def reset(self, opponent: Opponent, rng) -> Dict:

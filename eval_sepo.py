@@ -31,6 +31,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from games import Episode
 from games.ipd import IPDGame
+from grpo_sepo import forced_action_decode
 from games.resource import ResourceGame
 from games.auction import AuctionGame
 from games.negotiation import NegotiationGame
@@ -56,7 +57,7 @@ def load_model(model_path: str, adapter_path: Optional[str], device):
     print(f"  Loading model from {model_path}...")
     model = AutoModelForCausalLM.from_pretrained(
         model_path,
-        torch_dtype=torch.bfloat16,
+        dtype=torch.bfloat16,
         device_map="auto",
     )
 
@@ -111,8 +112,11 @@ def run_episode(model, tokenizer, game, opponent, pool: str, seed: int,
 
         action = game.parse_action(gen_text)
         if action is None:
-            print(f"    [PARSE FAIL] vs {opponent.name} | {repr(gen_text[:80])}")
-            action = game.fallback_action
+            print(f"    [PARSE FAIL] vs {opponent.name} → constrained decode", flush=True)
+            action = forced_action_decode(
+                model, tokenizer, messages, gen_text, game,
+                device, use_token_type_ids
+            )
 
         state, pay, opp_pay, done = game.step(action, state, rng)
         actions.append(action)

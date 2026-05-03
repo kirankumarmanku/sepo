@@ -79,6 +79,58 @@ class ActionStoppingCriteria(transformers.StoppingCriteria):
                 or "LOW" in up or "MEDIUM" in up or "HIGH" in up)
 
 
+# ── Constrained action decode ─────────────────────────────────────────────────
+
+@torch.no_grad()
+def forced_action_decode(model, tokenizer, messages, gen_text, game, device, use_token_type_ids):
+    """
+    When parse_action fails, force a valid action by restricting the next token
+    to only the first tokens of each valid action string.
+
+    Appends the reasoning as an assistant turn, adds a short action-elicitation
+    user turn, then masks all logits except valid action first-tokens.
+    Always returns a valid action — no regex, no fallback needed.
+    """
+    vocab = game.action_vocab
+    if not vocab:
+        return game.fallback_action
+
+    # Build token ID → action mapping using first token of each action string
+    tok_to_action = {}
+    for action_str, action_val in vocab.items():
+        # Encode with a leading space (how sub-words appear mid-sentence)
+        for prefix in (" " + action_str, action_str):
+            ids = tokenizer.encode(prefix, add_special_tokens=False)
+            if ids:
+                tok_to_action[ids[0]] = action_val
+
+    if not tok_to_action:
+        return game.fallback_action
+
+    action_list = "/".join(vocab.keys())
+    elicit_messages = messages + [
+        {"role": "assistant", "content": gen_text},
+        {"role": "user",      "content": f"State your final action ({action_list}):"},
+    ]
+    text = tokenizer.apply_chat_template(
+        elicit_messages, tokenize=False, add_generation_prompt=True
+    )
+    enc = tokenizer(text, return_tensors="pt").to(device)
+    if use_token_type_ids:
+        enc["token_type_ids"] = torch.zeros_like(enc["input_ids"])
+
+    outputs = model(**enc)
+    logits  = outputs.logits[0, -1]  # next-token logits
+
+    # Mask all tokens except valid action first-tokens
+    masked = torch.full_like(logits, float("-inf"))
+    for tok_id, action_val in tok_to_action.items():
+        masked[tok_id] = logits[tok_id]
+
+    best_tok = masked.argmax().item()
+    return tok_to_action.get(best_tok, game.fallback_action)
+
+
 # ── Episode runner ─────────────────────────────────────────────────────────────
 
 @torch.no_grad()
@@ -161,8 +213,11 @@ def run_episode(
 
         action = game.parse_action(gen_text)
         if action is None:
-            print(f"      [PARSE FAIL] full response:\n{gen_text}\n---", flush=True)
-            action = game.fallback_action
+            print(f"      [PARSE FAIL] → constrained decode", flush=True)
+            action = forced_action_decode(
+                model, tokenizer, messages, gen_text, game,
+                device, use_token_type_ids
+            )
 
         state, pay, opp_pay, done = game.step(action, state, rng)
 

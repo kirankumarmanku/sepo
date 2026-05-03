@@ -146,6 +146,9 @@ class IPDGame(Game):
     @property
     def fallback_action(self): return COOPERATE
 
+    @property
+    def action_vocab(self): return {"COOPERATE": COOPERATE, "DEFECT": DEFECT}
+
     # ── Simulation ────────────────────────────────────────────────────────────
 
     def reset(self, opponent: Opponent, rng) -> Dict:

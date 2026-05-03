@@ -95,6 +95,11 @@ class Game(ABC):
     def fallback_action(self) -> Any:
         """Action to use when parse_action returns None."""
 
+    @property
+    def action_vocab(self) -> Dict[str, Any]:
+        """Map action strings to action values for constrained decoding. Override in each game."""
+        return {}
+
     # ── Simulation ────────────────────────────────────────────────────────────
     @abstractmethod
     def reset(self, opponent: Opponent, rng) -> Dict:

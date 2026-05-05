@@ -117,10 +117,18 @@ class AuctionGame(Game):
         return "\n".join(lines)
 
     def parse_action(self, text: str):
-        t = text.strip().lower()
-        if "high"   in t: return 3
-        if "medium" in t: return 2
-        if "low"    in t: return 1
+        def _check(s):
+            t = s.lower()
+            if "high"   in t: return 3
+            if "medium" in t: return 2
+            if "low"    in t: return 1
+            return None
+        lines = [l.strip() for l in text.strip().split('\n') if l.strip()]
+        if lines:
+            result = _check(lines[-1])
+            if result is not None: return result
+        result = _check(text)
+        if result is not None: return result
         for ch in reversed(text.strip()):
             if ch in "123":
                 return int(ch)

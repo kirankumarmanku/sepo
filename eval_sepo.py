@@ -245,7 +245,6 @@ def parse_args():
 
 if __name__ == "__main__":
     args  = parse_args()
-    global _SHOW_GEN
     _SHOW_GEN = args.show_gen
     device = "cuda" if torch.cuda.is_available() else "cpu"
     label = args.label or (args.adapter or "base")

@@ -76,6 +76,9 @@ def load_model(model_path: str, adapter_path: Optional[str], device):
 # Episode runner
 # ─────────────────────────────────────────────────────────────────────────────
 
+_SHOW_GEN = False  # set via --show-gen flag
+
+
 @torch.no_grad()
 def run_episode(model, tokenizer, game, opponent, pool: str, seed: int,
                 device, temperature: float, max_new_tokens: int,
@@ -110,6 +113,12 @@ def run_episode(model, tokenizer, game, opponent, pool: str, seed: int,
             out[0, enc["input_ids"].shape[1]:], skip_special_tokens=True
         )
 
+        if _SHOW_GEN:
+            round_num = len(actions) + 1
+            n_rounds  = game.n_steps
+            print(f"\n    ── Round {round_num}/{n_rounds} vs {opponent.name} ──")
+            print(f"    [GEN] {repr(gen_text)}", flush=True)
+
         action = game.parse_action(gen_text)
         if action is None:
             print(f"    [PARSE FAIL] vs {opponent.name} → constrained decode", flush=True)
@@ -117,6 +126,8 @@ def run_episode(model, tokenizer, game, opponent, pool: str, seed: int,
                 model, tokenizer, messages, gen_text, game,
                 device, use_token_type_ids
             )
+        if _SHOW_GEN:
+            print(f"    [ACTION] {action}", flush=True)
 
         state, pay, opp_pay, done = game.step(action, state, rng)
         actions.append(action)
@@ -227,11 +238,15 @@ def parse_args():
     ap.add_argument("--output-dir", default=None, help="Save results JSON here")
     ap.add_argument("--label",      default=None,
                     help="Row label in output table (default: adapter path or 'base')")
+    ap.add_argument("--show-gen",   action="store_true",
+                    help="Print raw generated text for every round")
     return ap.parse_args()
 
 
 if __name__ == "__main__":
     args  = parse_args()
+    global _SHOW_GEN
+    _SHOW_GEN = args.show_gen
     device = "cuda" if torch.cuda.is_available() else "cpu"
     label = args.label or (args.adapter or "base")
 

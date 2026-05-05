@@ -558,11 +558,13 @@ def train(args):
     sepo_caches   = {g.name: None for g in games}
     kl_since_refresh = {g.name: 0.0 for g in games}
 
-    print(f"\nStarting GRPO training — {args.iters} steps")
+    start_step = args.start_step
+    print(f"\nStarting GRPO training — {args.iters} steps (from step {start_step})")
     print(f"SEPO weights: λe={args.lambda_e}  λc={args.lambda_c}  λx={args.lambda_x}")
     print(f"SEPO refresh: every {args.sepo_eval_every} steps OR when cumulative KL > {args.sepo_kl_threshold}\n")
 
-    for step in range(args.iters):
+    for _i in range(args.iters):
+        step = start_step + _i
         optimizer.zero_grad()
 
         step_losses, step_metrics_list = [], []
@@ -695,6 +697,8 @@ def main():
 
     p.add_argument("--show-gen", action="store_true",
                    help="Print generated text for each round (verify model output)")
+    p.add_argument("--start-step", type=int, default=0,
+                   help="Resume offset: step counter starts here (use with a checkpoint as --model)")
     args = p.parse_args()
     if args.show_gen:
         run_episode._show_gen = True

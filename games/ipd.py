@@ -149,6 +149,16 @@ class IPDGame(Game):
     @property
     def action_vocab(self): return {"COOPERATE": COOPERATE, "DEFECT": DEFECT}
 
+    def action_on_last_line(self, last: str) -> bool:
+        return bool(
+            re.search(r'\bCOOPERAT', last) or   # COOPERATE, COOPERATING
+            re.search(r'\bDEFECT\b',  last) or   # exact DEFECT, not DEFECTS/DEFECTOR
+            re.search(r'\bDEFECTI',   last) or   # DEFECTING, DEFECTION
+            re.search(r'\bDEFLECT\b', last) or
+            re.search(r'\bSILENT\b',  last) or
+            re.search(r'\bTESTIFY\b', last)
+        )
+
     # ── Simulation ────────────────────────────────────────────────────────────
 
     def reset(self, opponent: Opponent, rng) -> Dict:

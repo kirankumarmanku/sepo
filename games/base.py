@@ -20,6 +20,7 @@ Planned games:
 """
 
 from __future__ import annotations
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Tuple
@@ -99,6 +100,14 @@ class Game(ABC):
     def action_vocab(self) -> Dict[str, Any]:
         """Map action strings to action values for constrained decoding. Override in each game."""
         return {}
+
+    def action_on_last_line(self, last: str) -> bool:
+        """Return True if `last` (uppercased last gen line) contains a valid action.
+        Uses this game's action_vocab keys only — prevents cross-game false fires."""
+        for key in self.action_vocab:
+            if re.search(r'\b' + re.escape(key.upper()) + r'\b', last):
+                return True
+        return False
 
     # ── Simulation ────────────────────────────────────────────────────────────
     @abstractmethod

@@ -62,38 +62,24 @@ GAME_REGISTRY: Dict[str, Game] = {
 # ── Action stopping criteria ──────────────────────────────────────────────────
 
 class ActionStoppingCriteria(transformers.StoppingCriteria):
-    """Stop generation as soon as COOPERATE or DEFECT appears after any thinking block."""
-    def __init__(self, tokenizer, input_len: int):
+    """Stop generation when a valid action word appears on the last line."""
+    def __init__(self, tokenizer, input_len: int, game):
         self.tokenizer = tokenizer
         self.input_len = input_len
+        self.game = game
 
     def __call__(self, input_ids, scores, **kwargs):
+        import re as _re
         generated = self.tokenizer.decode(
             input_ids[0, self.input_len:], skip_special_tokens=True
         )
         if "<think>" in generated and "</think>" not in generated:
             return False
-        # Only fire on the last non-empty line — prevents early stopping when
-        # action words appear in reasoning text (e.g. "HIGH would be risky, go LOW")
         lines = [l.strip() for l in generated.split('\n') if l.strip()]
         if not lines:
             return False
-        import re as _re
         last = lines[-1].upper()
-        # Mirror parse_action word-boundary logic exactly — substring matching fires
-        # on "defects"/"defector" but parse_action's \bDEFECT\b won't match them.
-        return bool(
-            _re.search(r'\bCOOPERAT', last) or   # stem: COOPERATE, COOPERATING
-            _re.search(r'\bDEFECT\b',  last) or   # exact: not DEFECTS / DEFECTOR
-            _re.search(r'\bDEFECTI',   last) or   # stem: DEFECTING, DEFECTION
-            _re.search(r'\bDEFLECT\b', last) or
-            _re.search(r'\bSILENT\b',  last) or
-            _re.search(r'\bTESTIFY\b', last) or
-            _re.search(r'\bLOW\b',     last) or
-            _re.search(r'\bMEDIUM\b',  last) or
-            _re.search(r'\bHIGH\b',    last) or
-            (len(last) == 1 and last.isdigit() and last in "123456789")
-        )
+        return self.game.action_on_last_line(last)
 
 
 # ── Constrained action decode ─────────────────────────────────────────────────
@@ -199,7 +185,7 @@ def run_episode(
             encoding["token_type_ids"] = torch.zeros_like(encoding["input_ids"])
 
         stopping = transformers.StoppingCriteriaList([
-            ActionStoppingCriteria(tokenizer, encoding["input_ids"].shape[1])
+            ActionStoppingCriteria(tokenizer, encoding["input_ids"].shape[1], game)
         ])
         out = model.generate(
             **encoding,

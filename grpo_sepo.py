@@ -78,11 +78,22 @@ class ActionStoppingCriteria(transformers.StoppingCriteria):
         lines = [l.strip() for l in generated.split('\n') if l.strip()]
         if not lines:
             return False
+        import re as _re
         last = lines[-1].upper()
-        return ("COOPERAT" in last or "DEFECT" in last or "DEFLECT" in last
-                or "SILENT" in last or "TESTIFY" in last
-                or "LOW" in last or "MEDIUM" in last or "HIGH" in last
-                or (len(last) == 1 and last.isdigit() and last in "123456789"))
+        # Mirror parse_action word-boundary logic exactly — substring matching fires
+        # on "defects"/"defector" but parse_action's \bDEFECT\b won't match them.
+        return bool(
+            _re.search(r'\bCOOPERAT', last) or   # stem: COOPERATE, COOPERATING
+            _re.search(r'\bDEFECT\b',  last) or   # exact: not DEFECTS / DEFECTOR
+            _re.search(r'\bDEFECTI',   last) or   # stem: DEFECTING, DEFECTION
+            _re.search(r'\bDEFLECT\b', last) or
+            _re.search(r'\bSILENT\b',  last) or
+            _re.search(r'\bTESTIFY\b', last) or
+            _re.search(r'\bLOW\b',     last) or
+            _re.search(r'\bMEDIUM\b',  last) or
+            _re.search(r'\bHIGH\b',    last) or
+            (len(last) == 1 and last.isdigit() and last in "123456789")
+        )
 
 
 # ── Constrained action decode ─────────────────────────────────────────────────

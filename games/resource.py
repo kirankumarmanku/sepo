@@ -121,14 +121,22 @@ class ResourceGame(Game):
         return "\n".join(lines)
 
     def parse_action(self, text: str):
-        t = text.strip().lower()
-        if "high"   in t: return 3
-        if "medium" in t: return 2
-        if "low"    in t: return 1
-        # model said "no extraction" / "depleted" / "none" → treat as LOW
-        if any(w in t for w in ("no extract", "deplet", "none", "zero", "stop")):
-            return 1
-        # numeric fallback
+        def _check(s):
+            t = s.lower()
+            if "high"   in t: return 3
+            if "medium" in t: return 2
+            if "low"    in t: return 1
+            if any(w in t for w in ("no extract", "deplet", "none", "zero", "stop")):
+                return 1
+            return None
+        # Check last non-empty line first so reasoning text ("HIGH is risky... LOW")
+        # doesn't shadow the intended final action
+        lines = [l.strip() for l in text.strip().split('\n') if l.strip()]
+        if lines:
+            result = _check(lines[-1])
+            if result is not None: return result
+        result = _check(text)
+        if result is not None: return result
         for ch in reversed(text.strip()):
             if ch in "123":
                 return int(ch)

@@ -73,10 +73,16 @@ class ActionStoppingCriteria(transformers.StoppingCriteria):
         )
         if "<think>" in generated and "</think>" not in generated:
             return False
-        up = generated.upper()
-        return ("COOPERAT" in up or "DEFECT" in up or "DEFLECT" in up
-                or "SILENT" in up or "TESTIFY" in up
-                or "LOW" in up or "MEDIUM" in up or "HIGH" in up)
+        # Only fire on the last non-empty line — prevents early stopping when
+        # action words appear in reasoning text (e.g. "HIGH would be risky, go LOW")
+        lines = [l.strip() for l in generated.split('\n') if l.strip()]
+        if not lines:
+            return False
+        last = lines[-1].upper()
+        return ("COOPERAT" in last or "DEFECT" in last or "DEFLECT" in last
+                or "SILENT" in last or "TESTIFY" in last
+                or "LOW" in last or "MEDIUM" in last or "HIGH" in last
+                or (len(last) == 1 and last.isdigit() and last in "123456789"))
 
 
 # ── Constrained action decode ─────────────────────────────────────────────────

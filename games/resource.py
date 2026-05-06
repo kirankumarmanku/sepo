@@ -148,6 +148,9 @@ class ResourceGame(Game):
     @property
     def action_vocab(self): return {"LOW": 1, "MEDIUM": 2, "HIGH": 3}
 
+    @property
+    def max_payoff(self): return 3.0   # max extraction per player per round (HIGH=3)
+
     # ── Simulation ────────────────────────────────────────────────────────────
 
     def reset(self, opponent: Opponent, rng) -> Dict:

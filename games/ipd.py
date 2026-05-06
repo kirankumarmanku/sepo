@@ -149,6 +149,9 @@ class IPDGame(Game):
     @property
     def action_vocab(self): return {"COOPERATE": COOPERATE, "DEFECT": DEFECT}
 
+    @property
+    def max_payoff(self): return 3.0   # R = mutual cooperation payoff
+
     def action_on_last_line(self, last: str) -> bool:
         return bool(
             re.search(r'\bCOOPERAT', last) or   # COOPERATE, COOPERATING

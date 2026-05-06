@@ -101,6 +101,12 @@ class Game(ABC):
         """Map action strings to action values for constrained decoding. Override in each game."""
         return {}
 
+    @property
+    def max_payoff(self) -> float:
+        """Expected per-round payoff ceiling under cooperative optimal play.
+        Used to normalise utility/exploit to a common scale across games."""
+        return 3.0
+
     def action_on_last_line(self, last: str) -> bool:
         """Return True if `last` (uppercased last gen line) contains a valid action.
         Uses this game's action_vocab keys only — prevents cross-game false fires."""

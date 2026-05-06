@@ -131,6 +131,9 @@ class NegotiationGame(Game):
     @property
     def action_vocab(self): return {str(i): i for i in range(1, 10)}
 
+    @property
+    def max_payoff(self): return 5.0   # fair split of pie=10
+
     # ── Simulation ────────────────────────────────────────────────────────────
 
     def reset(self, opponent: Opponent, rng) -> Dict:
@@ -194,7 +197,7 @@ class NegotiationGame(Game):
             for a, b in zip(ep.actions, ep.opp_actions):
                 breakdown = 1.0 if a + b > TOTAL_PIE else 0.0
                 inequality = abs(a - b) / TOTAL_PIE
-                ext_vals.append(breakdown + 0.5 * inequality)
+                ext_vals.append(min(1.0, breakdown + 0.5 * inequality))
         externality = float(np.mean(ext_vals)) if ext_vals else 0.0
 
         return {

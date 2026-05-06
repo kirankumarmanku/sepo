@@ -287,8 +287,9 @@ def recompute_log_probs(
 
 def sepo_reward(episodes: List[Episode], game: Game, lambda_e: float, lambda_c: float, lambda_x: float) -> float:
     metrics = game.sepo_metrics(episodes)
-    r = (metrics["utility"]
-         - lambda_e * metrics["exploitability"]
+    scale = 3.0 / game.max_payoff   # normalise utility/exploit to common IPD scale
+    r = (metrics["utility"] * scale
+         - lambda_e * metrics["exploitability"] * scale
          - lambda_c * metrics["collusion"]
          - lambda_x * metrics["externality"])
     return r, metrics

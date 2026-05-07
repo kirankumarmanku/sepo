@@ -559,9 +559,17 @@ def train(args):
     sepo_caches   = {g.name: None for g in games}
     kl_since_refresh = {g.name: 0.0 for g in games}
 
+    # Build per-game λe dict — falls back to global --lambda-e for unspecified games
+    lambda_e_per_game = {}
+    if args.lambda_e_override:
+        for token in args.lambda_e_override.split(","):
+            gname, val = token.strip().split(":")
+            lambda_e_per_game[gname.strip()] = float(val.strip())
+
     start_step = args.start_step
     print(f"\nStarting GRPO training — {args.iters} steps (from step {start_step})")
-    print(f"SEPO weights: λe={args.lambda_e}  λc={args.lambda_c}  λx={args.lambda_x}")
+    le_str = "  ".join(f"{g.name}:λe={lambda_e_per_game.get(g.name, args.lambda_e)}" for g in games)
+    print(f"SEPO weights: {le_str}  λc={args.lambda_c}  λx={args.lambda_x}")
     print(f"SEPO refresh: every {args.sepo_eval_every} steps OR when cumulative KL > {args.sepo_kl_threshold}\n")
 
     for _i in range(args.iters):
@@ -586,7 +594,7 @@ def train(args):
                 device=device,
                 n_rollouts=args.n_rollouts,
                 temperature=args.temperature,
-                lambda_e=args.lambda_e,
+                lambda_e=lambda_e_per_game.get(game.name, args.lambda_e),
                 lambda_c=args.lambda_c,
                 lambda_x=args.lambda_x,
                 beta=args.beta,
@@ -674,10 +682,12 @@ def main():
                    help="Game environment: ipd | resource | auction | negotiation | all (joint multi-game GRPO)")
 
     # SEPO objective weights
-    # Lambda values from paper (sepo_gtbench_ipd_results.md)
-    p.add_argument("--lambda-e", type=float, default=3.6,  help="Exploitability penalty weight")
-    p.add_argument("--lambda-c", type=float, default=3.2,  help="Collusion penalty weight")
+    p.add_argument("--lambda-e", type=float, default=2.4,  help="Exploitability penalty weight (global default)")
+    p.add_argument("--lambda-c", type=float, default=2.4,  help="Collusion penalty weight")
     p.add_argument("--lambda-x", type=float, default=2.4,  help="Externality penalty weight")
+    p.add_argument("--lambda-e-override", type=str, default=None,
+                   help="Per-game λe overrides, comma-separated: ipd:3.0,negotiation:4.0"
+                        " — unspecified games use --lambda-e")
 
     # GRPO hyperparameters
     p.add_argument("--iters",           type=int,   default=500)

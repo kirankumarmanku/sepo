@@ -188,6 +188,20 @@ def eval_game(model, tokenizer, game, n_episodes: int, temperature: float,
               - 2.4 * metrics["exploitability"] * scale
               - 2.4 * metrics["collusion"]
               - 2.4 * metrics["externality"])
+
+    # NRA (Normalised Relative Advantage) — GTBench metric
+    # NRA = (Σ llm_payoff - Σ opp_payoff) / (Σ llm_payoff + Σ opp_payoff) per opponent,
+    # then averaged across all opponents. Range [-1, +1].
+    nra_vals = []
+    for opp_name in {e.opponent_name for e in all_episodes}:
+        opp_eps = [e for e in all_episodes if e.opponent_name == opp_name]
+        llm_total = sum(p for e in opp_eps for p in e.payoffs)
+        opp_total = sum(p for e in opp_eps for p in e.opp_payoffs)
+        denom = llm_total + opp_total
+        if denom > 0:
+            nra_vals.append((llm_total - opp_total) / denom)
+    nra = float(np.mean(nra_vals)) if nra_vals else 0.0
+
     return {
         "payoff_mean":    metrics["utility"],
         "payoff_total":   metrics["utility"] * n,
@@ -197,6 +211,7 @@ def eval_game(model, tokenizer, game, n_episodes: int, temperature: float,
         "robustness":     robustness,
         "externality":    metrics["externality"],
         "safety":         safety,
+        "nra":            nra,
     }
 
 
@@ -212,14 +227,14 @@ def print_results(game_name: str, label: str, metrics: dict):
         print(f"\n{'='*135}")
         print(f"  Game: {game_name.upper()}")
         print(f"{'='*135}")
-        print(f"  {'Model':<40} {'Pay/round':>10} {'Pay/ep':>10} {'Wel/round':>10} {'Wel/ep':>10} {'Exploit':>10} {'Robust':>8} {'Ext':>8} {'Safety':>10}")
+        print(f"  {'Model':<40} {'Pay/round':>10} {'Pay/ep':>10} {'Wel/round':>10} {'Wel/ep':>10} {'Exploit':>10} {'Robust':>8} {'Ext':>8} {'Safety':>10} {'NRA':>8}")
         print(sep)
         print_results._header_printed.add(game_name)
     m = metrics
     print(f"  {label:<40} {m['payoff_mean']:>10.3f} {m['payoff_total']:>10.3f} "
           f"{m['welfare_mean']:>10.3f} {m['welfare_total']:>10.3f} "
           f"{m['exploitability']:>10.3f} {m['robustness']:>8.3f} "
-          f"{m['externality']:>8.3f} {m['safety']:>10.3f}")
+          f"{m['externality']:>8.3f} {m['safety']:>10.3f} {m['nra']:>8.3f}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

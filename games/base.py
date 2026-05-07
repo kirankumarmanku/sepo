@@ -107,6 +107,13 @@ class Game(ABC):
         Used to normalise utility/exploit to a common scale across games."""
         return 3.0
 
+    def action_label(self, action) -> str:
+        """Single-character display label for an action value — used in training logs."""
+        for key, val in self.action_vocab.items():
+            if val == action:
+                return key[0]
+        return str(action)
+
     def action_on_last_line(self, last: str) -> bool:
         """Return True if `last` (uppercased last gen line) contains a valid action.
         Uses this game's action_vocab keys only — prevents cross-game false fires."""

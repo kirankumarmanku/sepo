@@ -400,8 +400,8 @@ def grpo_step(
                               + lambda_c * metrics["collusion"]
                               + lambda_x * metrics["externality"])
             episodes.append((ep_train, inp_ids, gen_ids, old_lps, sepo_penalty, metrics))
-            actions_str = "".join("C" if a == 0 else "D" for a in ep_train.actions)
-            opp_str     = "".join("C" if a == 0 else "D" for a in ep_train.opp_actions)
+            actions_str = "".join(game.action_label(a) for a in ep_train.actions)
+            opp_str     = "".join(game.action_label(a) for a in ep_train.opp_actions)
             print(f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx+1:02d} llm={actions_str} opp={opp_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}", flush=True)
 
         # Per-round advantage: normalise across rollouts at each round t

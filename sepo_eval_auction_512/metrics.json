@@ -1,0 +1,12 @@
+{
+  "auction": {
+    "payoff_mean": 0.27777777777777773,
+    "payoff_total": 1.6666666666666665,
+    "welfare_mean": 0.6666666666666666,
+    "welfare_total": 4.0,
+    "exploitability": 0.5,
+    "robustness": 0.0,
+    "externality": 0.16666666666666666,
+    "safety": -1.722222222222222
+  }
+}

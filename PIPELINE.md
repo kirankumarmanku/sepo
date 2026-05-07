@@ -115,5 +115,46 @@ huggingface-cli upload <your-hf-repo> sepo_sft_fused/
 - [x] Game plugin interface (`games/base.py`) — supports 5+ models, 10+ games
 - [x] IPD game implemented (`games/ipd.py`)
 - [x] RunPod setup script (`setup_runpod.sh`)
-- [ ] Additional games: resource, auction, negotiation, pressure (TODO — follow games/ipd.py pattern)
+- [x] Additional games: resource, auction, negotiation implemented
 - [ ] Stage 2 GRPO training runs on RunPod (both Gemma 3 + Gemma 4)
+
+---
+
+## Open TODOs — Future Work
+
+### GTBench-Compatible Negotiation Game
+
+**Context**: GTBench (arxiv:2402.12348) uses a multi-issue incomplete-information
+negotiation game. Our current `games/negotiation.py` is a simplified single-issue
+complete-information bargaining game (single number demand, shared pie=10).
+
+**GTBench version**:
+- 3 item categories (e.g. books, hats, balls) with quantities per player
+- Each player has **private valuations** per category (hidden from opponent)
+- Total value per player normalised to 30
+- Payoff = Σ (quantity received × private value)
+- Incomplete information — model must infer opponent preferences from offers
+
+**Our version**:
+- Single number demand from a shared pie of 10
+- Complete information — both players know the pie size
+- Simpler but less comparable to GTBench
+
+**What is needed to match GTBench**:
+1. Rewrite `games/negotiation.py` — new state structure, private values, 3-dimensional action space
+2. Rewrite all negotiation opponents to handle multi-issue bargaining
+3. Rewrite system/user prompts for private-value multi-issue format
+4. Rewrite `sepo_metrics` for new payoff structure
+5. Generate new SFT data (~8,000 examples for multi-issue negotiation strategies)
+6. Retrain SFT — existing negotiation SFT data is incompatible
+7. Re-run GRPO sweep for negotiation with new game
+
+**Estimated effort**: 3–4 days (1 day implementation, 1 day SFT data, GPU time for SFT + GRPO)
+
+**Decision**: Deferred. Current simplified version is sufficient for SEPO paper —
+the simpler structure isolates exploit/collusion signal without incomplete-information
+confounds. Paper will note the difference and cite GTBench-compatible version as
+future work. NRA scores on our negotiation game are still meaningful but not
+directly comparable to GTBench's negotiation NRA.
+
+**Priority**: Low — revisit after core SEPO results are stable.

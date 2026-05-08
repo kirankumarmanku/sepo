@@ -261,6 +261,8 @@ def parse_args():
     ap.add_argument("--lambda-e", type=float, default=2.4, help="Exploitability penalty weight")
     ap.add_argument("--lambda-c", type=float, default=2.4, help="Collusion penalty weight")
     ap.add_argument("--lambda-x", type=float, default=2.4, help="Externality penalty weight")
+    ap.add_argument("--lambda-e-override", type=str, default=None,
+                    help="Per-game λe overrides: auction:1.2,negotiation:3.0")
     return ap.parse_args()
 
 
@@ -271,6 +273,12 @@ if __name__ == "__main__":
     label = args.label or (args.adapter or "base")
 
     model, tokenizer = load_model(args.model, args.adapter, device)
+
+    lambda_e_per_game = {}
+    if args.lambda_e_override:
+        for token in args.lambda_e_override.split(","):
+            gname, val = token.strip().split(":")
+            lambda_e_per_game[gname.strip()] = float(val.strip())
 
     games_to_run = list(GAME_REGISTRY.keys()) if args.game == "all" else [args.game]
     all_results  = {}
@@ -285,7 +293,7 @@ if __name__ == "__main__":
             max_new_tokens=args.max_tokens,
             use_token_type_ids=args.token_type_ids,
             device=device,
-            lambda_e=args.lambda_e,
+            lambda_e=lambda_e_per_game.get(gname, args.lambda_e),
             lambda_c=args.lambda_c,
             lambda_x=args.lambda_x,
         )

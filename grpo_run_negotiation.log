@@ -1,6 +1,7 @@
 Device: cuda
 Game: negotiation  rounds=4
 <<<<<<< HEAD
+<<<<<<< HEAD
 Traceback (most recent call last):
   File "/root/workspace/sepo/grpo_sepo.py", line 720, in <module>
     main()
@@ -55,6 +56,8 @@ Traceback (most recent call last):
 ValueError: infer_schema(func): Parameter input has unsupported type torch.Tensor. The valid types are: dict_keys([<class 'torch.Tensor'>, typing.Optional[torch.Tensor], typing.Sequence[torch.Tensor], typing.List[torch.Tensor], typing.Sequence[typing.Optional[torch.Tensor]], typing.List[typing.Optional[torch.Tensor]], <class 'int'>, typing.Optional[int], typing.Sequence[int], typing.List[int], typing.Optional[typing.Sequence[int]], typing.Optional[typing.List[int]], <class 'float'>, typing.Optional[float], typing.Sequence[float], typing.List[float], typing.Optional[typing.Sequence[float]], typing.Optional[typing.List[float]], <class 'bool'>, typing.Optional[bool], typing.Sequence[bool], typing.List[bool], typing.Optional[typing.Sequence[bool]], typing.Optional[typing.List[bool]], <class 'str'>, typing.Optional[str], typing.Union[int, float, bool], typing.Union[int, float, bool, NoneType], typing.Sequence[typing.Union[int, float, bool]], typing.List[typing.Union[int, float, bool]], <class 'torch.dtype'>, typing.Optional[torch.dtype], <class 'torch.device'>, typing.Optional[torch.device]]). Got func with signature (input: 'torch.Tensor', weight: 'torch.Tensor', offs: 'torch.Tensor') -> 'torch.Tensor')
 [GRPO DONE]
 =======
+=======
+>>>>>>> 9a7b1b0 (Test run)
 Detected PEFT adapter: /root/workspace/sepo/sft_gemma3_v2/final_adapter  (base: google/gemma-3-4b-it)
   Loading base: google/gemma-3-4b-it
 Loading weights:   0%|          | 0/883 [00:00<?, ?it/s]Loading weights:   0%|          | 1/883 [00:02<41:03,  2.79s/it]Loading weights:   0%|          | 4/883 [00:02<08:28,  1.73it/s]Loading weights:   1%|          | 11/883 [00:03<02:34,  5.65it/s]Loading weights:   2%|▏         | 17/883 [00:03<01:45,  8.23it/s]Loading weights:   3%|▎         | 28/883 [00:03<00:54, 15.67it/s]Loading weights:   4%|▎         | 32/883 [00:03<00:53, 15.92it/s]Loading weights:   4%|▍         | 39/883 [00:04<00:39, 21.58it/s]Loading weights:   5%|▍         | 43/883 [00:04<00:35, 23.63it/s]Loading weights:   5%|▌         | 47/883 [00:04<00:34, 24.17it/s]Loading weights:   6%|▌         | 55/883 [00:04<00:28, 28.62it/s]Loading weights:   7%|▋         | 59/883 [00:04<00:33, 24.48it/s]Loading weights:   8%|▊         | 67/883 [00:04<00:25, 31.98it/s]Loading weights:   8%|▊         | 71/883 [00:05<00:29, 27.23it/s]Loading weights:   9%|▉         | 82/883 [00:05<00:23, 34.77it/s]Loading weights:  10%|▉         | 88/883 [00:05<00:20, 38.96it/s]Loading weights:  11%|█         | 94/883 [00:05<00:19, 40.32it/s]Loading weights:  11%|█         | 99/883 [00:05<00:28, 27.16it/s]Loading weights:  12%|█▏        | 107/883 [00:06<00:24, 31.77it/s]Loading weights:  13%|█▎        | 111/883 [00:08<01:38,  7.84it/s]Loading weights:  14%|█▎        | 120/883 [00:08<01:04, 11.81it/s]Loading weights:  14%|█▍        | 124/883 [00:09<01:42,  7.44it/s]Loading weights:  15%|█▌        | 133/883 [00:09<01:08, 10.96it/s]Loading weights:  15%|█▌        | 136/883 [00:10<01:06, 11.26it/s]Loading weights:  17%|█▋        | 146/883 [00:10<00:42, 17.30it/s]Loading weights:  17%|█▋        | 150/883 [00:10<00:42, 17.26it/s]Loading weights:  18%|█▊        | 158/883 [00:10<00:31, 23.36it/s]Loading weights:  18%|█▊        | 162/883 [00:10<00:32, 22.01it/s]Loading weights:  19%|█▉        | 172/883 [00:10<00:21, 32.65it/s]Loading weights:  20%|██        | 178/883 [00:11<00:23, 30.43it/s]Loading weights:  21%|██        | 183/883 [00:11<00:20, 33.46it/s]Loading weights:  21%|██▏       | 188/883 [00:11<00:24, 28.21it/s]Loading weights:  22%|██▏       | 198/883 [00:11<00:20, 33.95it/s]Loading weights:  23%|██▎       | 203/883 [00:11<00:21, 31.79it/s]Loading weights:  24%|██▍       | 211/883 [00:12<00:19, 34.46it/s]Loading weights:  24%|██▍       | 215/883 [00:12<00:23, 27.91it/s]Loading weights:  25%|██▌       | 224/883 [00:12<00:18, 34.93it/s]Loading weights:  26%|██▌       | 228/883 [00:12<00:21, 29.98it/s]Loading weights:  27%|██▋       | 237/883 [00:12<00:19, 33.81it/s]Loading weights:  27%|██▋       | 241/883 [00:13<00:23, 27.80it/s]Loading weights:  28%|██▊       | 250/883 [00:13<00:19, 32.51it/s]Loading weights:  29%|██▉       | 254/883 [00:13<00:20, 30.02it/s]Loading weights:  30%|██▉       | 261/883 [00:13<00:17, 36.51it/s]Loading weights:  30%|███       | 266/883 [00:14<00:22, 27.64it/s]Loading weights:  31%|███       | 275/883 [00:14<00:19, 31.63it/s]Loading weights:  32%|███▏      | 279/883 [00:14<00:22, 27.18it/s]Loading weights:  33%|███▎      | 289/883 [00:14<00:16, 36.47it/s]Loading weights:  33%|███▎      | 294/883 [00:14<00:19, 29.67it/s]Loading weights:  34%|███▍      | 299/883 [00:14<00:17, 32.82it/s]Loading weights:  34%|███▍      | 303/883 [00:15<00:23, 24.49it/s]Loading weights:  35%|███▌      | 312/883 [00:15<00:17, 33.50it/s]Loading weights:  36%|███▌      | 317/883 [00:15<00:25, 22.33it/s]Loading weights:  37%|███▋      | 328/883 [00:16<00:17, 31.12it/s]Loading weights:  38%|███▊      | 333/883 [00:16<00:18, 30.52it/s]Loading weights:  39%|███▊      | 341/883 [00:16<00:15, 34.57it/s]Loading weights:  39%|███▉      | 346/883 [00:16<00:16, 32.83it/s]Loading weights:  40%|███▉      | 353/883 [00:16<00:15, 34.23it/s]Loading weights:  40%|████      | 357/883 [00:16<00:18, 28.61it/s]Loading weights:  41%|████▏     | 365/883 [00:17<00:14, 36.58it/s]Loading weights:  42%|████▏     | 370/883 [00:17<00:18, 27.04it/s]Loading weights:  43%|████▎     | 380/883 [00:17<00:20, 24.56it/s]Loading weights:  43%|████▎     | 384/883 [00:18<00:21, 23.65it/s]Loading weights:  44%|████▍     | 392/883 [00:18<00:18, 26.19it/s]Loading weights:  45%|████▍     | 395/883 [00:18<00:21, 22.99it/s]Loading weights:  46%|████▌     | 406/883 [00:18<00:15, 31.66it/s]Loading weights:  46%|████▋     | 410/883 [00:18<00:16, 29.16it/s]Loading weights:  47%|████▋     | 419/883 [00:19<00:14, 32.11it/s]Loading weights:  48%|████▊     | 423/883 [00:19<00:17, 26.22it/s]Loading weights:  49%|████▉     | 432/883 [00:19<00:13, 33.32it/s]Loading weights:  49%|████▉     | 436/883 [00:19<00:15, 28.40it/s]Loading weights:  51%|█████     | 449/883 [00:19<00:10, 43.05it/s]Loading weights:  52%|█████▏    | 463/883 [00:20<00:06, 60.31it/s]Loading weights:  54%|█████▍    | 475/883 [00:20<00:05, 71.24it/s]Loading weights:  55%|█████▌    | 489/883 [00:20<00:04, 84.75it/s]Loading weights:  57%|█████▋    | 505/883 [00:20<00:04, 91.72it/s]Loading weights:  59%|█████▉    | 519/883 [00:20<00:03, 96.33it/s]Loading weights:  61%|██████    | 536/883 [00:20<00:03, 106.94it/s]Loading weights:  63%|██████▎   | 553/883 [00:20<00:02, 117.67it/s]Loading weights:  64%|██████▍   | 569/883 [00:20<00:02, 120.33it/s]Loading weights:  66%|██████▌   | 582/883 [00:21<00:02, 117.13it/s]Loading weights:  68%|██████▊   | 599/883 [00:21<00:02, 123.99it/s]Loading weights:  70%|██████▉   | 614/883 [00:21<00:02, 120.71it/s]Loading weights:  71%|███████▏  | 631/883 [00:21<00:02, 110.50it/s]Loading weights:  73%|███████▎  | 643/883 [00:21<00:02, 92.98it/s] Loading weights:  74%|███████▍  | 657/883 [00:21<00:02, 102.05it/s]Loading weights:  76%|███████▌  | 671/883 [00:21<00:01, 110.02it/s]Loading weights:  77%|███████▋  | 683/883 [00:22<00:01, 104.87it/s]Loading weights:  79%|███████▊  | 695/883 [00:22<00:01, 99.35it/s] Loading weights:  81%|████████  | 711/883 [00:22<00:01, 99.89it/s]Loading weights:  82%|████████▏ | 727/883 [00:22<00:01, 112.37it/s]Loading weights:  84%|████████▍ | 743/883 [00:22<00:01, 117.74it/s]Loading weights:  86%|████████▌ | 759/883 [00:22<00:01, 114.71it/s]Loading weights:  88%|████████▊ | 777/883 [00:22<00:00, 128.22it/s]Loading weights:  90%|████████▉ | 793/883 [00:22<00:00, 128.44it/s]Loading weights:  92%|█████████▏| 809/883 [00:23<00:00, 127.47it/s]Loading weights:  93%|█████████▎| 822/883 [00:23<00:00, 113.51it/s]Loading weights:  95%|█████████▌| 840/883 [00:23<00:00, 116.87it/s]Loading weights:  97%|█████████▋| 854/883 [00:23<00:00, 106.42it/s]Loading weights:  99%|█████████▊| 870/883 [00:23<00:00, 110.95it/s]Loading weights: 100%|█████████▉| 882/883 [00:23<00:00, 111.76it/s]Loading weights: 100%|██████████| 883/883 [00:23<00:00, 37.21it/s] 
@@ -1766,4 +1769,62 @@ Okay, let's start this negotiation! Since it’s the very beginning and we have 
     [02:41:58] r07 llm=DDDD opp=DDDD u=11.0 pen=11.685
     [02:42:28] r08 llm=DDDD opp=DDDD u=9.0 pen=11.685
   [02:42:39] rollout opp=balanced-split (3/3)
+<<<<<<< HEAD
 >>>>>>> 50af799 (SFT train with Qwen)
+=======
+=======
+Traceback (most recent call last):
+  File "/root/workspace/sepo/grpo_sepo.py", line 720, in <module>
+    main()
+  File "/root/workspace/sepo/grpo_sepo.py", line 716, in main
+    train(args)
+  File "/root/workspace/sepo/grpo_sepo.py", line 473, in train
+    from peft import PeftModel, get_peft_model, LoraConfig, TaskType
+  File "/usr/local/lib/python3.11/dist-packages/peft/__init__.py", line 17, in <module>
+    from .auto import (
+  File "/usr/local/lib/python3.11/dist-packages/peft/auto.py", line 31, in <module>
+    from .config import PeftConfig
+  File "/usr/local/lib/python3.11/dist-packages/peft/config.py", line 30, in <module>
+    from .utils import CONFIG_NAME, PeftType, TaskType
+  File "/usr/local/lib/python3.11/dist-packages/peft/utils/__init__.py", line 15, in <module>
+    from .constants import ALLOWED_COMPUTE_DTYPES, UPCAST_DTYPES
+  File "/usr/local/lib/python3.11/dist-packages/peft/utils/constants.py", line 16, in <module>
+    from transformers import BloomPreTrainedModel
+  File "<frozen importlib._bootstrap>", line 1229, in _handle_fromlist
+  File "/usr/local/lib/python3.11/dist-packages/transformers/utils/import_utils.py", line 2226, in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/transformers/utils/import_utils.py", line 2460, in _get_module
+    raise e
+  File "/usr/local/lib/python3.11/dist-packages/transformers/utils/import_utils.py", line 2458, in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/transformers/models/bloom/modeling_bloom.py", line 26, in <module>
+    from ...modeling_layers import GradientCheckpointingLayer
+  File "/usr/local/lib/python3.11/dist-packages/transformers/modeling_layers.py", line 27, in <module>
+    from .processing_utils import Unpack
+  File "/usr/local/lib/python3.11/dist-packages/transformers/processing_utils.py", line 79, in <module>
+    from .modeling_utils import PreTrainedAudioTokenizerBase
+  File "/usr/local/lib/python3.11/dist-packages/transformers/modeling_utils.py", line 69, in <module>
+    from .integrations.finegrained_fp8 import ALL_FP8_EXPERTS_FUNCTIONS
+  File "/usr/local/lib/python3.11/dist-packages/transformers/integrations/finegrained_fp8.py", line 30, in <module>
+    from .moe import ExpertsInterface, use_experts_implementation
+  File "/usr/local/lib/python3.11/dist-packages/transformers/integrations/moe.py", line 250, in <module>
+    torch.library.custom_op("transformers::grouped_mm_fallback", _grouped_mm_fallback, mutates_args=())
+  File "/usr/local/lib/python3.11/dist-packages/torch/_library/custom_ops.py", line 142, in custom_op
+    return inner(fn)
+           ^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/torch/_library/custom_ops.py", line 119, in inner
+    schema_str = torch._custom_op.impl.infer_schema(fn, mutates_args)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/torch/_library/infer_schema.py", line 42, in infer_schema
+    error_fn(
+  File "/usr/local/lib/python3.11/dist-packages/torch/_library/infer_schema.py", line 21, in error_fn
+    raise ValueError(
+ValueError: infer_schema(func): Parameter input has unsupported type torch.Tensor. The valid types are: dict_keys([<class 'torch.Tensor'>, typing.Optional[torch.Tensor], typing.Sequence[torch.Tensor], typing.List[torch.Tensor], typing.Sequence[typing.Optional[torch.Tensor]], typing.List[typing.Optional[torch.Tensor]], <class 'int'>, typing.Optional[int], typing.Sequence[int], typing.List[int], typing.Optional[typing.Sequence[int]], typing.Optional[typing.List[int]], <class 'float'>, typing.Optional[float], typing.Sequence[float], typing.List[float], typing.Optional[typing.Sequence[float]], typing.Optional[typing.List[float]], <class 'bool'>, typing.Optional[bool], typing.Sequence[bool], typing.List[bool], typing.Optional[typing.Sequence[bool]], typing.Optional[typing.List[bool]], <class 'str'>, typing.Optional[str], typing.Union[int, float, bool], typing.Union[int, float, bool, NoneType], typing.Sequence[typing.Union[int, float, bool]], typing.List[typing.Union[int, float, bool]], <class 'torch.dtype'>, typing.Optional[torch.dtype], <class 'torch.device'>, typing.Optional[torch.device]]). Got func with signature (input: 'torch.Tensor', weight: 'torch.Tensor', offs: 'torch.Tensor') -> 'torch.Tensor')
+[GRPO DONE]
+>>>>>>> 53631e9 (Test run)
+>>>>>>> 9a7b1b0 (Test run)

@@ -1,0 +1,49 @@
+Traceback (most recent call last):
+  File "/root/workspace/sepo/sft_train.py", line 20, in <module>
+    from peft import get_peft_model, LoraConfig, TaskType
+  File "/usr/local/lib/python3.11/dist-packages/peft/__init__.py", line 17, in <module>
+    from .auto import (
+  File "/usr/local/lib/python3.11/dist-packages/peft/auto.py", line 31, in <module>
+    from .config import PeftConfig
+  File "/usr/local/lib/python3.11/dist-packages/peft/config.py", line 30, in <module>
+    from .utils import CONFIG_NAME, PeftType, TaskType
+  File "/usr/local/lib/python3.11/dist-packages/peft/utils/__init__.py", line 15, in <module>
+    from .constants import ALLOWED_COMPUTE_DTYPES, UPCAST_DTYPES
+  File "/usr/local/lib/python3.11/dist-packages/peft/utils/constants.py", line 16, in <module>
+    from transformers import BloomPreTrainedModel
+  File "<frozen importlib._bootstrap>", line 1229, in _handle_fromlist
+  File "/usr/local/lib/python3.11/dist-packages/transformers/utils/import_utils.py", line 2226, in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/transformers/utils/import_utils.py", line 2460, in _get_module
+    raise e
+  File "/usr/local/lib/python3.11/dist-packages/transformers/utils/import_utils.py", line 2458, in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/transformers/models/bloom/modeling_bloom.py", line 26, in <module>
+    from ...modeling_layers import GradientCheckpointingLayer
+  File "/usr/local/lib/python3.11/dist-packages/transformers/modeling_layers.py", line 27, in <module>
+    from .processing_utils import Unpack
+  File "/usr/local/lib/python3.11/dist-packages/transformers/processing_utils.py", line 79, in <module>
+    from .modeling_utils import PreTrainedAudioTokenizerBase
+  File "/usr/local/lib/python3.11/dist-packages/transformers/modeling_utils.py", line 69, in <module>
+    from .integrations.finegrained_fp8 import ALL_FP8_EXPERTS_FUNCTIONS
+  File "/usr/local/lib/python3.11/dist-packages/transformers/integrations/finegrained_fp8.py", line 30, in <module>
+    from .moe import ExpertsInterface, use_experts_implementation
+  File "/usr/local/lib/python3.11/dist-packages/transformers/integrations/moe.py", line 250, in <module>
+    torch.library.custom_op("transformers::grouped_mm_fallback", _grouped_mm_fallback, mutates_args=())
+  File "/usr/local/lib/python3.11/dist-packages/torch/_library/custom_ops.py", line 142, in custom_op
+    return inner(fn)
+           ^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/torch/_library/custom_ops.py", line 119, in inner
+    schema_str = torch._custom_op.impl.infer_schema(fn, mutates_args)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/torch/_library/infer_schema.py", line 42, in infer_schema
+    error_fn(
+  File "/usr/local/lib/python3.11/dist-packages/torch/_library/infer_schema.py", line 21, in error_fn
+    raise ValueError(
+ValueError: infer_schema(func): Parameter input has unsupported type torch.Tensor. The valid types are: dict_keys([<class 'torch.Tensor'>, typing.Optional[torch.Tensor], typing.Sequence[torch.Tensor], typing.List[torch.Tensor], typing.Sequence[typing.Optional[torch.Tensor]], typing.List[typing.Optional[torch.Tensor]], <class 'int'>, typing.Optional[int], typing.Sequence[int], typing.List[int], typing.Optional[typing.Sequence[int]], typing.Optional[typing.List[int]], <class 'float'>, typing.Optional[float], typing.Sequence[float], typing.List[float], typing.Optional[typing.Sequence[float]], typing.Optional[typing.List[float]], <class 'bool'>, typing.Optional[bool], typing.Sequence[bool], typing.List[bool], typing.Optional[typing.Sequence[bool]], typing.Optional[typing.List[bool]], <class 'str'>, typing.Optional[str], typing.Union[int, float, bool], typing.Union[int, float, bool, NoneType], typing.Sequence[typing.Union[int, float, bool]], typing.List[typing.Union[int, float, bool]], <class 'torch.dtype'>, typing.Optional[torch.dtype], <class 'torch.device'>, typing.Optional[torch.device]]). Got func with signature (input: 'torch.Tensor', weight: 'torch.Tensor', offs: 'torch.Tensor') -> 'torch.Tensor')
+[SFT DONE]

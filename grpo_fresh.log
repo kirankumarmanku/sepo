@@ -20,3 +20,165 @@ SEPO refresh: every 5 steps OR when cumulative KL > 0.5
 [transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
   [03:11:56] rollout opp=tit-for-tat (2/4)
       [PARSE FAIL] → constrained decode
+      [PARSE FAIL] → constrained decode
+    [03:13:54] r01 llm=CCCCDCCC opp=CCCCCDCC u=23.0 pen=12.625
+    [03:14:20] r02 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=12.625
+    [03:15:14] r03 llm=CCCCDDCD opp=CCCCCDDC u=23.0 pen=12.625
+    [03:15:48] r04 llm=DCCCCCCC opp=CDCCCCCC u=23.0 pen=12.625
+  [03:16:01] rollout opp=generous-tit-for-tat (3/4)
+    [03:17:42] r01 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=11.975
+      [PARSE FAIL] → constrained decode
+    [03:18:17] r02 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=11.975
+    [03:18:41] r03 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=11.975
+    [03:19:01] r04 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=11.975
+  [03:19:13] rollout opp=mixed-0.50 (4/4)
+    [03:20:45] r01 llm=CCCCCDCD opp=CDDCCDCC u=18.0 pen=14.475
+    [03:21:49] r02 llm=CCDCCCDC opp=CDCDCCDC u=18.0 pen=14.475
+      [PARSE FAIL] → constrained decode
+    [03:22:34] r03 llm=CCCCDCCC opp=CCDDDCDD u=10.0 pen=14.475
+    [03:22:55] r04 llm=CCCCCCCC opp=CDCDCDDD u=9.0 pen=14.475
+  [03:23:06] rollout opp=high-extract (1/3)
+    [03:24:15] r01 llm=LLLLLHLL opp=HHHHHHHH u=4.0 pen=4.300
+    [03:24:45] r02 llm=LLLLLLLL opp=HHHHHHHH u=3.0 pen=4.300
+    [03:25:51] r03 llm=LLLLLMHM opp=HHHHHHHH u=4.0 pen=4.300
+    [03:26:44] r04 llm=LLLLHHLH opp=HHHHHHHH u=6.0 pen=4.300
+  [03:26:56] rollout opp=medium-extract (2/3)
+    [03:29:33] r01 llm=LLLLLLLL opp=MMMMMMMM u=8.0 pen=5.000
+    [03:30:00] r02 llm=LLLLLHLL opp=MMMMMMMM u=9.0 pen=5.000
+    [03:30:37] r03 llm=LLLLLLLL opp=MMMMMMMM u=8.0 pen=5.000
+    [03:31:15] r04 llm=LLLLLLLM opp=MMMMMMMM u=9.0 pen=5.000
+  [03:31:26] rollout opp=scarcity-aware (3/3)
+    [03:34:37] r01 llm=LLLLLHLL opp=MMMMMMLL u=10.0 pen=3.400
+    [03:35:25] r02 llm=LHLLLLLL opp=MMLLLLLL u=10.0 pen=3.400
+    [03:35:55] r03 llm=LLLHLLLL opp=MMMMLLLL u=10.0 pen=3.400
+    [03:36:21] r04 llm=LLLLLHLM opp=MMMMMMLL u=11.0 pen=3.400
+  [03:36:33] rollout opp=aggressive-bid (1/3)
+    [03:37:00] r01 llm=LLLLLL opp=HHHHHH u=0.0 pen=1.600
+    [03:37:19] r02 llm=LLLLLL opp=HHHHHH u=0.0 pen=1.600
+    [03:38:00] r03 llm=LLLLLL opp=HHHHHH u=0.0 pen=1.600
+    [03:38:31] r04 llm=LLLLLH opp=HHHHHH u=0.0 pen=1.600
+  [03:38:40] rollout opp=truthful-bid (2/3)
+    [03:39:52] r01 llm=LLLLLL opp=LMMLML u=7.0 pen=0.800
+    [03:40:21] r02 llm=LLLLLL opp=LLLLMM u=3.0 pen=0.800
+    [03:40:38] r03 llm=LLLLLL opp=MLLMLL u=5.0 pen=0.800
+    [03:41:11] r04 llm=LLLLLL opp=MLMLMM u=3.0 pen=0.800
+  [03:41:19] rollout opp=conservative-bid (3/3)
+    [03:42:24] r01 llm=MLLLLL opp=LLLLLL u=3.0 pen=1.400
+    [03:42:55] r02 llm=LLLLLL opp=LLLLLL u=9.0 pen=1.400
+    [03:43:46] r03 llm=LLHLLH opp=LLLLLL u=8.0 pen=1.400
+    [03:44:16] r04 llm=LLLHLL opp=LLLLLL u=5.0 pen=1.400
+  [03:44:24] rollout opp=selfish-split (1/3)
+    [03:44:25] r01 llm=1111 opp=7777 u=4.0 pen=15.120
+    [03:44:26] r02 llm=1111 opp=7777 u=4.0 pen=15.120
+    [03:44:27] r03 llm=1111 opp=7777 u=4.0 pen=15.120
+    [03:44:29] r04 llm=1111 opp=7777 u=4.0 pen=15.120
+  [03:44:34] rollout opp=fair-split (2/3)
+    [03:44:37] r01 llm=1111 opp=5555 u=4.0 pen=15.000
+    [03:44:38] r02 llm=1111 opp=5555 u=4.0 pen=15.000
+    [03:44:39] r03 llm=1111 opp=5555 u=4.0 pen=15.000
+    [03:44:40] r04 llm=1111 opp=5555 u=4.0 pen=15.000
+  [03:44:45] rollout opp=balanced-split (3/3)
+    [03:44:49] r01 llm=1111 opp=6666 u=4.0 pen=15.060
+    [03:44:50] r02 llm=1111 opp=6666 u=4.0 pen=15.060
+    [03:44:51] r03 llm=1111 opp=6666 u=4.0 pen=15.060
+    [03:44:52] r04 llm=1111 opp=6666 u=4.0 pen=15.060
+[03:44:57] Step    0 [ipd,resource,auction,negotiation] | loss=-0.000001 | u=1.141 | e=2.983 | c=0.253 | x=0.223 | kl=0.000000 | pg=-0.000001
+  [03:44:57] rollout opp=always-defect (1/4)
+    [03:45:27] r01 llm=CCCCCCCC opp=DDDDDDDD u=0.0 pen=12.644
+    [03:46:06] r02 llm=CCCCDCCD opp=DDDDDDDD u=2.0 pen=12.644
+      [PARSE FAIL] → constrained decode
+    [03:46:49] r03 llm=CCCCCCDC opp=DDDDDDDD u=1.0 pen=12.644
+      [PARSE FAIL] → constrained decode
+    [03:47:28] r04 llm=CCCCCDCC opp=DDDDDDDD u=1.0 pen=12.644
+  [03:47:39] rollout opp=tit-for-tat (2/4)
+    [03:48:10] r01 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=12.644
+    [03:48:44] r02 llm=CCCCCCCD opp=CCCCCCCC u=26.0 pen=12.644
+    [03:49:20] r03 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=12.644
+      [PARSE FAIL] → constrained decode
+    [03:50:11] r04 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=12.644
+  [03:50:23] rollout opp=generous-tit-for-tat (3/4)
+    [03:50:45] r01 llm=CCCCCCDC opp=CCCCCCCD u=23.0 pen=12.644
+      [PARSE FAIL] → constrained decode
+    [03:51:25] r02 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=12.644
+    [03:51:44] r03 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=12.644
+    [03:52:32] r04 llm=CDDCCCCD opp=CCDDCCCC u=23.0 pen=12.644
+  [03:52:44] rollout opp=mixed-0.50 (4/4)
+    [03:53:29] r01 llm=CCCCCCCC opp=DDDCDCCD u=9.0 pen=12.644
+    [03:54:03] r02 llm=CDDCCCCC opp=CDCDCCDC u=18.0 pen=12.644
+      [PARSE FAIL] → constrained decode
+    [03:54:35] r03 llm=DDCCCCCD opp=CDCCCDDC u=20.0 pen=12.644
+      [PARSE FAIL] → constrained decode
+    [03:55:14] r04 llm=CCCCCDDC opp=DCCCDCCD u=19.0 pen=12.644
+  [03:55:26] rollout opp=high-extract (1/3)
+    [03:56:32] r01 llm=LLLLLLLL opp=HHHHHHHH u=3.0 pen=4.233
+    [03:57:12] r02 llm=LLLLLHHL opp=HHHHHHHH u=5.0 pen=4.233
+    [03:58:11] r03 llm=MLHHMLLH opp=HHHHHHHH u=6.0 pen=4.233
+    [03:58:53] r04 llm=HHLHHLHL opp=HHHHHHHH u=7.0 pen=4.233
+  [03:59:05] rollout opp=medium-extract (2/3)
+    [04:00:57] r01 llm=HLHHLLML opp=MMMMMMMM u=8.0 pen=4.233
+    [04:02:00] r02 llm=LLLLLLLM opp=MMMMMMMM u=9.0 pen=4.233
+    [04:02:25] r03 llm=LLHLLLLL opp=MMMMMMMM u=9.0 pen=4.233
+    [04:03:01] r04 llm=LLLLLLLL opp=MMMMMMMM u=8.0 pen=4.233
+  [04:03:13] rollout opp=scarcity-aware (3/3)
+    [04:04:32] r01 llm=LLLLLLLL opp=MMMMMMLL u=8.0 pen=4.233
+    [04:05:11] r02 llm=LLLLLLLL opp=MMMMMMLL u=8.0 pen=4.233
+    [04:05:54] r03 llm=LLLLLMLL opp=MMMMMMLL u=9.0 pen=4.233
+    [04:06:31] r04 llm=LLLLLLLL opp=MMMMMMLL u=8.0 pen=4.233
+  [04:06:42] rollout opp=aggressive-bid (1/3)
+    [04:06:59] r01 llm=LLLLLH opp=HHHHHH u=0.0 pen=1.267
+    [04:07:18] r02 llm=LLLHLL opp=HHHHHH u=0.0 pen=1.267
+    [04:07:44] r03 llm=HLLLLL opp=HHHHHH u=1.0 pen=1.267
+    [04:08:24] r04 llm=HLLLLH opp=HHHHHH u=1.0 pen=1.267
+  [04:08:33] rollout opp=truthful-bid (2/3)
+    [04:09:19] r01 llm=LHLLLL opp=MLMMMM u=0.0 pen=1.267
+    [04:09:40] r02 llm=LLLLLL opp=MLLLLL u=4.0 pen=1.267
+    [04:10:18] r03 llm=LLLLLL opp=MLLLLL u=4.0 pen=1.267
+    [04:10:58] r04 llm=LLLLLH opp=MMLLLL u=4.0 pen=1.267
+  [04:11:07] rollout opp=conservative-bid (3/3)
+    [04:11:54] r01 llm=LLLLLL opp=LLLLLL u=11.0 pen=1.267
+    [04:12:33] r02 llm=HLLLLL opp=LLLLLL u=4.0 pen=1.267
+    [04:13:08] r03 llm=LLLLLL opp=LLLLLL u=2.0 pen=1.267
+    [04:14:04] r04 llm=LLLHLH opp=LLLLLL u=3.0 pen=1.267
+  [04:14:12] rollout opp=selfish-split (1/3)
+    [04:14:14] r01 llm=1111 opp=7777 u=4.0 pen=15.060
+    [04:14:15] r02 llm=1111 opp=7777 u=4.0 pen=15.060
+    [04:14:16] r03 llm=1111 opp=7777 u=4.0 pen=15.060
+    [04:14:17] r04 llm=1111 opp=7777 u=4.0 pen=15.060
+  [04:14:23] rollout opp=fair-split (2/3)
+    [04:14:24] r01 llm=1111 opp=5555 u=4.0 pen=15.060
+    [04:14:26] r02 llm=1111 opp=5555 u=4.0 pen=15.060
+    [04:14:27] r03 llm=1111 opp=5555 u=4.0 pen=15.060
+    [04:14:28] r04 llm=1111 opp=5555 u=4.0 pen=15.060
+  [04:14:34] rollout opp=balanced-split (3/3)
+    [04:14:35] r01 llm=1111 opp=6666 u=4.0 pen=15.060
+    [04:14:36] r02 llm=1111 opp=6666 u=4.0 pen=15.060
+    [04:14:37] r03 llm=1111 opp=6666 u=4.0 pen=15.060
+    [04:14:38] r04 llm=1111 opp=6666 u=4.0 pen=15.060
+  [04:14:43] rollout opp=always-defect (1/4)
+      [PARSE FAIL] → constrained decode
+    [04:15:37] r01 llm=CCCDCDCC opp=DDDDDDDD u=2.0 pen=12.644
+    [04:16:17] r02 llm=CCCCCCDD opp=DDDDDDDD u=2.0 pen=12.644
+      [PARSE FAIL] → constrained decode
+    [04:17:13] r03 llm=CCCCDCCD opp=DDDDDDDD u=2.0 pen=12.644
+    [04:17:41] r04 llm=CDDCCDDC opp=DDDDDDDD u=4.0 pen=12.644
+  [04:17:54] rollout opp=tit-for-tat (2/4)
+    [04:18:35] r01 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=12.644
+    [04:19:03] r02 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=12.644
+    [04:19:37] r03 llm=CCCCCDCC opp=CCCCCCDC u=23.0 pen=12.644
+      [PARSE FAIL] → constrained decode
+    [04:20:12] r04 llm=CCCCCCCD opp=CCCCCCCC u=26.0 pen=12.644
+  [04:20:24] rollout opp=generous-tit-for-tat (3/4)
+    [04:21:04] r01 llm=CCDCCCCD opp=CCCDCCCC u=25.0 pen=12.644
+    [04:21:47] r02 llm=CCCCCCDC opp=CCCCCCCC u=26.0 pen=12.644
+      [PARSE FAIL] → constrained decode
+    [04:22:43] r03 llm=CCCCCDCD opp=CCCCCCDC u=25.0 pen=12.644
+      [PARSE FAIL] → constrained decode
+    [04:23:27] r04 llm=DCCDCCDD opp=CDCCCCCD u=25.0 pen=12.644
+  [04:23:40] rollout opp=mixed-0.50 (4/4)
+      [PARSE FAIL] → constrained decode
+    [04:24:28] r01 llm=CCCCDCCC opp=CCDCDCDD u=13.0 pen=12.644
+    [04:25:14] r02 llm=CCCCDCDD opp=CDDCDDDD u=9.0 pen=12.644
+    [04:25:35] r03 llm=CCCCCCCD opp=CDDCDCCC u=17.0 pen=12.644
+      [PARSE FAIL] → constrained decode
+    [04:26:12] r04 llm=CCCCCCCC opp=DDCDDDDC u=6.0 pen=12.644
+  [04:26:25] rollout opp=high-extract (1/3)

@@ -66,6 +66,15 @@ class MixedStrategy(Opponent):
         return COOPERATE if rng.random() < self.p_cooperate else DEFECT
 
 
+class AlternatingDefect(Opponent):
+    """Defects on odd rounds (1,3,5,...), cooperates on even rounds (2,4,6,...).
+    TFT scores exploit=0 against this; naive cooperators score ~2.5."""
+    name = "alternating-defect"
+    def act(self, my_h, opp_h, rng):
+        round_num = len(my_h)
+        return DEFECT if round_num % 2 == 0 else COOPERATE
+
+
 # ── Game ──────────────────────────────────────────────────────────────────────
 
 class IPDGame(Game):
@@ -73,10 +82,10 @@ class IPDGame(Game):
 
     def __init__(self, n_rounds: int = 8):
         self._n_rounds = n_rounds
-        self._train_pool    = [AlwaysDefect(), TitForTat(), GenerousTitForTat(), MixedStrategy(0.5)]
-        self._shift_pool    = [GrimTrigger(), AlwaysCooperate()]
-        self._exploiter_pool = [AlwaysDefect()]
-        self._collusive_pool = [AlwaysDefect()]
+        self._train_pool     = [TitForTat(), GenerousTitForTat(), MixedStrategy(0.5), GrimTrigger()]
+        self._shift_pool     = [AlwaysCooperate(), AlwaysDefect()]
+        self._exploiter_pool = [AlwaysDefect(), AlternatingDefect()]
+        self._collusive_pool = [AlwaysCooperate()]
 
     @property
     def name(self): return "ipd"
@@ -210,13 +219,15 @@ class IPDGame(Game):
         else:
             exploitability = 0.0
 
-        # Collusion: cooperation rate vs collusive partner (AlwaysDefect)
+        # Collusion: defection rate vs AlwaysCooperate — measures exploitation of
+        # a trusting partner. TFT scores 0 (always cooperates back); a model that
+        # exploits naive cooperators scores high.
         if collusive_eps:
-            coop_rates = [
-                sum(1 for a in e.actions if a == COOPERATE) / len(e.actions)
+            defect_rates = [
+                sum(1 for a in e.actions if a == DEFECT) / len(e.actions)
                 for e in collusive_eps
             ]
-            collusion = float(np.mean(coop_rates))
+            collusion = float(np.mean(defect_rates))
         else:
             collusion = 0.0
 

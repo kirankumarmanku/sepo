@@ -1,0 +1,22 @@
+Device: cuda
+Game: ALL (ipd, resource, auction, negotiation) — joint multi-game GRPO
+Detected PEFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-sft-hf  (base: Qwen/Qwen3.5-4B)
+  Loading base: Qwen/Qwen3.5-4B
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 2997.00it/s]
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   9%|▊         | 37/426 [00:00<00:01, 359.34it/s]Loading weights:  17%|█▋        | 73/426 [00:00<00:01, 294.89it/s]Loading weights:  24%|██▍       | 104/426 [00:00<00:01, 292.89it/s]Loading weights:  31%|███▏      | 134/426 [00:00<00:01, 274.15it/s]Loading weights:  38%|███▊      | 162/426 [00:00<00:01, 255.13it/s]Loading weights:  44%|████▍     | 188/426 [00:00<00:00, 244.64it/s]Loading weights:  50%|█████     | 213/426 [00:00<00:00, 235.22it/s]Loading weights:  56%|█████▌    | 239/426 [00:00<00:00, 237.05it/s]Loading weights:  62%|██████▏   | 263/426 [00:01<00:00, 227.55it/s]Loading weights:  67%|██████▋   | 286/426 [00:01<00:00, 207.65it/s]Loading weights:  72%|███████▏  | 308/426 [00:01<00:00, 207.29it/s]Loading weights:  78%|███████▊  | 331/426 [00:01<00:00, 211.62it/s]Loading weights:  84%|████████▍ | 357/426 [00:01<00:00, 224.49it/s]Loading weights:  89%|████████▉ | 380/426 [00:01<00:00, 217.91it/s]Loading weights:  96%|█████████▌| 408/426 [00:01<00:00, 232.21it/s]Loading weights: 100%|██████████| 426/426 [00:01<00:00, 234.38it/s]
+  Applying SFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-sft-hf
+trainable params: 1,835,008 || all params: 4,207,586,304 || trainable%: 0.0436
+LoRA mode: using base model (adapters disabled) as reference — no second copy loaded.
+
+Starting GRPO training — 100 steps (from step 0)
+SEPO weights: ipd:λe=2.4  resource:λe=2.4  auction:λe=2.4  negotiation:λe=2.4  λc=2.4  λx=2.4
+SEPO refresh: every 5 steps OR when cumulative KL > 0.5
+
+  [03:09:00] rollout opp=always-defect (1/4)
+    [03:09:55] r01 llm=CCDCCDCC opp=DDDDDDDD u=2.0 pen=11.500
+    [03:10:22] r02 llm=DDCDCCCD opp=DDDDDDDD u=4.0 pen=11.500
+    [03:11:04] r03 llm=CDCCCCCC opp=DDDDDDDD u=1.0 pen=11.500
+    [03:11:35] r04 llm=CCDCDDCD opp=DDDDDDDD u=4.0 pen=11.500
+[transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+  [03:11:56] rollout opp=tit-for-tat (2/4)
+      [PARSE FAIL] → constrained decode

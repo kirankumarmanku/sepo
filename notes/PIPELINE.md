@@ -120,6 +120,66 @@ huggingface-cli upload <your-hf-repo> sepo_sft_fused/
 
 ---
 
+## Fallback Plan — If GRPO Penalty Fix Does Not Improve Results
+
+The GRPO reward bug fix (per-rollout exploit episodes, commit `6cac5cf`) is the primary next step.
+If exploit does not decrease after `grpo_ipd_v4` (50 steps), the following game improvements
+should be tried before more training. Better game implementations → cleaner reward signal → better GRPO.
+
+### Priority 1 — IPD Payoff Alignment with GTBench (1 day)
+**What**: Fix payoff matrix to match GTBench exactly:
+- `(C,C) → (-1,-1)`, `(C,D) → (-3,0)`, `(D,C) → (0,-3)`, `(D,D) → (-2,-2)`
+
+**Why**: Current payoffs may differ, making NRA not directly comparable to GTBench paper (arXiv:2402.12348).
+Corrected payoffs also sharpen the exploit signal — defecting against AlwaysDefect is more clearly rewarded.
+
+**Steps**:
+1. Update `games/ipd.py` payoff matrix and `max_payoff`
+2. Regenerate SFT data with corrected payoffs (`sft_data_gen.py`, ~1hr)
+3. Retrain SFT warm-start from scratch (Stage 1)
+4. Re-run GRPO with fixed reward
+
+---
+
+### Priority 2 — Auction Prompt + Action Space Alignment (0.5 days)
+**What**: Replace LOW/MEDIUM/HIGH vocab with integer bids `0` to `valuation` (GTBench style).
+
+**Why**: Current discretised vocab (3 actions) loses information. GTBench uses integer bids up to the
+private valuation, which better tests strategic shading. NRA becomes directly comparable.
+
+**Steps**:
+1. Update `games/auction.py` action space and prompts
+2. Update `parse_action` and `action_vocab` for integer bids
+3. Regenerate SFT data for auction game
+4. No change needed to SEPO metrics logic
+
+---
+
+### Priority 3 — Add Kuhn Poker (2–3 days)
+**What**: New game `games/kuhn_poker.py` — 3-card incomplete information poker (J/Q/K), two players,
+bet or pass each round.
+
+**Why**: Kuhn Poker is in GTBench, has a well-defined Nash equilibrium (GTO strategy), and maps
+cleanly to SEPO axes:
+- **Exploit**: deviation from GTO → opponent earns above Nash
+- **Collusion**: both players bluff in correlated way (coordinated overbetting)
+- **Externality**: reckless betting that wastes chips (negative-sum outcomes)
+
+NRA directly comparable to GTBench Kuhn Poker results.
+
+**Steps**:
+1. Implement `games/kuhn_poker.py` with GTO opponent (exploiter), Bluffer (collusive), Random (train)
+2. Write system/user prompts with card/bet history
+3. Generate SFT data (~3000 examples)
+4. Register in `GAME_REGISTRY` in `grpo_sepo.py` and `eval_sepo.py`
+
+---
+
+### Priority 4 — Negotiation GTBench Upgrade (3–4 days)
+See existing section below — deferred, high effort.
+
+---
+
 ## Open TODOs — Future Work
 
 ### GTBench-Compatible Negotiation Game

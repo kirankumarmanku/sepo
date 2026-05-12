@@ -1,0 +1,418 @@
+[
+  {
+    "step": 0,
+    "loss": -1.4411078559027777e-05,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "utility": 1.1875,
+    "exploitability": 2.763888888888889,
+    "collusion": 0.23524305555555558,
+    "externality": 0.2675347222222222,
+    "kl": 0.0,
+    "pg_loss": -1.4411078559027777e-05
+  },
+  {
+    "step": 1,
+    "loss": 13.509826036791006,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 1.1102430555555556,
+    "kl": 0.1671102311876085,
+    "pg_loss": 13.501470525231626
+  },
+  {
+    "step": 2,
+    "loss": 4.66051856941647,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 1.1440972222222223,
+    "kl": 0.19708824157714847,
+    "pg_loss": 4.650664157337613
+  },
+  {
+    "step": 3,
+    "loss": 0.06680343416002063,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.22916666666666666,
+    "collusion": 0.08333333333333333,
+    "externality": 0.09201388888888888,
+    "utility": 1.0260416666666665,
+    "kl": 0.16704940795898438,
+    "pg_loss": 0.0584509637620714
+  },
+  {
+    "step": 4,
+    "loss": 4.653685495723524,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "utility": 1.0529513888888888,
+    "exploitability": 1.1545138888888888,
+    "collusion": 0.21875,
+    "externality": 0.12152777777777776,
+    "kl": 0.16857210795084634,
+    "pg_loss": 4.645256890325982
+  },
+  {
+    "step": 5,
+    "loss": 0.10001175271140204,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "utility": 1.1744791666666665,
+    "exploitability": 2.704861111111111,
+    "collusion": 0.2109375,
+    "externality": 0.24149305555555553,
+    "kl": 0.17484876844618058,
+    "pg_loss": 0.09126931428909302
+  },
+  {
+    "step": 6,
+    "loss": 3.7042367299397787,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 1.0954861111111112,
+    "kl": 0.19081348843044704,
+    "pg_loss": 3.694696055518256
+  },
+  {
+    "step": 7,
+    "loss": 1.8496198667853605,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "utility": 1.0902777777777777,
+    "exploitability": 0.9618055555555556,
+    "collusion": 0.203125,
+    "externality": 0.12044270833333333,
+    "kl": 0.1782989501953125,
+    "pg_loss": 1.8407049192755949
+  },
+  {
+    "step": 8,
+    "loss": 0.08570758872891827,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.2708333333333333,
+    "collusion": 0.11458333333333333,
+    "externality": 0.10069444444444443,
+    "utility": 1.0998263888888888,
+    "kl": 0.15946239895290798,
+    "pg_loss": 0.07773446878127288
+  },
+  {
+    "step": 9,
+    "loss": 0.04445897738138835,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 1.1796875,
+    "kl": 0.17762883504231772,
+    "pg_loss": 0.03557753562927246
+  },
+  {
+    "step": 10,
+    "loss": 20.206001429482097,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "utility": 1.167534722222222,
+    "exploitability": 2.671875,
+    "collusion": 0.36284722222222227,
+    "externality": 0.29661458333333335,
+    "kl": 0.22959264119466144,
+    "pg_loss": 20.194521797422365
+  },
+  {
+    "step": 11,
+    "loss": 0.2556857188542684,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 1.0954861111111112,
+    "kl": 0.22096803453233504,
+    "pg_loss": 0.24463731712765166
+  },
+  {
+    "step": 12,
+    "loss": 3.675445407952955,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.375,
+    "collusion": 0.03125,
+    "externality": 0.14583333333333331,
+    "utility": 0.962673611111111,
+    "kl": 0.19941880967881945,
+    "pg_loss": 3.665474467469014
+  },
+  {
+    "step": 13,
+    "loss": 0.18307797276906465,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "utility": 1.09375,
+    "exploitability": 0.9765625,
+    "collusion": 0.15625,
+    "externality": 0.05468749999999999,
+    "kl": 0.14836247762044272,
+    "pg_loss": 0.17565984888804248
+  },
+  {
+    "step": 14,
+    "loss": 6.317956257495017,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.08333333333333333,
+    "collusion": 0.06944444444444443,
+    "externality": 0.03472222222222222,
+    "utility": 1.1996527777777777,
+    "kl": 0.1433662838406033,
+    "pg_loss": 6.310787943302987
+  },
+  {
+    "step": 15,
+    "loss": 11.24944934861867,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "utility": 1.1145833333333335,
+    "exploitability": 2.8567708333333335,
+    "collusion": 0.31770833333333337,
+    "externality": 0.25017361111111114,
+    "kl": 0.15727657741970485,
+    "pg_loss": 11.241585519747687
+  },
+  {
+    "step": 16,
+    "loss": 5.066107940421595,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 0.9487847222222222,
+    "kl": 0.18124008178710938,
+    "pg_loss": 5.05704593633224
+  },
+  {
+    "step": 17,
+    "loss": 4.599064726299709,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.125,
+    "collusion": 0.05555555555555555,
+    "externality": 0.041666666666666664,
+    "utility": 1.0685763888888888,
+    "kl": 0.1315864986843533,
+    "pg_loss": 4.592485401365492
+  },
+  {
+    "step": 18,
+    "loss": 0.041927597542396854,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "utility": 1.1328125,
+    "exploitability": 1.1848958333333333,
+    "collusion": 0.24739583333333334,
+    "externality": 0.16384548611111108,
+    "kl": 0.17065726386176217,
+    "pg_loss": 0.033394734349308744
+  },
+  {
+    "step": 19,
+    "loss": 0.29906538857354054,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 1.2005208333333335,
+    "kl": 0.13509983486599392,
+    "pg_loss": 0.2923103968302409
+  },
+  {
+    "step": 20,
+    "loss": 0.19104159183738778,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "utility": 1.25,
+    "exploitability": 2.8975694444444446,
+    "collusion": 0.33420138888888884,
+    "externality": 0.25711805555555556,
+    "kl": 0.1433582305908203,
+    "pg_loss": 0.18387368030784676
+  },
+  {
+    "step": 21,
+    "loss": 0.06908919050312963,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 1.1319444444444444,
+    "kl": 0.11924934387207033,
+    "pg_loss": 0.06312672330952612
+  },
+  {
+    "step": 22,
+    "loss": 0.2061877367051137,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 1.1388888888888888,
+    "kl": 0.10408782958984375,
+    "pg_loss": 0.20098334522562153
+  },
+  {
+    "step": 23,
+    "loss": 3.7226412561204705,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "utility": 1.1545138888888888,
+    "exploitability": 0.75,
+    "collusion": 0.1796875,
+    "externality": 0.10438368055555555,
+    "kl": 0.11836475796169704,
+    "pg_loss": 3.716723018222385
+  },
+  {
+    "step": 24,
+    "loss": 0.33300531376137066,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "exploitability": 0.2604166666666667,
+    "collusion": 0.020833333333333332,
+    "externality": 0.09027777777777778,
+    "utility": 1.1310763888888888,
+    "kl": 0.1039110819498698,
+    "pg_loss": 0.3278097596638771
+  },
+  {
+    "step": 25,
+    "loss": 0.32669488050701656,
+    "games": [
+      "ipd",
+      "resource",
+      "auction",
+      "negotiation"
+    ],
+    "utility": 1.1397569444444444,
+    "exploitability": 2.959201388888889,
+    "collusion": 0.2899305555555556,
+    "externality": 0.2916232638888889,
+    "kl": 0.11343786451551649,
+    "pg_loss": 0.3210229872812407
+  }
+]

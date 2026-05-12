@@ -333,7 +333,6 @@ def grpo_step(
     seed_offset: int,
     max_new_tokens: int = 512,
     use_token_type_ids: bool = False,
-    cached_sepo_penalty: float = None,
 ):
     """
     One GRPO step — per-round advantage normalisation.
@@ -428,8 +427,6 @@ def grpo_step(
                 max_new_tokens=max_new_tokens,
                 use_token_type_ids=use_token_type_ids,
             )
-            if first_train_ep is None:
-                first_train_ep = ep_train
 
             if cached_sepo_penalty is not None:
                 sepo_penalty = cached_sepo_penalty
@@ -581,13 +578,24 @@ def train(args):
         merged = AutoModelForCausalLM.from_pretrained(args.model, **load_kwargs)
 
     if args.lora:
-        # Gemma 4 wraps projections in Gemma4ClippableLinear — need inner .linear
-        # Gemma 3 and most models use plain q_proj/v_proj
-        named = {n for n, _ in merged.named_modules()}
-        if "model.layers.0.self_attn.q_proj.linear" in named:
-            lora_targets = ["q_proj.linear", "v_proj.linear"]
-        else:
-            lora_targets = ["q_proj", "v_proj"]
+        # Scope LoRA targets to the language model only.
+        # Multimodal Gemma 4 has Gemma4ClippableLinear wrappers in vision/audio
+        # towers — these never run during text-only training, so LoRA on them
+        # gets zero gradients. Target plain nn.Linear projections in the
+        # language_model submodule (and fall back to suffix match for text-only
+        # models like Qwen / Gemma 3).
+        import torch.nn as _nn
+        lora_targets = []
+        for _n, _mod in merged.named_modules():
+            if not any(_n.endswith(f"self_attn.{_p}") for _p in ("q_proj", "k_proj", "v_proj", "o_proj")):
+                continue
+            if not isinstance(_mod, _nn.Linear):
+                continue  # skip Gemma4ClippableLinear wrappers
+            if "language_model" in _n or _n.startswith("model.layers"):
+                lora_targets.append(_n)
+        if not lora_targets:
+            lora_targets = ["q_proj", "k_proj", "v_proj", "o_proj"]
+        print(f"  LoRA targets: {len(lora_targets)} modules")
         lora_cfg = LoraConfig(
             task_type=TaskType.CAUSAL_LM,
             r=args.lora_rank,
@@ -695,16 +703,7 @@ def train(args):
                 seed_offset=step * 10000 + abs(hash(game.name)) % 10000,
                 max_new_tokens=args.max_new_tokens,
                 use_token_type_ids=args.token_type_ids,
-                cached_sepo_penalty=None if refresh else sepo_caches[game.name],
             )
-            if metrics:
-                if refresh:
-                    sepo_caches[game.name] = (
-                        args.lambda_e * metrics.get("exploitability", 0.0)
-                        + args.lambda_c * metrics.get("collusion", 0.0)
-                        + args.lambda_x * metrics.get("externality", 0.0)
-                    )
-                kl_since_refresh[game.name] += metrics.get("kl", 0.0)
 
             if loss is not None:
                 step_losses.append(loss)

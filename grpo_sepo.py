@@ -378,7 +378,8 @@ def grpo_step(
             actions_str = "".join(game.action_label(a) for a in ep_train.actions)
             opp_str     = "".join(game.action_label(a) for a in ep_train.opp_actions)
             exp_str     = "".join(game.action_label(a) for ep in exploit_eps_r for a in ep.actions)
-            print(f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx+1:02d} llm={actions_str} opp={opp_str} exp={exp_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}", flush=True)
+            col_str     = "".join(game.action_label(a) for ep in collusive_eps_r for a in ep.actions)
+            print(f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx+1:02d} llm={actions_str} opp={opp_str} exp={exp_str} col={col_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}", flush=True)
 
         # Per-round advantage: normalise across rollouts at each round t
         n_steps = len(episodes[0][0].payoffs)

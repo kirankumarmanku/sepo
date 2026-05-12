@@ -211,11 +211,19 @@ class IPDGame(Game):
         # Utility: mean payoff vs train pool
         utility = float(np.mean([e.mean_payoff for e in train_eps])) if train_eps else 0.0
 
-        # Exploitability: how much exploiter earns over us
+        # Exploitability: per-opponent exploit averaged — prevents a strong opponent
+        # from masking a weak one when pooled. e.g. model beats AlternatingDefect
+        # (negative exploit) but loses to AlwaysDefect; pooling would hide the loss.
         if exploit_eps:
-            llm_pay  = np.mean([e.mean_payoff for e in exploit_eps])
-            opp_pay  = np.mean([e.mean_opp_payoff for e in exploit_eps])
-            exploitability = float(max(0.0, opp_pay - llm_pay))
+            by_opp = {}
+            for ep in exploit_eps:
+                by_opp.setdefault(ep.opponent_name, []).append(ep)
+            per_opp = []
+            for opp_eps in by_opp.values():
+                llm = np.mean([e.mean_payoff for e in opp_eps])
+                opp = np.mean([e.mean_opp_payoff for e in opp_eps])
+                per_opp.append(max(0.0, opp - llm))
+            exploitability = float(np.mean(per_opp))
         else:
             exploitability = 0.0
 

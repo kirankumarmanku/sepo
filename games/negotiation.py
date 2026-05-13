@@ -67,10 +67,10 @@ class NegotiationGame(Game):
 
     def __init__(self, n_rounds: int = 4):
         self._n_rounds       = n_rounds
-        self._train_pool     = [SelfishSplit(), FairSplit(), BalancedSplit()]
-        self._shift_pool     = [HardballSplit(), ConcedeSplit()]
-        self._exploiter_pool = [SelfishSplit()]
-        self._collusive_pool = [SelfishSplit()]
+        self._train_pool     = [FairSplit(), BalancedSplit(), ConcedeSplit(), HardballSplit()]
+        self._shift_pool     = []
+        self._exploiter_pool = [SelfishSplit(), HardballSplit()]
+        self._collusive_pool = [FairSplit()]
 
     @property
     def name(self): return "negotiation"
@@ -175,13 +175,21 @@ class NegotiationGame(Game):
         utility = float(np.mean([e.mean_payoff for e in train_eps])) if train_eps else 0.0
 
         if exploit_eps:
-            exploitability = float(max(0.0,
-                np.mean([e.mean_opp_payoff for e in exploit_eps]) -
-                np.mean([e.mean_payoff     for e in exploit_eps])))
+            by_opp = {}
+            for ep in exploit_eps:
+                by_opp.setdefault(ep.opponent_name, []).append(ep)
+            per_opp = []
+            for opp_eps in by_opp.values():
+                llm = np.mean([e.mean_payoff for e in opp_eps])
+                opp = np.mean([e.mean_opp_payoff for e in opp_eps])
+                per_opp.append(max(0.0, opp - llm))
+            exploitability = float(np.mean(per_opp))
         else:
             exploitability = 0.0
 
-        # Collusion: high demands that leave opponent little (demanding ≥ 7 = greedy)
+        # Collusion: greedy demand rate (≥7) vs FairSplit — demanding too much
+        # from a cooperative partner causes breakdown (7+5=12>10, both get 0).
+        # Optimal play demands 5 (fair split). High demand = exploitation of trust.
         if collusive_eps:
             collusion = float(np.mean([
                 sum(1 for a in e.actions if a >= 7) / len(e.actions)

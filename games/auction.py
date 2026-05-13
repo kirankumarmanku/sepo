@@ -69,9 +69,9 @@ class AuctionGame(Game):
 
     def __init__(self, n_rounds: int = 6):
         self._n_rounds       = n_rounds
-        self._train_pool     = [TruthfulBid(), ConservativeBid(), ShadedBid()]
+        self._train_pool     = [TruthfulBid(), ConservativeBid(), ShadedBid(), AdaptiveBid()]
         self._shift_pool     = [AggressiveBid()]
-        self._exploiter_pool = [AggressiveBid(), AdaptiveBid()]
+        self._exploiter_pool = [AggressiveBid()]
         self._collusive_pool = [CollusiveLowBid()]
 
     @property

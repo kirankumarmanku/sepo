@@ -48,25 +48,35 @@ GAME_REGISTRY = {
 # Model loading
 # ─────────────────────────────────────────────────────────────────────────────
 
-def load_model(model_path: str, adapter_path: Optional[str], device):
-    print(f"  Loading tokenizer from {model_path}...")
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
+def load_model(model_path: str, adapter_path: Optional[str], device,
+               sft_adapter: Optional[str] = None):
+    """Load base → optional SFT adapter (merged) → optional final adapter (merged)."""
+    # Tokenizer from the most-finetuned source available (preserves chat template)
+    tok_source = adapter_path or sft_adapter or model_path
+    print(f"  Loading tokenizer from {tok_source}...")
+    tokenizer = AutoTokenizer.from_pretrained(tok_source)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    print(f"  Loading model from {model_path}...")
+    print(f"  Loading base model from {model_path}...")
     model = AutoModelForCausalLM.from_pretrained(
         model_path,
         dtype=torch.bfloat16,
         device_map="auto",
     )
 
+    from peft import PeftModel
+    if sft_adapter:
+        print(f"  Applying SFT adapter: {sft_adapter}")
+        model = PeftModel.from_pretrained(model, sft_adapter)
+        model = model.merge_and_unload()
+        print("  SFT adapter merged.")
+
     if adapter_path:
-        print(f"  Loading adapter from {adapter_path}...")
-        from peft import PeftModel
+        print(f"  Applying final adapter: {adapter_path}")
         model = PeftModel.from_pretrained(model, adapter_path)
         model = model.merge_and_unload()
-        print("  Adapter merged.")
+        print("  Final adapter merged.")
 
     model.eval()
     return model, tokenizer
@@ -94,7 +104,7 @@ def run_episode(model, tokenizer, game, opponent, pool: str, seed: int,
             {"role": "user",   "content": game.user_prompt(state)},
         ]
         text = tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True, enable_thinking=False
+            messages, tokenize=False, add_generation_prompt=True
         )
         enc = tokenizer(text, return_tensors="pt").to(device)
         if use_token_type_ids:
@@ -245,7 +255,8 @@ def print_results(game_name: str, label: str, metrics: dict):
 def parse_args():
     ap = argparse.ArgumentParser(description="SEPO eval for any game")
     ap.add_argument("--model",      required=True, help="Base model path or HF repo")
-    ap.add_argument("--adapter",    default=None,  help="LoRA adapter path (optional)")
+    ap.add_argument("--adapter",    default=None,  help="LoRA adapter path (optional) — applied on top of base (and SFT if provided)")
+    ap.add_argument("--sft-adapter", default=None,  help="SFT adapter to merge before applying --adapter (required for GRPO eval)")
     ap.add_argument("--game",       default="all",
                     help="Game to eval: ipd | resource | auction | negotiation | all")
     ap.add_argument("--episodes",   type=int,   default=5,   help="Episodes per opponent")
@@ -272,7 +283,7 @@ if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
     label = args.label or (args.adapter or "base")
 
-    model, tokenizer = load_model(args.model, args.adapter, device)
+    model, tokenizer = load_model(args.model, args.adapter, device, sft_adapter=args.sft_adapter)
 
     lambda_e_per_game = {}
     if args.lambda_e_override:

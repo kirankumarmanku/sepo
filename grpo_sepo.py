@@ -178,7 +178,7 @@ def run_episode(
             {"role": "user",   "content": user_msg},
         ]
         text = tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True
+            messages, tokenize=False, add_generation_prompt=False
         )
         encoding = tokenizer(text, return_tensors="pt").to(device)
         if use_token_type_ids:
@@ -477,7 +477,7 @@ def train(args):
     _local = _Path(args.model)
     is_peft = (_local.exists() and (_local / "adapter_config.json").exists()) or (args.base_model is not None)
 
-    tokenizer_id = args.base_model if is_peft else args.model
+    tokenizer_id = args.model  #args.base_model if is_peft else args.model
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_id)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token

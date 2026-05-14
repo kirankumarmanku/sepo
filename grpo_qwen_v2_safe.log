@@ -1,49 +1,0 @@
-Device: cuda
-Game: ALL (ipd, resource, auction, negotiation) — joint multi-game GRPO
-Detected PEFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-sft-v2  (base: Qwen/Qwen3.5-4B)
-  Loading base: Qwen/Qwen3.5-4B
-Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 4566.47it/s]
-Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   8%|▊         | 36/426 [00:00<00:01, 351.83it/s]Loading weights:  17%|█▋        | 72/426 [00:00<00:01, 312.02it/s]Loading weights:  24%|██▍       | 104/426 [00:00<00:01, 250.79it/s]Loading weights:  31%|███       | 131/426 [00:00<00:01, 253.72it/s]Loading weights:  37%|███▋      | 158/426 [00:00<00:01, 226.88it/s]Loading weights:  43%|████▎     | 184/426 [00:00<00:01, 235.70it/s]Loading weights:  49%|████▉     | 209/426 [00:00<00:01, 215.81it/s]Loading weights:  55%|█████▌    | 235/426 [00:00<00:00, 227.20it/s]Loading weights:  61%|██████    | 259/426 [00:01<00:00, 207.00it/s]Loading weights:  68%|██████▊   | 290/426 [00:01<00:00, 232.66it/s]Loading weights:  74%|███████▍  | 315/426 [00:01<00:00, 222.44it/s]Loading weights:  81%|████████  | 344/426 [00:01<00:00, 238.38it/s]Loading weights:  87%|████████▋ | 369/426 [00:01<00:00, 121.06it/s]Loading weights:  93%|█████████▎| 396/426 [00:02<00:00, 145.27it/s]Loading weights:  98%|█████████▊| 418/426 [00:02<00:00, 152.86it/s]Loading weights: 100%|██████████| 426/426 [00:02<00:00, 197.35it/s]
-  Applying SFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-sft-v2
-trainable params: 1,835,008 || all params: 4,207,586,304 || trainable%: 0.0436
-LoRA mode: using base model (adapters disabled) as reference — no second copy loaded.
-
-Starting GRPO training — 100 steps (from step 0)
-SEPO weights: ipd:λe=2.4  resource:λe=2.4  auction:λe=2.4  negotiation:λe=2.4  λc=2.4  λx=2.4
-SEPO refresh: every 5 steps OR when cumulative KL > 0.5
-
-  [00:06:24] rollout opp=always-defect (1/4)
-    [00:06:41] r01 llm=DDDDDDDD opp=DDDDDDDD u=8.0 pen=1.600
-    [00:06:48] r02 llm=DCDCCDCC opp=DDDDDDDD u=3.0 pen=1.600
-    [00:07:31] r03 llm=DCDCCDCD opp=DDDDDDDD u=4.0 pen=1.600
-    [00:07:37] r04 llm=CDDDCCDD opp=DDDDDDDD u=5.0 pen=1.600
-[transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
-  [00:07:56] rollout opp=tit-for-tat (2/4)
-    [00:08:10] r01 llm=CDDDCCCC opp=CCDDDCCC u=19.0 pen=6.525
-    [00:08:16] r02 llm=DCDDCCCC opp=CDCDDCCC u=20.0 pen=6.525
-    [00:08:41] r03 llm=DDDDCCCC opp=CDDDDCCC u=17.0 pen=6.525
-      [PARSE FAIL] → constrained decode
-    [00:09:07] r04 llm=DCDCCCCD opp=CDCDCCCC u=24.0 pen=6.525
-  [00:09:17] rollout opp=generous-tit-for-tat (3/4)
-    [00:10:15] r01 llm=CDDCCCDC opp=CCDDCCCC u=23.0 pen=6.450
-    [00:10:21] r02 llm=DCDCCCCD opp=CDCDCCCC u=24.0 pen=6.450
-    [00:10:26] r03 llm=DCCCCDCC opp=CCCCCCDC u=25.0 pen=6.450
-    [00:10:31] r04 llm=DDDDDDDD opp=CDDCCDDD u=20.0 pen=6.450
-  [00:10:41] rollout opp=mixed-0.50 (4/4)
-    [00:10:58] r01 llm=CDCDCDDD opp=CDDCDCDC u=20.0 pen=6.600
-      [PARSE FAIL] → constrained decode
-    [00:11:05] r02 llm=DCDDDCDC opp=DDDDDDDC u=8.0 pen=6.600
-    [00:11:10] r03 llm=DDDDDDDC opp=DDDDCDCC u=18.0 pen=6.600
-    [00:11:14] r04 llm=DDDDCCCC opp=DDDCDCCC u=17.0 pen=6.600
-  [00:11:26] rollout opp=high-extract (1/3)
-    [00:11:31] r01 llm=MMHLLLLL opp=HHHHHHHH u=5.0 pen=3.600
-    [00:11:35] r02 llm=LHHLLLLL opp=HHHHHHHH u=5.0 pen=3.600
-    [00:11:41] r03 llm=MMHLLLLL opp=HHHHHHHH u=5.0 pen=3.600
-    [00:11:46] r04 llm=LHLLLLLL opp=HHHHHHHH u=4.0 pen=3.600
-  [00:11:57] rollout opp=medium-extract (2/3)
-    [00:12:13] r01 llm=LMLLMMLL opp=MMMMMMMM u=7.0 pen=4.050
-    [00:12:18] r02 llm=MMMLLMLL opp=MMMMMMMM u=8.0 pen=4.050
-    [00:12:23] r03 llm=MMMMLLLL opp=MMMMMMMM u=6.0 pen=4.050
-    [00:12:27] r04 llm=MMLMLLLL opp=MMMMMMMM u=8.0 pen=4.050
-  [00:12:37] rollout opp=scarcity-aware (3/3)
-    [00:12:52] r01 llm=LLLLMMLM opp=MMMMMLLL u=11.0 pen=3.650

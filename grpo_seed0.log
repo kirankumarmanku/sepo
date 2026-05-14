@@ -1,70 +1,0 @@
-Device: cuda
-Game: ALL (ipd, resource, auction, negotiation) — joint multi-game GRPO
-Detected PEFT adapter: grpo_all_v2_qwen/step_25  (base: Qwen/Qwen3.5-4B)
-  Loading base: Qwen/Qwen3.5-4B
-Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 6775.94it/s]
-Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   7%|▋         | 28/426 [00:00<00:01, 258.23it/s]Loading weights:  13%|█▎        | 54/426 [00:00<00:02, 161.02it/s]Loading weights:  17%|█▋        | 73/426 [00:00<00:02, 139.20it/s]Loading weights:  21%|██        | 88/426 [00:00<00:02, 130.10it/s]Loading weights:  24%|██▍       | 102/426 [00:00<00:03, 107.51it/s]Loading weights:  27%|██▋       | 117/426 [00:00<00:02, 117.42it/s]Loading weights:  31%|███       | 130/426 [00:01<00:02, 117.88it/s]Loading weights:  34%|███▎      | 143/426 [00:01<00:02, 117.62it/s]Loading weights:  37%|███▋      | 156/426 [00:01<00:02, 108.59it/s]Loading weights:  41%|████      | 173/426 [00:01<00:02, 119.91it/s]Loading weights:  44%|████▍     | 187/426 [00:01<00:01, 124.47it/s]Loading weights:  48%|████▊     | 204/426 [00:01<00:01, 128.98it/s]Loading weights:  53%|█████▎    | 224/426 [00:01<00:01, 146.51it/s]Loading weights:  56%|█████▌    | 239/426 [00:01<00:01, 139.68it/s]Loading weights:  60%|█████▉    | 254/426 [00:01<00:01, 134.54it/s]Loading weights:  64%|██████▍   | 273/426 [00:02<00:01, 145.32it/s]Loading weights:  68%|██████▊   | 291/426 [00:02<00:00, 144.68it/s]Loading weights:  72%|███████▏  | 306/426 [00:02<00:00, 140.85it/s]Loading weights:  75%|███████▌  | 321/426 [00:02<00:00, 135.64it/s]Loading weights:  79%|███████▊  | 335/426 [00:02<00:00, 127.65it/s]Loading weights:  82%|████████▏ | 348/426 [00:02<00:00, 114.57it/s]Loading weights:  85%|████████▍ | 360/426 [00:02<00:00, 99.94it/s] Loading weights:  87%|████████▋ | 371/426 [00:02<00:00, 96.25it/s]Loading weights:  90%|████████▉ | 383/426 [00:03<00:00, 100.45it/s]Loading weights:  93%|█████████▎| 397/426 [00:03<00:00, 110.24it/s]Loading weights:  96%|█████████▌| 410/426 [00:03<00:00, 114.07it/s]Loading weights:  99%|█████████▉| 422/426 [00:03<00:00, 102.05it/s]Loading weights: 100%|██████████| 426/426 [00:03<00:00, 122.74it/s]
-  Applying SFT adapter: grpo_all_v2_qwen/step_25
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.11/dist-packages/huggingface_hub/utils/_http.py", line 761, in hf_raise_for_status
-    response.raise_for_status()
-  File "/usr/local/lib/python3.11/dist-packages/httpx/_models.py", line 763, in raise_for_status
-    raise HTTPStatusError(message, request=request, response=self)
-httpx.HTTPStatusError: Client error '404 Not Found' for url 'https://huggingface.co/grpo_all_v2_qwen/step_25/resolve/main/adapter_config.json'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.11/dist-packages/peft/config.py", line 317, in _get_peft_type
-    config_file = hf_hub_download(
-                  ^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
-    return fn(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/huggingface_hub/file_download.py", line 997, in hf_hub_download
-    return _hf_hub_download_to_cache_dir(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/huggingface_hub/file_download.py", line 1148, in _hf_hub_download_to_cache_dir
-    _raise_on_head_call_error(head_call_error, force_download, local_files_only)
-  File "/usr/local/lib/python3.11/dist-packages/huggingface_hub/file_download.py", line 1782, in _raise_on_head_call_error
-    raise head_call_error
-  File "/usr/local/lib/python3.11/dist-packages/huggingface_hub/file_download.py", line 1669, in _get_metadata_or_catch_error
-    metadata = get_hf_file_metadata(
-               ^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
-    return fn(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/huggingface_hub/file_download.py", line 1591, in get_hf_file_metadata
-    response = _httpx_follow_relative_redirects_with_backoff(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/huggingface_hub/utils/_http.py", line 692, in _httpx_follow_relative_redirects_with_backoff
-    hf_raise_for_status(response)
-  File "/usr/local/lib/python3.11/dist-packages/huggingface_hub/utils/_http.py", line 835, in hf_raise_for_status
-    raise _format(RepositoryNotFoundError, message, response, repo_type=repo_type, repo_id=repo_id) from e
-huggingface_hub.errors.RepositoryNotFoundError: 404 Client Error. (Request ID: Root=1-6a0290d2-2793425824c51b4a0ca3aae9;87dc683b-0419-4a72-b8d7-0f52361e9765)
-
-Repository Not Found for url: https://huggingface.co/grpo_all_v2_qwen/step_25/resolve/main/adapter_config.json.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
-For more details, see https://huggingface.co/docs/huggingface_hub/authentication
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/root/workspace/sepo/grpo_sepo.py", line 720, in <module>
-    main()
-  File "/root/workspace/sepo/grpo_sepo.py", line 716, in main
-    train(args)
-  File "/root/workspace/sepo/grpo_sepo.py", line 497, in train
-    merged = load_merged(args.model, args.base_model, load_kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/workspace/sepo/grpo_sepo.py", line 492, in load_merged
-    peft_m = PeftModel.from_pretrained(base, model_id, autocast_adapter_dtype=False)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/peft/peft_model.py", line 473, in from_pretrained
-    config = PEFT_TYPE_TO_CONFIG_MAPPING[PeftConfig._get_peft_type(model_id, **hf_kwargs)].from_pretrained(
-                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/peft/config.py", line 323, in _get_peft_type
-    raise ValueError(f"Can't find '{CONFIG_NAME}' at '{model_id}'")
-ValueError: Can't find 'adapter_config.json' at 'grpo_all_v2_qwen/step_25'

@@ -48,16 +48,14 @@ from games import Episode, Game
 from games.auction import AuctionGame
 from games.ipd import IPDGame
 from games.negotiation import NegotiationGame
-from games.kuhn import KuhnPokerGame
 from games.negotiation_gtbench import NegotiationGTBenchGame
 from games.kuhn import KuhnPokerGame
 
 # ── Game registry ─────────────────────────────────────────────────────────────
 GAME_REGISTRY: Dict[str, Game] = {
-    "ipd": IPDGame(n_rounds=8),
-    "resource": ResourceGame(n_rounds=8),
-    "auction": AuctionGame(n_rounds=6),
-    "negotiation": NegotiationGame(n_rounds=4),
+    "ipd":             IPDGame(n_rounds=8),
+    "auction":         AuctionGame(n_rounds=6),
+    "negotiation":     NegotiationGame(n_rounds=4),
     "negotiation_gt":  NegotiationGTBenchGame(n_rounds=4),
     "kuhn":            KuhnPokerGame(n_hands=6),
 }
@@ -363,11 +361,9 @@ def grpo_step(
             flush=True,
         )
 
-        # Shared aux episodes for SEPO — run ONCE per opponent group, not per rollout.
+<<<<<<< HEAD
         # Aux episodes for SEPO metrics — skipped when a cached penalty is provided
         # (caller refreshes the cache every sepo_eval_every steps).
-        # When not cached: run once per opponent group, reusing train ep if possible.
-        from dataclasses import replace as _replace
 
         exploit_names = {o.name for o in game.exploiter_pool}
         collusive_names = {o.name for o in game.collusive_pool}
@@ -414,6 +410,7 @@ def grpo_step(
 
         first_train_ep = None
 
+>>>>>>> fdea898 (Generated data for kuhn)
         for r_idx in range(n_rollouts):
             seed_base = seed_offset + g_idx * 1000 + r_idx * 100
 
@@ -429,9 +426,42 @@ def grpo_step(
                 max_new_tokens=max_new_tokens,
                 use_token_type_ids=use_token_type_ids,
             )
-            if first_train_ep is None:
-                first_train_ep = ep_train
 
+<<<<<<< HEAD
+            # Run fresh exploit + collusive episodes per rollout so sepo_penalty
+            # varies across rollouts and contributes to the advantage signal.
+            # With a shared constant penalty, normalization cancels it out entirely.
+            exploit_eps_r = []
+            for i_opp, opp in enumerate(game.exploiter_pool):
+                ep_exp, _ = run_episode(
+                    model, tokenizer, game, opp, "exploiter",
+                    seed=seed_base + 500 + i_opp, device=device, temperature=temperature,
+                    max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids,
+                )
+                exploit_eps_r.append(ep_exp)
+
+            collusive_eps_r = []
+            for i_opp, opp in enumerate(game.collusive_pool):
+                ep_col, _ = run_episode(
+                    model, tokenizer, game, opp, "collusive",
+                    seed=seed_base + 600 + i_opp, device=device, temperature=temperature,
+                    max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids,
+                )
+                collusive_eps_r.append(ep_col)
+
+            aux = [ep_train] + exploit_eps_r + collusive_eps_r
+            _, metrics = sepo_reward(aux, game, lambda_e, lambda_c, lambda_x)
+            sepo_penalty = (lambda_e * metrics["exploitability"]
+                          + lambda_c * metrics["collusion"]
+                          + lambda_x * metrics["externality"])
+
+            episodes.append((ep_train, inp_ids, gen_ids, old_lps, sepo_penalty, metrics))
+            actions_str = "".join(game.action_label(a) for a in ep_train.actions)
+            opp_str     = "".join(game.action_label(a) for a in ep_train.opp_actions)
+            exp_str     = "".join(game.action_label(a) for ep in exploit_eps_r for a in ep.actions)
+            col_str     = "".join(game.action_label(a) for ep in collusive_eps_r for a in ep.actions)
+            print(f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx+1:02d} llm={actions_str} opp={opp_str} exp={exp_str} col={col_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}", flush=True)
+=======
             if cached_sepo_penalty is not None:
                 sepo_penalty = cached_sepo_penalty
                 metrics = {
@@ -470,6 +500,7 @@ def grpo_step(
                 f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx + 1:02d} llm={actions_str} opp={opp_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}",
                 flush=True,
             )
+>>>>>>> fdea898 (Generated data for kuhn)
 
         # Per-round advantage: normalise across rollouts at each round t.
         # Use min length — Kuhn Poker episodes vary (early folds shorten episodes).
@@ -583,24 +614,13 @@ def train(args):
         merged = AutoModelForCausalLM.from_pretrained(args.model, **load_kwargs)
 
     if args.lora:
-        # Scope LoRA targets to the language model only.
-        # Multimodal Gemma 4 has Gemma4ClippableLinear wrappers in vision/audio
-        # towers — these never run during text-only training, so LoRA on them
-        # gets zero gradients. Target plain nn.Linear projections in the
-        # language_model submodule (and fall back to suffix match for text-only
-        # models like Qwen / Gemma 3).
-        import torch.nn as _nn
-        lora_targets = []
-        for _n, _mod in merged.named_modules():
-            if not any(_n.endswith(f"self_attn.{_p}") for _p in ("q_proj", "k_proj", "v_proj", "o_proj")):
-                continue
-            if not isinstance(_mod, _nn.Linear):
-                continue  # skip Gemma4ClippableLinear wrappers
-            if "language_model" in _n or _n.startswith("model.layers"):
-                lora_targets.append(_n)
-        if not lora_targets:
-            lora_targets = ["q_proj", "k_proj", "v_proj", "o_proj"]
-        print(f"  LoRA targets: {len(lora_targets)} modules")
+        # Gemma 4 wraps q_proj in Gemma4ClippableLinear — target the inner .linear
+        # Gemma 3 uses plain q_proj/v_proj (torch.nn.Linear directly)
+        named = {n for n, _ in merged.named_modules()}
+        if any(n.endswith("q_proj.linear") for n in named):
+            lora_targets = ["q_proj.linear", "v_proj.linear"]
+        else:
+            lora_targets = ["q_proj", "v_proj"]
         lora_cfg = LoraConfig(
             task_type=TaskType.CAUSAL_LM,
             r=args.lora_rank,
@@ -652,9 +672,12 @@ def train(args):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     log = []
+<<<<<<< HEAD
+=======
     # Per-game SEPO cache and KL tracker (works for single-game too)
     sepo_caches = {g.name: None for g in games}
     kl_since_refresh = {g.name: 0.0 for g in games}
+>>>>>>> fdea898 (Generated data for kuhn)
 
     # Build per-game λe dict — falls back to global --lambda-e for unspecified games
     lambda_e_per_game = {}
@@ -665,6 +688,10 @@ def train(args):
 
     start_step = args.start_step
     print(f"\nStarting GRPO training — {args.iters} steps (from step {start_step})")
+<<<<<<< HEAD
+    le_str = "  ".join(f"{g.name}:λe={lambda_e_per_game.get(g.name, args.lambda_e)}" for g in games)
+    print(f"SEPO weights: {le_str}  λc={args.lambda_c}  λx={args.lambda_x}\n")
+=======
     le_str = "  ".join(
         f"{g.name}:λe={lambda_e_per_game.get(g.name, args.lambda_e)}" for g in games
     )
@@ -672,6 +699,7 @@ def train(args):
     print(
         f"SEPO refresh: every {args.sepo_eval_every} steps OR when cumulative KL > {args.sepo_kl_threshold}\n"
     )
+>>>>>>> fdea898 (Generated data for kuhn)
 
     for _i in range(args.iters):
         step = start_step + _i
@@ -680,6 +708,8 @@ def train(args):
         step_losses, step_metrics_list = [], []
 
         for game in games:
+<<<<<<< HEAD
+=======
             refresh = (
                 sepo_caches[game.name] is None
                 or step % args.sepo_eval_every == 0
@@ -692,6 +722,7 @@ def train(args):
                 )
                 kl_since_refresh[game.name] = 0.0
 
+>>>>>>> fdea898 (Generated data for kuhn)
             loss, metrics = grpo_step(
                 model=model,
                 ref_model=ref_model,
@@ -822,6 +853,23 @@ def main():
     )
 
     # GRPO hyperparameters
+<<<<<<< HEAD
+    p.add_argument("--iters",           type=int,   default=500)
+    p.add_argument("--n-rollouts",      type=int,   default=8,   help="Rollouts per train-pool opponent per step")
+    p.add_argument("--n-rounds",        type=int,   default=8,   help="Rounds per episode (default 8)")
+    p.add_argument("--temperature",     type=float, default=0.8, help="Sampling temperature")
+    p.add_argument("--max-new-tokens",  type=int,   default=128,  help="Max tokens per generation")
+    p.add_argument("--token-type-ids",  action="store_true",     help="Pass token_type_ids=zeros (required for Gemma 3, not Gemma 4)")
+    p.add_argument("--lr",           type=float, default=1e-5)
+    p.add_argument("--beta",         type=float, default=0.01, help="KL penalty weight")
+    p.add_argument("--clip-eps",     type=float, default=0.2,  help="PPO-style clip epsilon (DeepSeek-R1 default)")
+    p.add_argument("--log-every",       type=int,   default=10)
+    p.add_argument("--save-every",      type=int,   default=100)
+    p.add_argument("--show-gen", action="store_true",
+                   help="Print generated text for each round (verify model output)")
+    p.add_argument("--start-step", type=int, default=0,
+                   help="Resume offset: step counter starts here (use with a checkpoint as --model)")
+=======
     p.add_argument("--iters", type=int, default=500)
     p.add_argument(
         "--n-rollouts",
@@ -877,6 +925,7 @@ def main():
         default=0,
         help="Resume offset: step counter starts here (use with a checkpoint as --model)",
     )
+>>>>>>> fdea898 (Generated data for kuhn)
     args = p.parse_args()
     if args.show_gen:
         run_episode._show_gen = True

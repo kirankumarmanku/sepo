@@ -5,3 +5,4 @@ from .kuhn import KuhnPokerGame
 from .negotiation import NegotiationGame
 from .negotiation_gtbench import NegotiationGTBenchGame
 from .kuhn import KuhnPokerGame
+from .resource import ResourceGame

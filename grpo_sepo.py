@@ -44,25 +44,28 @@ import torch.nn.functional as F
 import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from games import Game, Episode
-from games.ipd import IPDGame
-from games.resource import ResourceGame
+from games import Episode, Game
 from games.auction import AuctionGame
+from games.ipd import IPDGame
 from games.negotiation import NegotiationGame
+from games.resource import ResourceGame
 
 # ── Game registry ─────────────────────────────────────────────────────────────
 GAME_REGISTRY: Dict[str, Game] = {
-    "ipd":         IPDGame(n_rounds=8),
-    "resource":    ResourceGame(n_rounds=8),
-    "auction":     AuctionGame(n_rounds=6),
+    "ipd": IPDGame(n_rounds=8),
+    "resource": ResourceGame(n_rounds=8),
+    "auction": AuctionGame(n_rounds=6),
     "negotiation": NegotiationGame(n_rounds=4),
+    "kuhn": KuhnPokerGame(n_hands=6),  # ← new
 }
 
 
 # ── Action stopping criteria ──────────────────────────────────────────────────
 
+
 class ActionStoppingCriteria(transformers.StoppingCriteria):
     """Stop generation when a valid action word appears on the last line."""
+
     def __init__(self, tokenizer, input_len: int, game):
         self.tokenizer = tokenizer
         self.input_len = input_len
@@ -70,12 +73,13 @@ class ActionStoppingCriteria(transformers.StoppingCriteria):
 
     def __call__(self, input_ids, scores, **kwargs):
         import re as _re
+
         generated = self.tokenizer.decode(
-            input_ids[0, self.input_len:], skip_special_tokens=True
+            input_ids[0, self.input_len :], skip_special_tokens=True
         )
         if "<think>" in generated and "</think>" not in generated:
             return False
-        lines = [l.strip() for l in generated.split('\n') if l.strip()]
+        lines = [l.strip() for l in generated.split("\n") if l.strip()]
         if not lines:
             return False
         last = lines[-1].upper()
@@ -84,8 +88,11 @@ class ActionStoppingCriteria(transformers.StoppingCriteria):
 
 # ── Constrained action decode ─────────────────────────────────────────────────
 
+
 @torch.no_grad()
-def forced_action_decode(model, tokenizer, messages, gen_text, game, device, use_token_type_ids):
+def forced_action_decode(
+    model, tokenizer, messages, gen_text, game, device, use_token_type_ids
+):
     """
     When parse_action fails, force a valid action by restricting the next token
     to only the first tokens of each valid action string.
@@ -113,7 +120,7 @@ def forced_action_decode(model, tokenizer, messages, gen_text, game, device, use
     action_list = "/".join(vocab.keys())
     elicit_messages = messages + [
         {"role": "assistant", "content": gen_text},
-        {"role": "user",      "content": f"State your final action ({action_list}):"},
+        {"role": "user", "content": f"State your final action ({action_list}):"},
     ]
     text = tokenizer.apply_chat_template(
         elicit_messages, tokenize=False, add_generation_prompt=True
@@ -123,7 +130,7 @@ def forced_action_decode(model, tokenizer, messages, gen_text, game, device, use
         enc["token_type_ids"] = torch.zeros_like(enc["input_ids"])
 
     outputs = model(**enc)
-    logits  = outputs.logits[0, -1]  # next-token logits
+    logits = outputs.logits[0, -1]  # next-token logits
 
     # Mask all tokens except valid action first-tokens
     masked = torch.full_like(logits, float("-inf"))
@@ -135,6 +142,7 @@ def forced_action_decode(model, tokenizer, messages, gen_text, game, device, use
 
 
 # ── Episode runner ─────────────────────────────────────────────────────────────
+
 
 @torch.no_grad()
 def run_episode(
@@ -164,9 +172,9 @@ def run_episode(
     rng = np.random.default_rng(seed)
     state = game.reset(opponent, rng)
 
-    all_input_ids  = []
-    all_gen_ids    = []
-    all_old_lps    = []   # log probs at generation time, for importance ratio
+    all_input_ids = []
+    all_gen_ids = []
+    all_old_lps = []  # log probs at generation time, for importance ratio
     actions, opp_actions = [], []
     payoffs, opp_payoffs = [], []
 
@@ -175,7 +183,7 @@ def run_episode(
         user_msg = game.user_prompt(state)
         messages = [
             {"role": "system", "content": game.system_prompt()},
-            {"role": "user",   "content": user_msg},
+            {"role": "user", "content": user_msg},
         ]
         text = tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=False
@@ -184,9 +192,9 @@ def run_episode(
         if use_token_type_ids:
             encoding["token_type_ids"] = torch.zeros_like(encoding["input_ids"])
 
-        stopping = transformers.StoppingCriteriaList([
-            ActionStoppingCriteria(tokenizer, encoding["input_ids"].shape[1], game)
-        ])
+        stopping = transformers.StoppingCriteriaList(
+            [ActionStoppingCriteria(tokenizer, encoding["input_ids"].shape[1], game)]
+        )
         out = model.generate(
             **encoding,
             max_new_tokens=max_new_tokens,
@@ -198,7 +206,7 @@ def run_episode(
             pad_token_id=tokenizer.eos_token_id,
             stopping_criteria=stopping,
         )
-        gen_ids = out[0, encoding["input_ids"].shape[1]:]
+        gen_ids = out[0, encoding["input_ids"].shape[1] :]
         gen_text = tokenizer.decode(gen_ids, skip_special_tokens=True)
         if getattr(run_episode, "_show_gen", False):
             print(f"        [gen] {repr(gen_text)}", flush=True)
@@ -211,15 +219,14 @@ def run_episode(
         logits = model(full_ids, **fwd_kwargs).logits[0]
         n_inp = encoding["input_ids"].shape[1]
         n_gen = gen_ids.shape[0]
-        pred_lp = F.log_softmax(logits[n_inp - 1: n_inp - 1 + n_gen], dim=-1)
+        pred_lp = F.log_softmax(logits[n_inp - 1 : n_inp - 1 + n_gen], dim=-1)
         old_lp = pred_lp[torch.arange(n_gen), gen_ids].sum().cpu()
 
         action = game.parse_action(gen_text)
         if action is None:
             print(f"      [PARSE FAIL] → constrained decode", flush=True)
             action = forced_action_decode(
-                model, tokenizer, messages, gen_text, game,
-                device, use_token_type_ids
+                model, tokenizer, messages, gen_text, game, device, use_token_type_ids
             )
 
         state, pay, opp_pay, done = game.step(action, state, rng)
@@ -250,7 +257,9 @@ def run_episode(
 
 
 def recompute_log_probs(
-    model, input_ids_list: List[torch.Tensor], gen_ids_list: List[torch.Tensor],
+    model,
+    input_ids_list: List[torch.Tensor],
+    gen_ids_list: List[torch.Tensor],
     use_token_type_ids: bool = False,
 ) -> List[torch.Tensor]:
     """
@@ -268,7 +277,7 @@ def recompute_log_probs(
 
         # Logits at positions predicting the generated tokens
         n_input = input_ids.shape[1]
-        n_gen   = gen_ids.shape[0]
+        n_gen = gen_ids.shape[0]
         pred_logits = logits[n_input - 1 : n_input - 1 + n_gen]  # [n_gen, vocab]
 
         # Chunked log_softmax: Gemma 4 vocab=262144, n_gen up to 512 → 268 MB per
@@ -285,17 +294,27 @@ def recompute_log_probs(
 
 # ── SEPO reward ────────────────────────────────────────────────────────────────
 
-def sepo_reward(episodes: List[Episode], game: Game, lambda_e: float, lambda_c: float, lambda_x: float) -> float:
+
+def sepo_reward(
+    episodes: List[Episode],
+    game: Game,
+    lambda_e: float,
+    lambda_c: float,
+    lambda_x: float,
+) -> float:
     metrics = game.sepo_metrics(episodes)
-    scale = 3.0 / game.max_payoff   # normalise utility/exploit to common IPD scale
-    r = (metrics["utility"] * scale
-         - lambda_e * metrics["exploitability"] * scale
-         - lambda_c * metrics["collusion"]
-         - lambda_x * metrics["externality"])
+    scale = 3.0 / game.max_payoff  # normalise utility/exploit to common IPD scale
+    r = (
+        metrics["utility"] * scale
+        - lambda_e * metrics["exploitability"] * scale
+        - lambda_c * metrics["collusion"]
+        - lambda_x * metrics["externality"]
+    )
     return r, metrics
 
 
 # ── GRPO training step ────────────────────────────────────────────────────────
+
 
 def grpo_step(
     model,
@@ -331,20 +350,24 @@ def grpo_step(
     # Only one computation graph lives in memory at a time instead of n_total.
     n_total = len(game.train_pool) * n_rollouts * game.n_steps
     pg_loss_accum = 0.0
-    kl_accum      = 0.0
-    step_metrics  = []
+    kl_accum = 0.0
+    step_metrics = []
 
     for g_idx, train_opp in enumerate(game.train_pool):
         # Collect n_rollouts episodes for this opponent
         episodes = []  # (ep, inp_ids, gen_ids, old_lps, sepo_penalty, metrics)
-        print(f"  [{datetime.now().strftime('%H:%M:%S')}] rollout opp={train_opp.name} ({g_idx+1}/{len(game.train_pool)})", flush=True)
+        print(
+            f"  [{datetime.now().strftime('%H:%M:%S')}] rollout opp={train_opp.name} ({g_idx + 1}/{len(game.train_pool)})",
+            flush=True,
+        )
 
         # Shared aux episodes for SEPO — run ONCE per opponent group, not per rollout.
         # Aux episodes for SEPO metrics — skipped when a cached penalty is provided
         # (caller refreshes the cache every sepo_eval_every steps).
         # When not cached: run once per opponent group, reusing train ep if possible.
         from dataclasses import replace as _replace
-        exploit_names   = {o.name for o in game.exploiter_pool}
+
+        exploit_names = {o.name for o in game.exploiter_pool}
         collusive_names = {o.name for o in game.collusive_pool}
         _seed_aux = seed_offset + g_idx * 1000 + 999
 
@@ -354,9 +377,18 @@ def grpo_step(
             else:
                 shared_exploit_eps = []
                 for opp in game.exploiter_pool:
-                    ep, _ = run_episode(model, tokenizer, game, opp, "exploiter",
-                                        seed=_seed_aux, device=device, temperature=temperature,
-                                        max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
+                    ep, _ = run_episode(
+                        model,
+                        tokenizer,
+                        game,
+                        opp,
+                        "exploiter",
+                        seed=_seed_aux,
+                        device=device,
+                        temperature=temperature,
+                        max_new_tokens=max_new_tokens,
+                        use_token_type_ids=use_token_type_ids,
+                    )
                     shared_exploit_eps.append(ep)
 
             if train_opp.name in collusive_names:
@@ -364,9 +396,18 @@ def grpo_step(
             else:
                 shared_collusive_eps = []
                 for opp in game.collusive_pool:
-                    ep, _ = run_episode(model, tokenizer, game, opp, "collusive",
-                                        seed=_seed_aux + 1, device=device, temperature=temperature,
-                                        max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids)
+                    ep, _ = run_episode(
+                        model,
+                        tokenizer,
+                        game,
+                        opp,
+                        "collusive",
+                        seed=_seed_aux + 1,
+                        device=device,
+                        temperature=temperature,
+                        max_new_tokens=max_new_tokens,
+                        use_token_type_ids=use_token_type_ids,
+                    )
                     shared_collusive_eps.append(ep)
 
         first_train_ep = None
@@ -375,34 +416,58 @@ def grpo_step(
             seed_base = seed_offset + g_idx * 1000 + r_idx * 100
 
             ep_train, (inp_ids, gen_ids, old_lps) = run_episode(
-                model, tokenizer, game, train_opp, "train",
-                seed=seed_base, device=device, temperature=temperature,
-                max_new_tokens=max_new_tokens, use_token_type_ids=use_token_type_ids,
+                model,
+                tokenizer,
+                game,
+                train_opp,
+                "train",
+                seed=seed_base,
+                device=device,
+                temperature=temperature,
+                max_new_tokens=max_new_tokens,
+                use_token_type_ids=use_token_type_ids,
             )
             if first_train_ep is None:
                 first_train_ep = ep_train
 
             if cached_sepo_penalty is not None:
                 sepo_penalty = cached_sepo_penalty
-                metrics = {"exploitability": 0.0, "collusion": 0.0, "externality": 0.0,
-                           "utility": float(sum(ep_train.payoffs)) / game.n_steps}
+                metrics = {
+                    "exploitability": 0.0,
+                    "collusion": 0.0,
+                    "externality": 0.0,
+                    "utility": float(sum(ep_train.payoffs)) / game.n_steps,
+                }
             else:
                 # Use first_train_ep as fixed reference so SEPO penalty is
                 # constant across rollouts — penalty variance was creating
                 # false advantage signal unrelated to action differences.
                 aux = [first_train_ep]
-                aux += shared_exploit_eps if shared_exploit_eps is not None else \
-                       [_replace(first_train_ep, pool="exploiter")]
-                aux += shared_collusive_eps if shared_collusive_eps is not None else \
-                       [_replace(first_train_ep, pool="collusive")]
+                aux += (
+                    shared_exploit_eps
+                    if shared_exploit_eps is not None
+                    else [_replace(first_train_ep, pool="exploiter")]
+                )
+                aux += (
+                    shared_collusive_eps
+                    if shared_collusive_eps is not None
+                    else [_replace(first_train_ep, pool="collusive")]
+                )
                 _, metrics = sepo_reward(aux, game, lambda_e, lambda_c, lambda_x)
-                sepo_penalty = (lambda_e * metrics["exploitability"]
-                              + lambda_c * metrics["collusion"]
-                              + lambda_x * metrics["externality"])
-            episodes.append((ep_train, inp_ids, gen_ids, old_lps, sepo_penalty, metrics))
+                sepo_penalty = (
+                    lambda_e * metrics["exploitability"]
+                    + lambda_c * metrics["collusion"]
+                    + lambda_x * metrics["externality"]
+                )
+            episodes.append(
+                (ep_train, inp_ids, gen_ids, old_lps, sepo_penalty, metrics)
+            )
             actions_str = "".join(game.action_label(a) for a in ep_train.actions)
-            opp_str     = "".join(game.action_label(a) for a in ep_train.opp_actions)
-            print(f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx+1:02d} llm={actions_str} opp={opp_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}", flush=True)
+            opp_str = "".join(game.action_label(a) for a in ep_train.opp_actions)
+            print(
+                f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx + 1:02d} llm={actions_str} opp={opp_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}",
+                flush=True,
+            )
 
         # Per-round advantage: normalise across rollouts at each round t
         n_steps = len(episodes[0][0].payoffs)
@@ -411,27 +476,36 @@ def grpo_step(
                 [ep.payoffs[t] - sepo_pen for ep, _, _, _, sepo_pen, _ in episodes],
                 dtype=np.float32,
             )
-            adv = ((round_rewards - round_rewards.mean()) / (round_rewards.std() + 1e-8)
-                   if round_rewards.std() > 1e-8 else np.zeros_like(round_rewards))
+            adv = (
+                (round_rewards - round_rewards.mean()) / (round_rewards.std() + 1e-8)
+                if round_rewards.std() > 1e-8
+                else np.zeros_like(round_rewards)
+            )
 
             for r_idx, (_, inp_ids, gen_ids, old_lps, _, _) in enumerate(episodes):
                 A = float(adv[r_idx])
-                new_lps = recompute_log_probs(model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids)
+                new_lps = recompute_log_probs(
+                    model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids
+                )
                 with torch.no_grad():
                     if ref_model is None:
                         # LoRA mode: disable adapters to get base model log probs
                         with model.disable_adapter():
-                            ref_lps = recompute_log_probs(model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids)
+                            ref_lps = recompute_log_probs(
+                                model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids
+                            )
                     else:
-                        ref_lps = recompute_log_probs(ref_model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids)
+                        ref_lps = recompute_log_probs(
+                            ref_model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids
+                        )
                 for new_lp, ref_lp in zip(new_lps, ref_lps):
                     old_lp = old_lps[t].to(new_lp.device)
-                    ratio   = torch.exp(new_lp - old_lp.detach())
+                    ratio = torch.exp(new_lp - old_lp.detach())
                     clipped = ratio.clamp(1.0 - clip_eps, 1.0 + clip_eps)
-                    pg  = -torch.min(ratio * A, clipped * A)
-                    kl  = (new_lp - ref_lp.detach()).clamp(min=0)
+                    pg = -torch.min(ratio * A, clipped * A)
+                    kl = (new_lp - ref_lp.detach()).clamp(min=0)
                     pg_loss_accum += pg.detach().item()
-                    kl_accum      += kl.detach().item()
+                    kl_accum += kl.detach().item()
                     # Backward immediately — one graph at a time, no accumulation
                     ((pg + beta * kl) / n_total).backward()
 
@@ -444,14 +518,17 @@ def grpo_step(
     avg_kl = kl_accum / n_total
     loss_val = avg_pg + beta * avg_kl
 
-    avg_metrics = {k: float(np.mean([m[k] for m in step_metrics])) for k in step_metrics[0]}
-    avg_metrics["kl"]      = avg_kl
+    avg_metrics = {
+        k: float(np.mean([m[k] for m in step_metrics])) for k in step_metrics[0]
+    }
+    avg_metrics["kl"] = avg_kl
     avg_metrics["pg_loss"] = avg_pg
 
     return loss_val, avg_metrics
 
 
 # ── Main training loop ────────────────────────────────────────────────────────
+
 
 def train(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -470,14 +547,17 @@ def train(args):
     # Load tokenizer + model
     # args.model may be a PEFT adapter repo (LoRA only, no base weights).
     # If so, load the base model separately and merge the SFT adapter in.
-    from peft import PeftModel, get_peft_model, LoraConfig, TaskType
     from pathlib import Path as _Path
+
+    from peft import LoraConfig, PeftModel, TaskType, get_peft_model
 
     # PEFT adapter if: local dir has adapter_config.json, OR --base-model was explicitly provided
     _local = _Path(args.model)
-    is_peft = (_local.exists() and (_local / "adapter_config.json").exists()) or (args.base_model is not None)
+    is_peft = (_local.exists() and (_local / "adapter_config.json").exists()) or (
+        args.base_model is not None
+    )
 
-    tokenizer_id = args.model  #args.base_model if is_peft else args.model
+    tokenizer_id = args.model  # args.base_model if is_peft else args.model
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_id)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -530,13 +610,16 @@ def train(args):
     # instead of loading a second copy (saves ~10GB VRAM on 24GB GPU).
     # When full fine-tune: load a separate frozen copy.
     if args.lora:
-        print("LoRA mode: using base model (adapters disabled) as reference — no second copy loaded.")
+        print(
+            "LoRA mode: using base model (adapters disabled) as reference — no second copy loaded."
+        )
         ref_model = None  # signal to grpo_step to use disable_adapter()
     else:
         print("Loading reference model (frozen)...")
         ref_kwargs = dict(dtype=torch.bfloat16, device_map="auto")
         if args.ref_4bit:
             from transformers import BitsAndBytesConfig
+
             ref_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
             del ref_kwargs["dtype"]
         if is_peft:
@@ -556,7 +639,7 @@ def train(args):
 
     log = []
     # Per-game SEPO cache and KL tracker (works for single-game too)
-    sepo_caches   = {g.name: None for g in games}
+    sepo_caches = {g.name: None for g in games}
     kl_since_refresh = {g.name: 0.0 for g in games}
 
     # Build per-game λe dict — falls back to global --lambda-e for unspecified games
@@ -568,9 +651,13 @@ def train(args):
 
     start_step = args.start_step
     print(f"\nStarting GRPO training — {args.iters} steps (from step {start_step})")
-    le_str = "  ".join(f"{g.name}:λe={lambda_e_per_game.get(g.name, args.lambda_e)}" for g in games)
+    le_str = "  ".join(
+        f"{g.name}:λe={lambda_e_per_game.get(g.name, args.lambda_e)}" for g in games
+    )
     print(f"SEPO weights: {le_str}  λc={args.lambda_c}  λx={args.lambda_x}")
-    print(f"SEPO refresh: every {args.sepo_eval_every} steps OR when cumulative KL > {args.sepo_kl_threshold}\n")
+    print(
+        f"SEPO refresh: every {args.sepo_eval_every} steps OR when cumulative KL > {args.sepo_kl_threshold}\n"
+    )
 
     for _i in range(args.iters):
         step = start_step + _i
@@ -579,11 +666,16 @@ def train(args):
         step_losses, step_metrics_list = [], []
 
         for game in games:
-            refresh = (sepo_caches[game.name] is None
-                       or step % args.sepo_eval_every == 0
-                       or kl_since_refresh[game.name] > args.sepo_kl_threshold)
+            refresh = (
+                sepo_caches[game.name] is None
+                or step % args.sepo_eval_every == 0
+                or kl_since_refresh[game.name] > args.sepo_kl_threshold
+            )
             if refresh and step > 0:
-                print(f"  [SEPO refresh] game={game.name} step={step} cumKL={kl_since_refresh[game.name]:.3f}", flush=True)
+                print(
+                    f"  [SEPO refresh] game={game.name} step={step} cumKL={kl_since_refresh[game.name]:.3f}",
+                    flush=True,
+                )
                 kl_since_refresh[game.name] = 0.0
 
             loss, metrics = grpo_step(
@@ -626,12 +718,18 @@ def train(args):
         optimizer.step()
 
         # Average metrics across games for logging
-        avg_loss    = float(np.mean(step_losses))
-        avg_metrics = {k: float(np.mean([m[k] for m in step_metrics_list]))
-                       for k in step_metrics_list[0]}
+        avg_loss = float(np.mean(step_losses))
+        avg_metrics = {
+            k: float(np.mean([m[k] for m in step_metrics_list]))
+            for k in step_metrics_list[0]
+        }
 
-        log_entry = {"step": step, "loss": avg_loss,
-                     "games": [g.name for g in games], **avg_metrics}
+        log_entry = {
+            "step": step,
+            "loss": avg_loss,
+            "games": [g.name for g in games],
+            **avg_metrics,
+        }
         log.append(log_entry)
 
         if step % args.log_every == 0:
@@ -668,48 +766,112 @@ def main():
     p = argparse.ArgumentParser(description="GRPO + SEPO Stage 2 Training")
 
     # Model
-    p.add_argument("--model", required=True, help="HF model path or repo (SFT checkpoint; full model or PEFT adapter)")
-    p.add_argument("--base-model", default=None,
-                   help="Base model to load before applying PEFT adapter. If set, --model is treated as a LoRA adapter repo.")
+    p.add_argument(
+        "--model",
+        required=True,
+        help="HF model path or repo (SFT checkpoint; full model or PEFT adapter)",
+    )
+    p.add_argument(
+        "--base-model",
+        default=None,
+        help="Base model to load before applying PEFT adapter. If set, --model is treated as a LoRA adapter repo.",
+    )
     p.add_argument("--output-dir", default="grpo_output")
-    p.add_argument("--lora", action="store_true", help="Use LoRA for GRPO policy (lower VRAM)")
+    p.add_argument(
+        "--lora", action="store_true", help="Use LoRA for GRPO policy (lower VRAM)"
+    )
     p.add_argument("--lora-rank", type=int, default=16)
-    p.add_argument("--ref-4bit", action="store_true", help="Load reference model in 4-bit (saves VRAM)")
+    p.add_argument(
+        "--ref-4bit",
+        action="store_true",
+        help="Load reference model in 4-bit (saves VRAM)",
+    )
 
     # Game
-    p.add_argument("--game", default="ipd",
-                   choices=list(GAME_REGISTRY.keys()) + ["all"],
-                   help="Game environment: ipd | resource | auction | negotiation | all (joint multi-game GRPO)")
+    p.add_argument(
+        "--game",
+        default="ipd",
+        choices=list(GAME_REGISTRY.keys()) + ["all"],
+        help="Game environment: ipd | resource | auction | negotiation | all (joint multi-game GRPO)",
+    )
 
     # SEPO objective weights
-    p.add_argument("--lambda-e", type=float, default=2.4,  help="Exploitability penalty weight (global default)")
-    p.add_argument("--lambda-c", type=float, default=2.4,  help="Collusion penalty weight")
-    p.add_argument("--lambda-x", type=float, default=2.4,  help="Externality penalty weight")
-    p.add_argument("--lambda-e-override", type=str, default=None,
-                   help="Per-game λe overrides, comma-separated: ipd:3.0,negotiation:4.0"
-                        " — unspecified games use --lambda-e")
+    p.add_argument(
+        "--lambda-e",
+        type=float,
+        default=2.4,
+        help="Exploitability penalty weight (global default)",
+    )
+    p.add_argument(
+        "--lambda-c", type=float, default=2.4, help="Collusion penalty weight"
+    )
+    p.add_argument(
+        "--lambda-x", type=float, default=2.4, help="Externality penalty weight"
+    )
+    p.add_argument(
+        "--lambda-e-override",
+        type=str,
+        default=None,
+        help="Per-game λe overrides, comma-separated: ipd:3.0,negotiation:4.0"
+        " — unspecified games use --lambda-e",
+    )
 
     # GRPO hyperparameters
-    p.add_argument("--iters",           type=int,   default=500)
-    p.add_argument("--n-rollouts",      type=int,   default=8,   help="Rollouts per train-pool opponent per step")
-    p.add_argument("--n-rounds",        type=int,   default=8,   help="Rounds per episode (default 8)")
-    p.add_argument("--temperature",     type=float, default=0.8, help="Sampling temperature")
-    p.add_argument("--max-new-tokens",  type=int,   default=128,  help="Max tokens per generation")
-    p.add_argument("--token-type-ids",  action="store_true",     help="Pass token_type_ids=zeros (required for Gemma 3, not Gemma 4)")
-    p.add_argument("--lr",           type=float, default=1e-5)
-    p.add_argument("--beta",         type=float, default=0.01, help="KL penalty weight")
-    p.add_argument("--clip-eps",     type=float, default=0.2,  help="PPO-style clip epsilon (DeepSeek-R1 default)")
-    p.add_argument("--log-every",       type=int,   default=10)
-    p.add_argument("--save-every",      type=int,   default=100)
-    p.add_argument("--sepo-eval-every",    type=int,   default=5,
-                   help="Recompute SEPO aux episodes every N steps (default 5)")
-    p.add_argument("--sepo-kl-threshold", type=float, default=0.5,
-                   help="Also refresh SEPO when cumulative KL since last refresh exceeds this (default 0.5)")
+    p.add_argument("--iters", type=int, default=500)
+    p.add_argument(
+        "--n-rollouts",
+        type=int,
+        default=8,
+        help="Rollouts per train-pool opponent per step",
+    )
+    p.add_argument(
+        "--n-rounds", type=int, default=8, help="Rounds per episode (default 8)"
+    )
+    p.add_argument(
+        "--temperature", type=float, default=0.8, help="Sampling temperature"
+    )
+    p.add_argument(
+        "--max-new-tokens", type=int, default=128, help="Max tokens per generation"
+    )
+    p.add_argument(
+        "--token-type-ids",
+        action="store_true",
+        help="Pass token_type_ids=zeros (required for Gemma 3, not Gemma 4)",
+    )
+    p.add_argument("--lr", type=float, default=1e-5)
+    p.add_argument("--beta", type=float, default=0.01, help="KL penalty weight")
+    p.add_argument(
+        "--clip-eps",
+        type=float,
+        default=0.2,
+        help="PPO-style clip epsilon (DeepSeek-R1 default)",
+    )
+    p.add_argument("--log-every", type=int, default=10)
+    p.add_argument("--save-every", type=int, default=100)
+    p.add_argument(
+        "--sepo-eval-every",
+        type=int,
+        default=5,
+        help="Recompute SEPO aux episodes every N steps (default 5)",
+    )
+    p.add_argument(
+        "--sepo-kl-threshold",
+        type=float,
+        default=0.5,
+        help="Also refresh SEPO when cumulative KL since last refresh exceeds this (default 0.5)",
+    )
 
-    p.add_argument("--show-gen", action="store_true",
-                   help="Print generated text for each round (verify model output)")
-    p.add_argument("--start-step", type=int, default=0,
-                   help="Resume offset: step counter starts here (use with a checkpoint as --model)")
+    p.add_argument(
+        "--show-gen",
+        action="store_true",
+        help="Print generated text for each round (verify model output)",
+    )
+    p.add_argument(
+        "--start-step",
+        type=int,
+        default=0,
+        help="Resume offset: step counter starts here (use with a checkpoint as --model)",
+    )
     args = p.parse_args()
     if args.show_gen:
         run_episode._show_gen = True

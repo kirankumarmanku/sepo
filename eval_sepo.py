@@ -38,6 +38,8 @@ from grpo_sepo import forced_action_decode
 
 from games.negotiation_gtbench import NegotiationGTBenchGame
 from games.kuhn import KuhnPokerGame
+from games.resource import ResourceGame
+from grpo_sepo import forced_action_decode
 
 GAME_REGISTRY = {
     "ipd": IPDGame(n_rounds=8),

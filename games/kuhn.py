@@ -178,7 +178,9 @@ class KuhnPokerGame(Game):
     works uniformly across games.
     """
 
-    def __init__(self, n_hands: int = 6):
+    def __init__(self, n_hands: int = 6, n_rounds:int = None):
+        if n_rounds is not None:
+            n_hands =   n_rounds
         self._n_hands  = n_hands
         self._n_steps  = 2 * n_hands   # upper bound; episodes may end earlier per hand
 

@@ -33,6 +33,7 @@ from games import Episode
 from games.auction import AuctionGame
 from games.ipd import IPDGame
 from games.negotiation import NegotiationGame
+from games.kuhn import KuhnPokerGame
 from games.resource import ResourceGame
 from grpo_sepo import forced_action_decode
 

@@ -1,0 +1,10 @@
+Device: cuda
+Traceback (most recent call last):
+  File "/root/workspace/sepo/grpo_sepo.py", line 883, in <module>
+    main()
+  File "/root/workspace/sepo/grpo_sepo.py", line 879, in main
+    train(args)
+  File "/root/workspace/sepo/grpo_sepo.py", line 544, in train
+    g = type(g)(n_rounds=args.n_rounds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: KuhnPokerGame.__init__() got an unexpected keyword argument 'n_rounds'

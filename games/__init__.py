@@ -3,4 +3,4 @@ from .base import Episode, Game, Opponent
 from .ipd import IPDGame
 from .kuhn import KuhnPokerGame
 from .negotiation import NegotiationGame
-from .resource import ResourceGame
+from .negotiation_gtbench import NegotiationGTBenchGame

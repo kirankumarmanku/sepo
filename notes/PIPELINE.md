@@ -120,6 +120,7 @@ huggingface-cli upload <your-hf-repo> sepo_sft_fused/
 
 ---
 
+<<<<<<< HEAD
 ## Fallback Plan — If GRPO Penalty Fix Does Not Improve Results
 
 The GRPO reward bug fix (per-rollout exploit episodes, commit `6cac5cf`) is the primary next step.
@@ -180,6 +181,8 @@ See existing section below — deferred, high effort.
 
 ---
 
+=======
+>>>>>>> 8e406eb (Pull Kuhn SFT data, notes, scripts, requirements from kiran-grpo-qwen)
 ## Open TODOs — Future Work
 
 ### GTBench-Compatible Negotiation Game

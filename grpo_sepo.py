@@ -50,6 +50,7 @@ from games.resource import ResourceGame
 from games.auction import AuctionGame
 from games.negotiation import NegotiationGame
 from games.negotiation_gtbench import NegotiationGTBenchGame
+from games.kuhn import KuhnPokerGame
 
 # ── Game registry ─────────────────────────────────────────────────────────────
 GAME_REGISTRY: Dict[str, Game] = {
@@ -58,6 +59,7 @@ GAME_REGISTRY: Dict[str, Game] = {
     "auction":         AuctionGame(n_rounds=6),
     "negotiation":     NegotiationGame(n_rounds=4),
     "negotiation_gt":  NegotiationGTBenchGame(n_rounds=4),
+    "kuhn":            KuhnPokerGame(n_hands=6),
 }
 
 

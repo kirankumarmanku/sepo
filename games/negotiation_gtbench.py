@@ -185,16 +185,32 @@ class NegotiationGTBenchGame(Game):
 
     def parse_action(self, text: str):
         import re
-        # Look for [a, b, c] pattern
-        matches = re.findall(r'\[?\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]?', text)
+        # Always take the LAST match — model repeats pool/value numbers in reasoning
+        # before stating the actual demand at the end.
+
+        # 1. Bracketed [2, 1, 3] — most explicit format
+        matches = re.findall(r'\[\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\]', text)
         if matches:
-            # Take last match (most likely the final answer)
             a, b, c = int(matches[-1][0]), int(matches[-1][1]), int(matches[-1][2])
             return [a, b, c]
-        # Try to find three standalone numbers at end of text
-        nums = re.findall(r'\b(\d+)\b', text.strip().split('\n')[-1])
-        if len(nums) >= 3:
-            return [int(nums[0]), int(nums[1]), int(nums[2])]
+        # 2. Named "Books: 2, Hats: 1, Balls: 3" — take last occurrence
+        for pat in [
+            r'[Bb]ooks?\s*[=:]\s*(\d+)[,\s]+[Hh]ats?\s*[=:]\s*(\d+)[,\s]+[Bb]alls?\s*[=:]\s*(\d+)',
+            r'[Bb]ooks?\D{0,5}(\d+)\D+[Hh]ats?\D{0,5}(\d+)\D+[Bb]alls?\D{0,5}(\d+)',
+        ]:
+            matches = re.findall(pat, text)
+            if matches:
+                return [int(matches[-1][0]), int(matches[-1][1]), int(matches[-1][2])]
+        # 3. Three comma-separated numbers: "2, 1, 3" — take last
+        matches = re.findall(r'(\d+)\s*,\s*(\d+)\s*,\s*(\d+)', text)
+        if matches:
+            a, b, c = int(matches[-1][0]), int(matches[-1][1]), int(matches[-1][2])
+            return [a, b, c]
+        # 4. Last non-empty line with 3+ standalone numbers
+        for line in reversed(text.strip().split('\n')):
+            nums = re.findall(r'\b(\d+)\b', line)
+            if len(nums) >= 3:
+                return [int(nums[0]), int(nums[1]), int(nums[2])]
         return None
 
     @property

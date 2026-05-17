@@ -35,12 +35,14 @@ from grpo_sepo import forced_action_decode
 from games.resource import ResourceGame
 from games.auction import AuctionGame
 from games.negotiation import NegotiationGame
+from games.negotiation_gtbench import NegotiationGTBenchGame
 
 GAME_REGISTRY = {
-    "ipd":         IPDGame(n_rounds=8),
-    "resource":    ResourceGame(n_rounds=8),
-    "auction":     AuctionGame(n_rounds=6),
-    "negotiation": NegotiationGame(n_rounds=4),
+    "ipd":              IPDGame(n_rounds=8),
+    "resource":         ResourceGame(n_rounds=8),
+    "auction":          AuctionGame(n_rounds=6),
+    "negotiation":      NegotiationGame(n_rounds=4),
+    "negotiation_gt":   NegotiationGTBenchGame(n_rounds=4),
 }
 
 

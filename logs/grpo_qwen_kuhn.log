@@ -1,5 +1,8 @@
 Device: cuda
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> babd710 (Kuhn poker eval and grpo)
 Game: kuhn  rounds=16
 Detected PEFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-kuhn-sft  (base: Qwen/Qwen3.5-4B)
   Loading base: Qwen/Qwen3.5-4B
@@ -1647,6 +1650,7 @@ SEPO refresh: every 5 steps OR when cumulative KL > 0.5
     [06:15:27] r04 llm=PFBPFCPCBPP opp=BBBBBBBBBPP u=0.0 pen=2.640
 
 Done. Final model: grpo_qwen_kuhn/final
+<<<<<<< HEAD
 =======
 Traceback (most recent call last):
   File "/root/workspace/sepo/grpo_sepo.py", line 883, in <module>
@@ -1658,3 +1662,5 @@ Traceback (most recent call last):
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: KuhnPokerGame.__init__() got an unexpected keyword argument 'n_rounds'
 >>>>>>> 01a5db7 (Sft run and small fixes)
+=======
+>>>>>>> babd710 (Kuhn poker eval and grpo)

@@ -100,30 +100,82 @@ Exploit stabilises at TFT floor (0.312) with the penalty fix — no catastrophic
 
 ---
 
-## Negotiation (Split Bargaining)
+## Negotiation v1 — Split Bargaining (Single-Issue)
 
 **Setup**: 4 rounds/episode · 20 episodes/opponent · temperature 0.8  
-**Exploiter pool**: SelfishSplit (demands 7) + HardballSplit (demands 8)  
-**Collusive pool**: FairSplit (demands ≥7 vs fair partner = collusion metric)  
+**Exploiter pool**: SelfishSplit (demands 7) + HardballSplit (demands 8), per-opponent averaging  
+**Collusive pool**: FairSplit (demand ≥7 vs fair partner = collusion metric)  
 **Train pool**: FairSplit · BalancedSplit · ConcedeSplit · HardballSplit  
-**λe=3.0 · λc=1.0 · λx=1.8**
+**λe=3.0 (train) · λc=2.0 (train) · λc=1.0 (eval) · λx=1.8**
+
+### Why we built this game
+
+Negotiation is a core multi-agent safety scenario: two agents competing over a fixed resource, where greed causes both to lose (breakdown), cooperation requires trust, and exploitation means demanding more than a fair partner can accept. We started with the simplest version — single-issue, complete-information, integer demands — to validate that SEPO can learn the right equilibrium strategy (`demand = 10 − opponent_demand`) before tackling harder variants.
+
+### Current best results (step 125)
 
 | Model | Pay/round | Exploit | Robust | Ext | Safety | NRA |
 |---|---|---|---|---|---|---|
-| Base | **1.409** | **1.531** | 0.762 | 0.654 | **-3.363** | -0.367 |
-| SFT (`sft_multi_v1`) | 1.306 | 2.037 | **0.881** | **0.632** | -4.258 | **-0.404** |
-| GRPO (`grpo_neg_v1/final`) | 1.278 | 1.681 | 0.781 | 0.658 | -3.643 | -0.400 |
+| Base | **1.409** | **1.531** | 0.762 | 0.654 | **-3.363** | **-0.367** |
+| SFT (`sft_multi_v1`) | 1.306 | 2.037 | **0.881** | **0.632** | -4.258 | -0.404 |
+| GRPO (`grpo_neg_final/step_0125`) | 1.297 | 1.587 | 0.762 | 0.667 | -3.530 | -0.386 |
 
-**Best GRPO checkpoint**: `grpo_neg_v1/final` (step25 only — more steps needed)
+**Best GRPO checkpoint**: `grpo_neg_final/step_0125`
 
 ### Observations
 
-- **Base wins negotiation** at step25 — lowest exploit (1.531), best safety (-3.363), best utility (1.409). Base model is naturally effective at single-issue bargaining
-- **SFT degrades exploit resistance** (2.037 vs 1.531 base) — over-accommodating, same pattern as IPD
-- **GRPO step25 partially recovers** from SFT regression (1.681 < 2.037) but doesn't beat base yet — only 25 steps trained, needs 75-100 for full convergence
-- **GRPO lowest collusion** (c≈0.200 vs base 0.275) — correctly learns not to demand too much from fair partners
-- **All models deeply safety-negative** — structural. λe=3.0 × exploit≈1.6 × scale(0.6) = 2.88, overwhelms utility (≈0.85 scaled)
-- **Learnable counter-strategies exist**: demand exactly (10 − opp_demand) → exploit stabilises rather than growing uncontrolled
+- **Base still wins** — lowest exploit (1.531) and best safety (-3.363). The single-issue complete-information format is too simple: the base model can already infer the right counter from the game prompt, leaving little room for GRPO improvement
+- **GRPO significantly beats SFT** — exploit 1.587 vs 2.037 (−22%), safety −3.530 vs −4.258 (+0.728). The SFT warm-start teaches over-accommodating behavior (always demands ≤ fair share), which GRPO must correct
+- **Gap to base is narrowing**: at step 25 exploit was 1.681, step 125 is 1.587 — trending down. The equilibrium (`demand = 10 − opp_demand`) is being learned but slowly; gap to base exploit is now only 0.056
+- **All models deeply safety-negative** — structural. At λe=3.0 the exploit penalty (≈1.6 × scale ≈ 0.96) overwhelms utility (≈0.85 scaled); no model achieves positive safety on this game
+- **Collusion reducing**: GRPO c≈0.187 (step25) down from base c≈0.275 — λc=2.0 in training suppressed greedy demands vs cooperative partners
+- **Why training continues**: with enough steps the exploit should converge to the TFT-like floor (`counter-demand` equilibrium), mirroring IPD convergence. Step 125 is the current best but not the final state
+
+### Training Trajectory (`grpo_neg_final`)
+
+| Step | Exploit | Collusion | Safety (eval) |
+|---|---|---|---|
+| 0 (SFT) | 2.037 | 0.275 | -4.258 |
+| 25 | 1.900 | 0.187 | -3.863 |
+| 50 | 1.775 | ~0.20 | ~-3.7 |
+| 75 | 1.669 | ~0.19 | ~-3.6 |
+| 100 | 1.706 | ~0.19 | ~-3.62 |
+| **125** | **1.587** | ~0.19 | **-3.530** |
+| 150 | 1.637 | ~0.19 | -3.601 |
+
+Step 125 is best — small oscillation after that. Exploit trending down overall from 2.037 to 1.587 over 125 steps.
+
+### Why this game hits a ceiling
+
+The single-issue split game has a fundamental limitation: the optimal strategy (`demand = 10 − last_opp_demand`) is derivable from the prompt alone after round 1. The base model with good instruction-following can already approximate this, so there is little advantage GRPO can add beyond correcting the SFT over-cooperation bias. The game does not require private information reasoning, multi-dimensional trade-offs, or multi-round strategic inference — all of which are necessary to stress-test safety alignment in real negotiations.
+
+---
+
+## Negotiation v2 — GTBench Multi-Issue (Incomplete Information)
+
+**Why the upgrade**: GTBench (arXiv:2402.12348) defines negotiation as a 3-item incomplete-information problem (Books, Hats, Balls) with private valuations — the closest published benchmark to real-world negotiation. Moving to this format:
+1. Makes NRA scores directly comparable to GTBench baselines
+2. Tests whether SEPO can handle hidden-information reasoning (opponent values unknown)
+3. Creates a harder game where the base model cannot simply invert the opponent's demand — it must infer opponent preferences from demand patterns across rounds
+4. Eliminates the artificial ceiling that made v1 unimprovable
+
+**Format**: 3 items (Books, Hats, Balls) · pool randomly sampled [1–4 units each] · private values (sum to 10, hidden from opponent) · 4 rounds · deal if combined demands ≤ pool; else breakdown
+
+**Opponent pool**: Train: [FairNeg, TFTNeg, ConcedeNeg] · Exploiter: [GreedyNeg, HardballNeg] · Collusive: [FairNeg]
+
+**λe=3.0 · λc=2.0 (train) · λc=1.0 (eval) · λx=1.8** (same as v1)
+
+**SFT data**: 4 strategies (Proportional, Conservative, Adaptive, Defensive) × 5 opponents × 200 episodes · 3 epochs · `sft_neg_gtbench`
+
+### Results (pending — GRPO step 25 in progress)
+
+| Model | Pay/round | Exploit | Robust | Ext | Safety | NRA |
+|---|---|---|---|---|---|---|
+| Base | — | — | — | — | — | — |
+| SFT (`sft_neg_gtbench`) | — | — | — | — | — | — |
+| GRPO step25 | — | — | — | — | — | — |
+
+*Results to be updated after current run completes.*
 
 ---
 

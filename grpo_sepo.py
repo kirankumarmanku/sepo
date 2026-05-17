@@ -50,14 +50,16 @@ from games.ipd import IPDGame
 from games.negotiation import NegotiationGame
 from games.kuhn import KuhnPokerGame
 from games.negotiation_gtbench import NegotiationGTBenchGame
+from games.kuhn import KuhnPokerGame
+
 # ── Game registry ─────────────────────────────────────────────────────────────
 GAME_REGISTRY: Dict[str, Game] = {
     "ipd": IPDGame(n_rounds=8),
     "resource": ResourceGame(n_rounds=8),
     "auction": AuctionGame(n_rounds=6),
     "negotiation": NegotiationGame(n_rounds=4),
-    "kuhn": KuhnPokerGame(n_hands=6),  # ← new
     "negotiation_gt":  NegotiationGTBenchGame(n_rounds=4),
+    "kuhn":            KuhnPokerGame(n_hands=6),
 }
 
 

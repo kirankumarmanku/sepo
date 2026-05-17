@@ -37,6 +37,7 @@ from games.kuhn import KuhnPokerGame
 from grpo_sepo import forced_action_decode
 
 from games.negotiation_gtbench import NegotiationGTBenchGame
+from games.kuhn import KuhnPokerGame
 
 GAME_REGISTRY = {
     "ipd": IPDGame(n_rounds=8),
@@ -45,6 +46,7 @@ GAME_REGISTRY = {
     "negotiation": NegotiationGame(n_rounds=4),
     "kuhn": KuhnPokerGame(n_hands=6),  # ← new
     "negotiation_gt":   NegotiationGTBenchGame(n_rounds=4),
+    "kuhn":             KuhnPokerGame(n_hands=6),
 }
 
 

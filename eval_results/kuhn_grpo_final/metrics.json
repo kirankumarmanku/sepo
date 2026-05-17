@@ -1,0 +1,13 @@
+{
+  "kuhn": {
+    "payoff_mean": 0.030836640211640214,
+    "payoff_total": 0.37003968253968256,
+    "welfare_mean": 0.0,
+    "welfare_total": 0.0,
+    "exploitability": 0.8467261904761905,
+    "robustness": -0.42336309523809523,
+    "externality": 0.13479662698412698,
+    "safety": -4.598983134920635,
+    "nra": 0.0
+  }
+}

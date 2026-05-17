@@ -1,0 +1,25 @@
+  Loading tokenizer from grpo_qwen_kuhn/step_0050...
+  Loading base model from Qwen/Qwen3.5-4B...
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 3806.08it/s]
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   0%|          | 1/426 [00:00<00:52,  8.07it/s]Loading weights:   8%|▊         | 36/426 [00:00<00:02, 178.97it/s]Loading weights:  14%|█▍        | 61/426 [00:00<00:01, 203.42it/s]Loading weights:  19%|█▉        | 82/426 [00:00<00:01, 205.22it/s]Loading weights:  24%|██▍       | 103/426 [00:00<00:01, 203.57it/s]Loading weights:  31%|███       | 131/426 [00:00<00:01, 225.26it/s]Loading weights:  36%|███▌      | 154/426 [00:00<00:01, 200.88it/s]Loading weights:  43%|████▎     | 182/426 [00:00<00:01, 223.39it/s]Loading weights:  48%|████▊     | 205/426 [00:01<00:01, 199.67it/s]Loading weights:  56%|█████▌    | 237/426 [00:01<00:00, 230.87it/s]Loading weights:  62%|██████▏   | 262/426 [00:01<00:00, 210.78it/s]Loading weights:  68%|██████▊   | 290/426 [00:01<00:00, 228.77it/s]Loading weights:  74%|███████▎  | 314/426 [00:01<00:00, 211.97it/s]Loading weights:  80%|████████  | 341/426 [00:01<00:00, 224.85it/s]Loading weights:  86%|████████▌ | 365/426 [00:01<00:00, 203.12it/s]Loading weights:  93%|█████████▎| 396/426 [00:01<00:00, 229.14it/s]Loading weights:  99%|█████████▊| 420/426 [00:02<00:00, 212.40it/s]Loading weights: 100%|██████████| 426/426 [00:02<00:00, 210.00it/s]
+  Applying SFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-kuhn-sft
+  SFT adapter merged.
+  Applying final adapter: grpo_qwen_kuhn/step_0050
+  Final adapter merged.
+
+  Evaluating kuhn...
+    [train] vs nash-approx (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [train] vs tight-passive (8 episodes)...
+    [train] vs loose-aggressive (8 episodes)...
+    [exploiter] vs max-exploiter (8 episodes)...
+    [collusive] vs loose-aggressive (8 episodes)...
+
+=======================================================================================================================================
+  Game: KUHN
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  grpo_kuhn_step_0050                          -0.064     -0.763      0.000      0.000      0.219   -0.109    0.137     -2.178    0.000
+
+  Results saved → eval_results/kuhn_grpo_step_0050/metrics.json

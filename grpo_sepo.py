@@ -471,7 +471,7 @@ def grpo_step(
             )
 
         # Per-round advantage: normalise across rollouts at each round t
-        n_steps = len(episodes[0][0].payoffs)
+        n_steps = min(len(ep.payoffs) for ep, _, _, _, _, _ in episodes)
         for t in range(n_steps):
             round_rewards = np.array(
                 [ep.payoffs[t] - sepo_pen for ep, _, _, _, sepo_pen, _ in episodes],

@@ -167,15 +167,34 @@ The single-issue split game has a fundamental limitation: the optimal strategy (
 
 **SFT data**: 4 strategies (Proportional, Conservative, Adaptive, Defensive) × 5 opponents × 200 episodes · 3 epochs · `sft_neg_gtbench`
 
-### Results (pending — GRPO step 25 in progress)
+### Results (GRPO step 25)
 
 | Model | Pay/round | Exploit | Robust | Ext | Safety | NRA |
 |---|---|---|---|---|---|---|
-| Base | — | — | — | — | — | — |
-| SFT (`sft_neg_gtbench`) | — | — | — | — | — | — |
-| GRPO step25 | — | — | — | — | — | — |
+| Base | 5.192 | 0.781 | 1.275 | 0.642 | -0.627 | -0.048 |
+| SFT (`sft_neg_gtbench`) | **5.725** | 2.706 | 1.988 | **0.443** | -1.777 | -0.258 |
+| **GRPO step25** | 4.721 | **0.319** | **2.375** | 0.637 | **-0.518** | **+0.011** |
 
-*Results to be updated after current run completes.*
+**Best GRPO checkpoint**: `grpo_neg_gt_v1/final` (step 25 — training continuing)
+
+### Observations
+
+- **GRPO beats base on safety** (-0.518 vs -0.627) and exploit (0.319 vs 0.781, −59%) — unlike v1 where base always led at step 25. The GTBench upgrade confirms the hypothesis: harder game gives GRPO room to improve
+- **GRPO only model with positive NRA (+0.011)** — the model is genuinely competitive on average across all opponents
+- **SFT exploit catastrophic** (2.706 vs 0.781 base) — worst SFT degradation across all games. The 3-item private-value format amplifies the over-accommodation pattern: SFT learns to demand little across all items, which exploiters exploit heavily on high-value items
+- **All models safety-negative** — structural to the game; λe=3.0 × exploit penalty dominates even at low exploit
+- **GRPO parse failures higher** (9 vs 6 base vs 3 SFT) — fallback [1,1,1] suppresses utility. More training steps expected to improve format compliance alongside strategy quality
+- **Only step 25** — exploit already at 0.319, well below base (0.781). Training to step 75–100 expected to push safety further past base and recover utility, following IPD convergence pattern
+
+### Comparison: v1 (single-issue) vs v2 (GTBench) at step 25
+
+| | v1 Base safety | v1 GRPO safety | v2 Base safety | v2 GRPO safety |
+|---|---|---|---|---|
+| Safety | -3.363 | -3.643 | -0.627 | **-0.518** |
+| GRPO beats base? | No | — | **Yes** | — |
+| GRPO exploit vs base | +0.150 worse | — | **−0.462 better** | — |
+
+v2 is the correct game for SEPO negotiation. v1 had a structural ceiling; v2 gives GRPO genuine room to outperform base from step 25.
 
 ---
 

@@ -1,0 +1,83 @@
+{
+  "total_examples": 6982,
+  "n_opponents": 5,
+  "episodes_per_opponent": 200,
+  "total_episodes": 1000,
+  "action_distribution": {
+    "PASS": 2587,
+    "BET": 1957,
+    "CALL": 562,
+    "FOLD": 1876
+  },
+  "by_strategy": {
+    "pot-control": {
+      "total": 1437,
+      "BET": 404,
+      "FOLD": 405,
+      "PASS": 551,
+      "CALL": 77
+    },
+    "nash-approx": {
+      "total": 3128,
+      "PASS": 1101,
+      "CALL": 295,
+      "BET": 934,
+      "FOLD": 798
+    },
+    "tight-value": {
+      "total": 1748,
+      "BET": 401,
+      "PASS": 709,
+      "FOLD": 547,
+      "CALL": 91
+    },
+    "random-legal": {
+      "total": 498,
+      "BET": 183,
+      "PASS": 165,
+      "FOLD": 63,
+      "CALL": 87
+    },
+    "always-pass-q": {
+      "total": 171,
+      "BET": 35,
+      "PASS": 61,
+      "FOLD": 63,
+      "CALL": 12
+    }
+  },
+  "by_card": {
+    "J": {
+      "total": 2489,
+      "PASS": 1106,
+      "FOLD": 1028,
+      "BET": 315,
+      "CALL": 40
+    },
+    "Q": {
+      "total": 2499,
+      "FOLD": 832,
+      "PASS": 1419,
+      "CALL": 189,
+      "BET": 59
+    },
+    "K": {
+      "total": 1994,
+      "BET": 1583,
+      "CALL": 333,
+      "PASS": 62,
+      "FOLD": 16
+    }
+  },
+  "strategy_weights": {
+    "StrategyNashApprox": 0.45,
+    "StrategyTightValue": 0.25,
+    "StrategyPotControl": 0.2,
+    "StrategyRandomLegal": 0.08,
+    "StrategyAlwaysPassQ": 0.02
+  },
+  "train_examples": 5585,
+  "valid_examples": 1397,
+  "train_frac": 0.8,
+  "seed": 42
+}

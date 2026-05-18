@@ -30,13 +30,16 @@ def load_jsonl(path):
 
 
 class TextOnlyCollator:
-    """Gemma 3 is multimodal — injects token_type_ids=zeros for text-only training."""
-    def __init__(self, tokenizer):
+    """Gemma 3 is multimodal — injects token_type_ids=zeros for text-only training.
+    Skipped for Gemma 4 and other models that don't require token_type_ids."""
+    def __init__(self, tokenizer, inject_token_type_ids: bool = False):
         self.base = DataCollatorForLanguageModeling(tokenizer, mlm=False)
+        self.inject = inject_token_type_ids
 
     def __call__(self, features):
         batch = self.base(features)
-        batch["token_type_ids"] = torch.zeros_like(batch["input_ids"])
+        if self.inject:
+            batch["token_type_ids"] = torch.zeros_like(batch["input_ids"])
         return batch
 
 
@@ -50,6 +53,8 @@ def main():
     p.add_argument("--lr",          type=float, default=1e-5)
     p.add_argument("--max-length",  type=int,   default=256)
     p.add_argument("--lora-rank",   type=int,   default=8)
+    p.add_argument("--token-type-ids", action="store_true",
+                   help="Inject token_type_ids=zeros (required for Gemma 3, not Gemma 4)")
     args = p.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -91,11 +96,17 @@ def main():
         device_map="auto",
     )
 
+    # Gemma 4 uses q_proj.linear / v_proj.linear; Gemma 3 uses plain q_proj / v_proj
+    named = {n for n, _ in model.named_modules()}
+    lora_targets = (["q_proj.linear", "v_proj.linear"]
+                    if "model.layers.0.self_attn.q_proj.linear" in named
+                    else ["q_proj", "v_proj"])
+
     lora_cfg = LoraConfig(
         task_type=TaskType.CAUSAL_LM,
         r=args.lora_rank,
         lora_alpha=args.lora_rank * 2,
-        target_modules=["q_proj", "v_proj"],
+        target_modules=lora_targets,
         lora_dropout=0.0,
         bias="none",
     )
@@ -104,7 +115,7 @@ def main():
     model.print_trainable_parameters()
     print(f"VRAM after model load: {torch.cuda.memory_allocated()/1e9:.2f} GB")
 
-    collator = TextOnlyCollator(tokenizer)
+    collator = TextOnlyCollator(tokenizer, inject_token_type_ids=args.token_type_ids)
 
     # ── Training ──────────────────────────────────────────────────────────────
     sft_config = SFTConfig(

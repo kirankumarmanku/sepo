@@ -468,7 +468,8 @@ def grpo_step(
             col_str     = "".join(game.action_label(a) for ep in collusive_eps_r for a in ep.actions)
             print(f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx+1:02d} llm={actions_str} opp={opp_str} exp={exp_str} col={col_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}", flush=True)
 
-        # Per-round advantage: normalise across rollouts at each round t
+        # Per-round advantage: normalise across rollouts at each round t.
+        # Use min length — Kuhn Poker episodes vary (early folds shorten episodes).
         n_steps = min(len(ep.payoffs) for ep, _, _, _, _, _ in episodes)
         for t in range(n_steps):
             round_rewards = np.array(

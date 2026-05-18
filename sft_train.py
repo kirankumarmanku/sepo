@@ -92,7 +92,7 @@ def main():
 
     model = AutoModelForCausalLM.from_pretrained(
         args.model,
-        torch_dtype=dtype,
+        dtype=dtype,
         device_map="auto",
     )
 

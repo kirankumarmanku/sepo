@@ -55,6 +55,8 @@ def main():
     p.add_argument("--lora-rank",   type=int,   default=8)
     p.add_argument("--token-type-ids", action="store_true",
                    help="Inject token_type_ids=zeros (required for Gemma 3, not Gemma 4)")
+    p.add_argument("--resume", default=None,
+                   help="Resume from checkpoint path (e.g. sft_gemma4/checkpoint-4796)")
     args = p.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -149,7 +151,7 @@ def main():
     )
 
     print("\nStarting SFT training...")
-    trainer.train()
+    trainer.train(resume_from_checkpoint=args.resume)
     print("Training complete.")
 
     # ── Save adapter ──────────────────────────────────────────────────────────

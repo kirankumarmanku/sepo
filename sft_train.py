@@ -96,10 +96,11 @@ def main():
         device_map="auto",
     )
 
-    # Gemma 4 uses q_proj.linear / v_proj.linear; Gemma 3 uses plain q_proj / v_proj
+    # Gemma 4 wraps q_proj in Gemma4ClippableLinear — target the inner .linear
+    # Gemma 3 uses plain q_proj / v_proj (torch.nn.Linear directly)
     named = {n for n, _ in model.named_modules()}
     lora_targets = (["q_proj.linear", "v_proj.linear"]
-                    if "model.layers.0.self_attn.q_proj.linear" in named
+                    if any(n.endswith("q_proj.linear") for n in named)
                     else ["q_proj", "v_proj"])
 
     lora_cfg = LoraConfig(

@@ -482,10 +482,10 @@ def train(args):
         merged = AutoModelForCausalLM.from_pretrained(args.model, **load_kwargs)
 
     if args.lora:
-        # Gemma 4 wraps projections in Gemma4ClippableLinear — need inner .linear
-        # Gemma 3 and most models use plain q_proj/v_proj
+        # Gemma 4 wraps q_proj in Gemma4ClippableLinear — target the inner .linear
+        # Gemma 3 uses plain q_proj/v_proj (torch.nn.Linear directly)
         named = {n for n, _ in merged.named_modules()}
-        if "model.layers.0.self_attn.q_proj.linear" in named:
+        if any(n.endswith("q_proj.linear") for n in named):
             lora_targets = ["q_proj.linear", "v_proj.linear"]
         else:
             lora_targets = ["q_proj", "v_proj"]

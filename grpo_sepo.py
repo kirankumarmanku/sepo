@@ -599,7 +599,7 @@ def train(args):
             if "language_model" in _n or _n.startswith("model.layers"):
                 lora_targets.append(_n)
         if not lora_targets:
-            lora_targets = ["q_proj", "k_proj", "v_proj", "o_proj"]
+           lora_targets = ["q_proj", "k_proj", "v_proj", "o_proj"]
         print(f"  LoRA targets: {len(lora_targets)} modules")
         lora_cfg = LoraConfig(
             task_type=TaskType.CAUSAL_LM,

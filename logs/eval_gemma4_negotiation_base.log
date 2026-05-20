@@ -1,0 +1,20 @@
+  Loading tokenizer from google/gemma-4-E4B-it...
+  Loading base model from google/gemma-4-E4B-it...
+Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:   9%|▉         | 194/2076 [00:00<00:00, 1899.76it/s]Loading weights:  18%|█▊        | 384/2076 [00:00<00:01, 1629.21it/s]Loading weights:  27%|██▋       | 554/2076 [00:00<00:00, 1655.95it/s]Loading weights:  35%|███▍      | 722/2076 [00:00<00:00, 1537.32it/s]Loading weights:  42%|████▏     | 878/2076 [00:03<00:07, 167.91it/s] Loading weights:  47%|████▋     | 980/2076 [00:03<00:06, 177.66it/s]Loading weights:  51%|█████     | 1055/2076 [00:04<00:05, 170.66it/s]Loading weights:  53%|█████▎    | 1110/2076 [00:04<00:05, 174.99it/s]Loading weights:  56%|█████▌    | 1154/2076 [00:04<00:05, 174.77it/s]Loading weights:  57%|█████▋    | 1190/2076 [00:04<00:04, 181.97it/s]Loading weights:  59%|█████▉    | 1222/2076 [00:04<00:04, 195.20it/s]Loading weights:  60%|██████    | 1254/2076 [00:04<00:03, 206.26it/s]Loading weights:  62%|██████▏   | 1284/2076 [00:05<00:03, 201.41it/s]Loading weights:  63%|██████▎   | 1311/2076 [00:05<00:04, 186.60it/s]Loading weights:  64%|██████▍   | 1334/2076 [00:05<00:03, 185.69it/s]Loading weights:  65%|██████▌   | 1356/2076 [00:05<00:03, 186.26it/s]Loading weights:  66%|██████▋   | 1377/2076 [00:05<00:03, 176.76it/s]Loading weights:  68%|██████▊   | 1405/2076 [00:05<00:03, 190.57it/s]Loading weights:  75%|███████▌  | 1565/2076 [00:05<00:00, 511.84it/s]Loading weights:  85%|████████▌ | 1774/2076 [00:05<00:00, 897.47it/s]Loading weights:  96%|█████████▌| 1993/2076 [00:06<00:00, 1232.28it/s]Loading weights: 100%|██████████| 2076/2076 [00:06<00:00, 338.74it/s] 
+
+  Evaluating negotiation...
+    [train] vs selfish-split (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [train] vs fair-split (8 episodes)...
+    [train] vs balanced-split (8 episodes)...
+    [exploiter] vs selfish-split (8 episodes)...
+    [collusive] vs selfish-split (8 episodes)...
+
+=======================================================================================================================================
+  Game: NEGOTIATION
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  base                                          1.083      4.333      2.417      9.667      0.000    0.000    0.822     -1.323   -0.167
+
+  Results saved → eval_results/gemma4_negotiation_base/metrics.json

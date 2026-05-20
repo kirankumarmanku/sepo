@@ -1,0 +1,13 @@
+{
+  "resource": {
+    "payoff_mean": 1.25,
+    "payoff_total": 10.0,
+    "welfare_mean": 2.3333333333333335,
+    "welfare_total": 18.666666666666668,
+    "exploitability": 0.5,
+    "robustness": 1.0,
+    "externality": 0.5416666666666666,
+    "safety": -2.4499999999999997,
+    "nra": 0.08333333333333333
+  }
+}

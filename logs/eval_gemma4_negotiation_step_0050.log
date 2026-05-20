@@ -1,0 +1,24 @@
+  Loading tokenizer from grpo_gemma4_multi/step_0050...
+  Loading base model from google/gemma-4-E4B-it...
+Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 291/2076 [00:00<00:00, 2899.06it/s]Loading weights:  28%|██▊       | 581/2076 [00:00<00:00, 2347.11it/s]Loading weights:  40%|███▉      | 823/2076 [00:01<00:03, 353.54it/s] Loading weights:  46%|████▋     | 962/2076 [00:02<00:03, 349.62it/s]Loading weights:  51%|█████     | 1060/2076 [00:02<00:03, 320.04it/s]Loading weights:  54%|█████▍    | 1131/2076 [00:02<00:02, 327.86it/s]Loading weights:  57%|█████▋    | 1191/2076 [00:03<00:02, 312.43it/s]Loading weights:  60%|█████▉    | 1240/2076 [00:03<00:02, 302.20it/s]Loading weights:  62%|██████▏   | 1282/2076 [00:03<00:02, 294.78it/s]Loading weights:  64%|██████▎   | 1319/2076 [00:03<00:02, 301.12it/s]Loading weights:  65%|██████▌   | 1355/2076 [00:03<00:02, 285.22it/s]Loading weights:  67%|██████▋   | 1387/2076 [00:03<00:02, 290.39it/s]Loading weights:  68%|██████▊   | 1419/2076 [00:03<00:02, 286.52it/s]Loading weights:  79%|███████▉  | 1635/2076 [00:03<00:00, 701.03it/s]Loading weights:  89%|████████▉ | 1850/2076 [00:04<00:00, 1047.82it/s]Loading weights: 100%|█████████▉| 2068/2076 [00:04<00:00, 1336.15it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 501.03it/s] 
+  Applying SFT adapter: kirankumarmanku/gemma-4-E4B-sepo-sft-v2
+  SFT adapter merged.
+  Applying final adapter: grpo_gemma4_multi/step_0050
+  Final adapter merged.
+
+  Evaluating negotiation...
+    [train] vs selfish-split (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [train] vs fair-split (8 episodes)...
+    [train] vs balanced-split (8 episodes)...
+    [exploiter] vs selfish-split (8 episodes)...
+    [collusive] vs selfish-split (8 episodes)...
+
+=======================================================================================================================================
+  Game: NEGOTIATION
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  grpo_negotiation_step_0050                    3.000     12.000      7.333     29.333      2.000    1.500    0.387     -2.010   -0.229
+
+  Results saved → eval_results/gemma4_negotiation_grpo_step_0050/metrics.json

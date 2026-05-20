@@ -538,7 +538,8 @@ def train(args):
     print(f"Device: {device}")
 
     if args.game == "all":
-        games = list(GAME_REGISTRY.values())
+        excluded = {"kuhn", "resource"}
+        games = [g for name, g in GAME_REGISTRY.items() if name not in excluded]
         print(f"Game: ALL ({', '.join(g.name for g in games)}) — joint multi-game GRPO")
     else:
         g = GAME_REGISTRY[args.game]

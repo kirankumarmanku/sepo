@@ -1,0 +1,25 @@
+  Loading tokenizer from grpo_gemma4_multi/step_0075...
+  Loading base model from google/gemma-4-E4B-it...
+Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 249/2076 [00:00<00:00, 2486.95it/s]Loading weights:  24%|██▍       | 498/2076 [00:00<00:00, 1936.48it/s]Loading weights:  34%|███▎      | 700/2076 [00:00<00:00, 1911.49it/s]Loading weights:  43%|████▎     | 895/2076 [00:02<00:04, 286.69it/s] Loading weights:  49%|████▉     | 1018/2076 [00:02<00:03, 282.23it/s]Loading weights:  53%|█████▎    | 1107/2076 [00:02<00:03, 284.93it/s]Loading weights:  57%|█████▋    | 1176/2076 [00:03<00:03, 290.88it/s]Loading weights:  59%|█████▉    | 1233/2076 [00:03<00:03, 280.19it/s]Loading weights:  62%|██████▏   | 1280/2076 [00:03<00:02, 277.41it/s]Loading weights:  64%|██████▎   | 1320/2076 [00:03<00:02, 274.11it/s]Loading weights:  65%|██████▌   | 1356/2076 [00:03<00:02, 282.59it/s]Loading weights:  67%|██████▋   | 1391/2076 [00:03<00:02, 279.82it/s]Loading weights:  69%|██████▉   | 1435/2076 [00:03<00:02, 309.28it/s]Loading weights:  79%|███████▉  | 1644/2076 [00:04<00:00, 684.56it/s]Loading weights:  89%|████████▉ | 1853/2076 [00:04<00:00, 1008.65it/s]Loading weights:  99%|█████████▉| 2063/2076 [00:04<00:00, 1278.42it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 486.43it/s] 
+  Applying SFT adapter: kirankumarmanku/gemma-4-E4B-sepo-sft-v2
+  SFT adapter merged.
+  Applying final adapter: grpo_gemma4_multi/step_0075
+  Final adapter merged.
+
+  Evaluating ipd...
+    [train] vs always-defect (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [train] vs tit-for-tat (8 episodes)...
+    [train] vs generous-tit-for-tat (8 episodes)...
+    [train] vs mixed-0.50 (8 episodes)...
+    [exploiter] vs always-defect (8 episodes)...
+    [collusive] vs always-defect (8 episodes)...
+
+=======================================================================================================================================
+  Game: IPD
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  grpo_ipd_step_0075                            2.320     18.562      4.641     37.125      0.625    0.875    0.302     -0.205   -0.028
+
+  Results saved → eval_results/gemma4_ipd_grpo_step_0075/metrics.json

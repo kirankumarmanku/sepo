@@ -1,0 +1,24 @@
+  Loading tokenizer from grpo_gemma4_multi/step_0075...
+  Loading base model from google/gemma-4-E4B-it...
+Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 261/2076 [00:00<00:00, 2537.87it/s]Loading weights:  25%|██▍       | 515/2076 [00:00<00:00, 1970.10it/s]Loading weights:  35%|███▍      | 724/2076 [00:00<00:00, 2011.78it/s]Loading weights:  45%|████▍     | 930/2076 [00:02<00:04, 270.86it/s] Loading weights:  51%|█████     | 1059/2076 [00:02<00:03, 274.72it/s]Loading weights:  55%|█████▌    | 1152/2076 [00:03<00:03, 279.24it/s]Loading weights:  59%|█████▉    | 1224/2076 [00:03<00:03, 272.55it/s]Loading weights:  62%|██████▏   | 1281/2076 [00:03<00:02, 285.00it/s]Loading weights:  64%|██████▍   | 1331/2076 [00:03<00:02, 287.20it/s]Loading weights:  66%|██████▌   | 1375/2076 [00:03<00:02, 289.71it/s]Loading weights:  68%|██████▊   | 1415/2076 [00:03<00:02, 287.60it/s]Loading weights:  77%|███████▋  | 1596/2076 [00:04<00:00, 537.07it/s]Loading weights:  90%|████████▉ | 1860/2076 [00:04<00:00, 935.56it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 491.20it/s]
+  Applying SFT adapter: kirankumarmanku/gemma-4-E4B-sepo-sft-v2
+  SFT adapter merged.
+  Applying final adapter: grpo_gemma4_multi/step_0075
+  Final adapter merged.
+
+  Evaluating resource...
+    [train] vs high-extract (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [train] vs medium-extract (8 episodes)...
+    [train] vs scarcity-aware (8 episodes)...
+    [exploiter] vs high-extract (8 episodes)...
+    [collusive] vs high-extract (8 episodes)...
+
+=======================================================================================================================================
+  Game: RESOURCE
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  grpo_resource_step_0075                       0.917      7.333      2.667     21.333      1.250    0.500    0.208     -2.583   -0.326
+
+  Results saved → eval_results/gemma4_resource_grpo_step_0075/metrics.json

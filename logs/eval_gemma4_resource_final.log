@@ -1,0 +1,24 @@
+  Loading tokenizer from grpo_gemma4_multi/final...
+  Loading base model from google/gemma-4-E4B-it...
+Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 267/2076 [00:00<00:00, 2669.17it/s]Loading weights:  26%|██▌       | 534/2076 [00:00<00:00, 2298.12it/s]Loading weights:  37%|███▋      | 768/2076 [00:01<00:03, 348.23it/s] Loading weights:  43%|████▎     | 903/2076 [00:02<00:03, 345.96it/s]Loading weights:  48%|████▊     | 998/2076 [00:02<00:03, 327.75it/s]Loading weights:  51%|█████▏    | 1069/2076 [00:02<00:03, 311.80it/s]Loading weights:  54%|█████▍    | 1125/2076 [00:02<00:02, 318.49it/s]Loading weights:  57%|█████▋    | 1174/2076 [00:03<00:02, 313.17it/s]Loading weights:  59%|█████▊    | 1217/2076 [00:03<00:02, 295.50it/s]Loading weights:  60%|██████    | 1254/2076 [00:03<00:02, 285.76it/s]Loading weights:  62%|██████▏   | 1292/2076 [00:03<00:02, 295.76it/s]Loading weights:  64%|██████▍   | 1326/2076 [00:03<00:02, 295.35it/s]Loading weights:  65%|██████▌   | 1359/2076 [00:03<00:02, 301.40it/s]Loading weights:  67%|██████▋   | 1392/2076 [00:03<00:02, 289.86it/s]Loading weights:  71%|███████   | 1468/2076 [00:03<00:01, 400.01it/s]Loading weights:  81%|████████  | 1676/2076 [00:04<00:00, 820.80it/s]Loading weights:  91%|█████████ | 1881/2076 [00:04<00:00, 1144.57it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 1356.03it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 492.44it/s] 
+  Applying SFT adapter: kirankumarmanku/gemma-4-E4B-sepo-sft-v2
+  SFT adapter merged.
+  Applying final adapter: grpo_gemma4_multi/final
+  Final adapter merged.
+
+  Evaluating resource...
+    [train] vs high-extract (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [train] vs medium-extract (8 episodes)...
+    [train] vs scarcity-aware (8 episodes)...
+    [exploiter] vs high-extract (8 episodes)...
+    [collusive] vs high-extract (8 episodes)...
+
+=======================================================================================================================================
+  Game: RESOURCE
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  grpo_resource_final                           0.917      7.333      2.667     21.333      1.250    0.500    0.208     -2.583   -0.326
+
+  Results saved → eval_results/gemma4_resource_grpo_final/metrics.json

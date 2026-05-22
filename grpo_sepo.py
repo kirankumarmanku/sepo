@@ -48,18 +48,17 @@ from games import Episode, Game
 from games.auction import AuctionGame
 from games.ipd import IPDGame
 from games.negotiation import NegotiationGame
-from games.kuhn import KuhnPokerGame
 from games.negotiation_gtbench import NegotiationGTBenchGame
 from games.kuhn import KuhnPokerGame
+from games.resource import ResourceGame
 
 # ── Game registry ─────────────────────────────────────────────────────────────
 GAME_REGISTRY: Dict[str, Game] = {
     "ipd": IPDGame(n_rounds=8),
-    "resource": ResourceGame(n_rounds=8),
     "auction": AuctionGame(n_rounds=6),
     "negotiation": NegotiationGame(n_rounds=4),
-    "negotiation_gt":  NegotiationGTBenchGame(n_rounds=4),
-    "kuhn":            KuhnPokerGame(n_hands=6),
+    "negotiation_gt": NegotiationGTBenchGame(n_rounds=4),
+    "kuhn": KuhnPokerGame(n_hands=6),
 }
 
 
@@ -335,6 +334,7 @@ def grpo_step(
     seed_offset: int,
     max_new_tokens: int = 512,
     use_token_type_ids: bool = False,
+    cached_sepo_penalty: float = None,
 ):
     """
     One GRPO step — per-round advantage normalisation.
@@ -471,8 +471,7 @@ def grpo_step(
                 flush=True,
             )
 
-        # Per-round advantage: normalise across rollouts at each round t.
-        # Use min length — Kuhn Poker episodes vary (early folds shorten episodes).
+        # Per-round advantage: normalise across rollouts at each round t
         n_steps = min(len(ep.payoffs) for ep, _, _, _, _, _ in episodes)
         for t in range(n_steps):
             round_rewards = np.array(
@@ -538,8 +537,7 @@ def train(args):
     print(f"Device: {device}")
 
     if args.game == "all":
-        excluded = {"kuhn", "resource"}
-        games = [g for name, g in GAME_REGISTRY.items() if name not in excluded]
+        games = list(GAME_REGISTRY.values())
         print(f"Game: ALL ({', '.join(g.name for g in games)}) — joint multi-game GRPO")
     else:
         g = GAME_REGISTRY[args.game]
@@ -600,7 +598,7 @@ def train(args):
             if "language_model" in _n or _n.startswith("model.layers"):
                 lora_targets.append(_n)
         if not lora_targets:
-           lora_targets = ["q_proj", "k_proj", "v_proj", "o_proj"]
+            lora_targets = ["q_proj", "k_proj", "v_proj", "o_proj"]
         print(f"  LoRA targets: {len(lora_targets)} modules")
         lora_cfg = LoraConfig(
             task_type=TaskType.CAUSAL_LM,
@@ -709,7 +707,16 @@ def train(args):
                 seed_offset=step * 10000 + abs(hash(game.name)) % 10000,
                 max_new_tokens=args.max_new_tokens,
                 use_token_type_ids=args.token_type_ids,
+                cached_sepo_penalty=None if refresh else sepo_caches[game.name],
             )
+            if metrics:
+                if refresh:
+                    sepo_caches[game.name] = (
+                        args.lambda_e * metrics.get("exploitability", 0.0)
+                        + args.lambda_c * metrics.get("collusion", 0.0)
+                        + args.lambda_x * metrics.get("externality", 0.0)
+                    )
+                kl_since_refresh[game.name] += metrics.get("kl", 0.0)
 
             if loss is not None:
                 step_losses.append(loss)

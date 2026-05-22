@@ -1,0 +1,124 @@
+Device: cuda
+Game: ipd  rounds=8
+Detected PEFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-sft-v2  (base: Qwen/Qwen3.5-4B)
+  Loading base: Qwen/Qwen3.5-4B
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 4262.50it/s]
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   7%|▋         | 28/426 [00:00<00:01, 279.18it/s]Loading weights:  13%|█▎        | 56/426 [00:00<00:01, 252.03it/s]Loading weights:  19%|█▉        | 82/426 [00:00<00:01, 236.38it/s]Loading weights:  25%|██▍       | 106/426 [00:00<00:01, 224.73it/s]Loading weights:  31%|███       | 132/426 [00:00<00:01, 234.56it/s]Loading weights:  37%|███▋      | 156/426 [00:00<00:01, 219.07it/s]Loading weights:  43%|████▎     | 184/426 [00:00<00:01, 236.98it/s]Loading weights:  49%|████▉     | 209/426 [00:00<00:00, 218.32it/s]Loading weights:  56%|█████▌    | 237/426 [00:01<00:00, 234.05it/s]Loading weights:  61%|██████▏   | 261/426 [00:01<00:00, 214.43it/s]Loading weights:  68%|██████▊   | 290/426 [00:01<00:00, 233.83it/s]Loading weights:  74%|███████▍  | 315/426 [00:01<00:00, 215.85it/s]Loading weights:  81%|████████  | 343/426 [00:01<00:00, 229.95it/s]Loading weights:  86%|████████▌ | 367/426 [00:01<00:00, 113.44it/s]Loading weights:  92%|█████████▏| 394/426 [00:02<00:00, 137.06it/s]Loading weights:  97%|█████████▋| 415/426 [00:02<00:00, 150.33it/s]Loading weights: 100%|██████████| 426/426 [00:02<00:00, 189.28it/s]
+  Applying SFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-sft-v2
+trainable params: 1,835,008 || all params: 4,207,586,304 || trainable%: 0.0436
+LoRA mode: using base model (adapters disabled) as reference — no second copy loaded.
+
+Starting GRPO training — 5 steps (from step 0)
+SEPO weights: ipd:λe=2.4  λc=2.4  λx=2.4
+SEPO refresh: every 5 steps OR when cumulative KL > 0.5
+
+  [15:52:50] rollout opp=always-defect (1/4)
+    [15:53:46] r01 llm=CDDCCCDD opp=DDDDDDDD u=4.0 pen=8.200
+      [PARSE FAIL] → constrained decode
+    [15:54:12] r02 llm=DDDDDDDC opp=DDDDDDDD u=7.0 pen=8.200
+    [15:54:18] r03 llm=DCDCCDCC opp=DDDDDDDD u=3.0 pen=8.200
+    [15:54:23] r04 llm=CDDDCDDD opp=DDDDDDDD u=6.0 pen=8.200
+[transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+  [15:54:43] rollout opp=tit-for-tat (2/4)
+    [15:54:58] r01 llm=CCCCCCDC opp=CCCCCCCD u=23.0 pen=7.450
+    [15:55:04] r02 llm=CCDCCCDC opp=CCCDCCCD u=22.0 pen=7.450
+    [15:55:09] r03 llm=DDCDCCDC opp=CDDCDCCD u=19.0 pen=7.450
+    [15:55:15] r04 llm=CDDDDDDD opp=CCDDDDDD u=14.0 pen=7.450
+  [15:55:26] rollout opp=generous-tit-for-tat (3/4)
+    [15:56:05] r01 llm=CCDCCDDD opp=CCCDCCDC u=25.0 pen=8.725
+    [15:56:31] r02 llm=CCCCCDCC opp=CCCCCCDC u=23.0 pen=8.725
+    [15:56:35] r03 llm=CCCCCDDD opp=CCCCCCDD u=22.0 pen=8.725
+    [15:56:42] r04 llm=CCCDCCCD opp=CCCCDCCC u=25.0 pen=8.725
+  [15:56:53] rollout opp=mixed-0.50 (4/4)
+    [15:57:29] r01 llm=CDCCCCDD opp=CCDCCDCC u=24.0 pen=8.125
+    [15:57:35] r02 llm=CCDCCDCC opp=DCCCDCDC u=19.0 pen=8.125
+    [15:57:43] r03 llm=CDDCDDDC opp=DDCDDCDC u=16.0 pen=8.125
+    [15:57:49] r04 llm=DDCCCDCC opp=CDCDDDDD u=10.0 pen=8.125
+[15:57:59] Step    0 | loss=0.000069 | u=2.375 | e=2.656 | c=0.438 | x=0.292 | kl=0.000000 | pg=0.000069
+  [15:57:59] rollout opp=always-defect (1/4)
+    [15:58:04] r01 llm=DDDDDDDD opp=DDDDDDDD u=8.0 pen=8.125
+    [15:58:11] r02 llm=CCCDDCCC opp=DDDDDDDD u=2.0 pen=8.125
+    [15:58:22] r03 llm=DDCCDCDD opp=DDDDDDDD u=5.0 pen=8.125
+    [15:58:47] r04 llm=CDCDDDDC opp=DDDDDDDD u=5.0 pen=8.125
+  [15:58:58] rollout opp=tit-for-tat (2/4)
+    [15:59:06] r01 llm=CCDCCCDC opp=CCCDCCCD u=22.0 pen=8.125
+    [15:59:12] r02 llm=CDCCCDCC opp=CCDCCCDC u=22.0 pen=8.125
+    [15:59:20] r03 llm=CCCCDCCC opp=CCCCCDCC u=23.0 pen=8.125
+    [15:59:25] r04 llm=CCCDCDDD opp=CCCCDCDD u=21.0 pen=8.125
+  [15:59:36] rollout opp=generous-tit-for-tat (3/4)
+    [15:59:41] r01 llm=CDDCCCCD opp=CCDDCCCC u=23.0 pen=8.125
+    [15:59:47] r02 llm=CDCCCCDD opp=CCDCCCCD u=23.0 pen=8.125
+    [15:59:52] r03 llm=CDCCDCCD opp=CCCCCCCC u=30.0 pen=8.125
+    [16:00:18] r04 llm=CCCDDCCD opp=CCCCCDCC u=27.0 pen=8.125
+  [16:00:28] rollout opp=mixed-0.50 (4/4)
+    [16:00:33] r01 llm=DDDDCCCC opp=CDDDCCCD u=17.0 pen=8.125
+    [16:00:39] r02 llm=CCCCDCCC opp=CCDDCDCD u=14.0 pen=8.125
+    [16:00:44] r03 llm=CDCCDCDD opp=DDCCDDCC u=18.0 pen=8.125
+    [16:00:49] r04 llm=CDDDCDCC opp=DDDCDDDC u=11.0 pen=8.125
+[16:01:00] Step    1 | loss=0.042659 | u=2.000 | e=0.000 | c=0.000 | x=0.000 | kl=0.165771 | pg=0.034370
+  [16:01:00] rollout opp=always-defect (1/4)
+    [16:01:25] r01 llm=CCCDDDDD opp=DDDDDDDD u=5.0 pen=8.125
+    [16:01:29] r02 llm=DCDCDCCD opp=DDDDDDDD u=4.0 pen=8.125
+    [16:01:55] r03 llm=CDDDCDDD opp=DDDDDDDD u=6.0 pen=8.125
+    [16:02:00] r04 llm=CDDDCCDD opp=DDDDDDDD u=5.0 pen=8.125
+  [16:02:10] rollout opp=tit-for-tat (2/4)
+    [16:02:16] r01 llm=CCDCCCCC opp=CCCDCCCC u=23.0 pen=8.125
+    [16:02:23] r02 llm=DDDCCCDC opp=CDDDCCCD u=18.0 pen=8.125
+    [16:02:29] r03 llm=DCCCDDDD opp=CDCCCDDD u=19.0 pen=8.125
+    [16:02:34] r04 llm=CDDDDCCC opp=CCDDDDCC u=17.0 pen=8.125
+  [16:02:45] rollout opp=generous-tit-for-tat (3/4)
+    [16:02:52] r01 llm=CCCDCDCD opp=CCCCDCDC u=24.0 pen=8.125
+    [16:02:57] r02 llm=DCDCCCDD opp=CDCDCCCC u=26.0 pen=8.125
+    [16:03:03] r03 llm=CDCDDCDC opp=CCDCDDCD u=19.0 pen=8.125
+    [16:03:10] r04 llm=CCCCCCCC opp=CCCCCCCC u=24.0 pen=8.125
+  [16:03:21] rollout opp=mixed-0.50 (4/4)
+    [16:03:26] r01 llm=DCCCCDDC opp=DCCDDDDD u=9.0 pen=8.125
+    [16:03:51] r02 llm=CDCCDCCC opp=CDCDCDDC u=15.0 pen=8.125
+    [16:03:57] r03 llm=CCDDDCCC opp=DDCDCDCD u=14.0 pen=8.125
+    [16:04:22] r04 llm=CDDCDDCC opp=DDCCDCCC u=21.0 pen=8.125
+[16:04:33] Step    2 | loss=0.500982 | u=2.094 | e=0.000 | c=0.000 | x=0.000 | kl=0.268433 | pg=0.487560
+  [16:04:33] rollout opp=always-defect (1/4)
+    [16:04:38] r01 llm=CDDDDCDD opp=DDDDDDDD u=6.0 pen=8.125
+    [16:04:44] r02 llm=CDCDCDDD opp=DDDDDDDD u=5.0 pen=8.125
+    [16:05:09] r03 llm=CDCCCCDC opp=DDDDDDDD u=2.0 pen=8.125
+    [16:05:18] r04 llm=CCCDDCCD opp=DDDDDDDD u=3.0 pen=8.125
+  [16:05:29] rollout opp=tit-for-tat (2/4)
+    [16:05:34] r01 llm=DCCCDCCD opp=CDCCCDCC u=24.0 pen=8.125
+    [16:06:20] r02 llm=CCDDCDCD opp=CCCDDCDC u=22.0 pen=8.125
+    [16:06:25] r03 llm=DDCCCCCC opp=CDDCCCCC u=21.0 pen=8.125
+    [16:06:30] r04 llm=CDCCDCCC opp=CCDCCDCC u=22.0 pen=8.125
+  [16:06:41] rollout opp=generous-tit-for-tat (3/4)
+    [16:06:45] r01 llm=DCCDCCCC opp=CCCCDCCC u=25.0 pen=8.125
+    [16:06:51] r02 llm=CDDDCCCC opp=CCDDCCCC u=22.0 pen=8.125
+    [16:06:56] r03 llm=CDDCDCCC opp=CCCDCDCC u=24.0 pen=8.125
+    [16:07:22] r04 llm=CDDDCCCC opp=CCCDCCCC u=26.0 pen=8.125
+  [16:07:34] rollout opp=mixed-0.50 (4/4)
+    [16:08:02] r01 llm=DCCCDCCC opp=CDDCDDDD u=9.0 pen=8.125
+    [16:08:08] r02 llm=CDDCCCDD opp=CCDDCCCC u=25.0 pen=8.125
+    [16:08:14] r03 llm=CCDDCCCC opp=CCDDCDDD u=11.0 pen=8.125
+    [16:08:40] r04 llm=CDDDCCCC opp=CCCDCCDD u=20.0 pen=8.125
+[16:08:50] Step    3 | loss=13.640436 | u=2.219 | e=0.000 | c=0.000 | x=0.000 | kl=0.289795 | pg=13.625946
+  [SEPO refresh] game=ipd step=4 cumKL=0.724
+  [16:08:50] rollout opp=always-defect (1/4)
+    [16:09:16] r01 llm=DCDCDCDC opp=DDDDDDDD u=4.0 pen=8.200
+    [16:10:04] r02 llm=DDDDCCCD opp=DDDDDDDD u=5.0 pen=8.200
+    [16:10:09] r03 llm=DDDDDDDD opp=DDDDDDDD u=8.0 pen=8.200
+    [16:10:15] r04 llm=CCDDDDDC opp=DDDDDDDD u=5.0 pen=8.200
+  [16:10:27] rollout opp=tit-for-tat (2/4)
+    [16:10:45] r01 llm=CDCDCCCC opp=CCDCDCCC u=22.0 pen=6.075
+    [16:10:51] r02 llm=CDDDDDDD opp=CCDDDDDD u=14.0 pen=6.075
+    [16:10:57] r03 llm=DDCDDDCC opp=CDDCDDDC u=16.0 pen=6.075
+    [16:11:23] r04 llm=DCCCCCCC opp=CDCCCCCC u=23.0 pen=6.075
+  [16:11:36] rollout opp=generous-tit-for-tat (3/4)
+    [16:12:16] r01 llm=CDCCDDCC opp=CCDCCDDC u=20.0 pen=5.350
+    [16:12:22] r02 llm=CCDDDDCC opp=CCCDDDDC u=17.0 pen=5.350
+    [16:12:49] r03 llm=CCCDCCCC opp=CCCCCCCC u=26.0 pen=5.350
+    [16:12:54] r04 llm=CCCCCDCC opp=CCCCCCDC u=23.0 pen=5.350
+  [16:13:06] rollout opp=mixed-0.50 (4/4)
+    [16:13:26] r01 llm=CCCDCCCC opp=CCDCCCCC u=23.0 pen=4.900
+    [16:13:32] r02 llm=DDCCCCCC opp=DCCDDCCC u=18.0 pen=4.900
+    [16:13:38] r03 llm=CDCDCCCD opp=DCDDDDDD u=7.0 pen=4.900
+    [16:13:43] r04 llm=DCCDDDCC opp=DDDDCCCC u=18.0 pen=4.900
+[16:13:55] Step    4 | loss=0.048250 | u=2.156 | e=1.719 | c=0.500 | x=0.336 | kl=0.207397 | pg=0.037880
+
+Done. Final model: probe_lr_1e-5/final

@@ -1,0 +1,1302 @@
+[
+  {
+    "step": 0,
+    "loss": 8.392333984375e-05,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 7.708333333333333,
+    "exploitability": 2.5625,
+    "collusion": 0.0,
+    "externality": 0.23611111111111108,
+    "kl": 0.0,
+    "pg_loss": 8.392333984375e-05
+  },
+  {
+    "step": 1,
+    "loss": 0.060469946137648854,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 4.875,
+    "kl": 0.08422215779622395,
+    "pg_loss": 0.052047730358026456
+  },
+  {
+    "step": 2,
+    "loss": 0.05839881888787204,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 5.541666666666667,
+    "kl": 0.07770156860351562,
+    "pg_loss": 0.05062866202752048
+  },
+  {
+    "step": 3,
+    "loss": 0.05817820231119792,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 8.458333333333334,
+    "kl": 0.10664876302083333,
+    "pg_loss": 0.047513326009114586
+  },
+  {
+    "step": 4,
+    "loss": 0.06458867446490331,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 2.8333333333333335,
+    "kl": 0.08248138427734375,
+    "pg_loss": 0.05634053603716893
+  },
+  {
+    "step": 5,
+    "loss": 0.07921778361002604,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.458333333333334,
+    "exploitability": 1.5416666666666667,
+    "collusion": 0.0,
+    "externality": 0.3333333333333333,
+    "kl": 0.07531992594401042,
+    "pg_loss": 0.071685791015625
+  },
+  {
+    "step": 6,
+    "loss": 0.1279040018717448,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 10.75,
+    "kl": 0.08717600504557292,
+    "pg_loss": 0.1191864013671875
+  },
+  {
+    "step": 7,
+    "loss": 0.060831451416015626,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 4.125,
+    "kl": 0.1138916015625,
+    "pg_loss": 0.049442291259765625
+  },
+  {
+    "step": 8,
+    "loss": 0.0014525731404622403,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 13.75,
+    "kl": 0.0480950673421224,
+    "pg_loss": -0.00335693359375
+  },
+  {
+    "step": 9,
+    "loss": 0.04087333679199219,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 2.3333333333333335,
+    "kl": 0.07887649536132812,
+    "pg_loss": 0.032985687255859375
+  },
+  {
+    "step": 10,
+    "loss": -0.015385119120279948,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 9.208333333333334,
+    "exploitability": 5.1875,
+    "collusion": 0.375,
+    "externality": 0.375,
+    "kl": 0.08184623718261719,
+    "pg_loss": -0.023569742838541668
+  },
+  {
+    "step": 11,
+    "loss": 0.019904200236002603,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 9.25,
+    "kl": 0.07536951700846355,
+    "pg_loss": 0.01236724853515625
+  },
+  {
+    "step": 12,
+    "loss": 0.03436737060546875,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 2.875,
+    "kl": 0.1284357706705729,
+    "pg_loss": 0.021523793538411457
+  },
+  {
+    "step": 13,
+    "loss": 0.02750981648763021,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 8.375,
+    "kl": 0.08319346110026042,
+    "pg_loss": 0.019190470377604168
+  },
+  {
+    "step": 14,
+    "loss": 0.05174935658772787,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 6.5,
+    "kl": 0.12353706359863281,
+    "pg_loss": 0.039395650227864586
+  },
+  {
+    "step": 15,
+    "loss": 0.1248504638671875,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 5.333333333333333,
+    "exploitability": 7.416666666666667,
+    "collusion": 0.0,
+    "externality": 0.25,
+    "kl": 0.1566619873046875,
+    "pg_loss": 0.10918426513671875
+  },
+  {
+    "step": 16,
+    "loss": -0.00014788309733072824,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 9.541666666666666,
+    "kl": 0.16058222452799478,
+    "pg_loss": -0.016206105550130207
+  },
+  {
+    "step": 17,
+    "loss": 0.08142153422037761,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 10.0,
+    "kl": 0.23005803426106772,
+    "pg_loss": 0.058415730794270836
+  },
+  {
+    "step": 18,
+    "loss": 0.02997996012369792,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 9.041666666666666,
+    "exploitability": 0.0,
+    "collusion": 0.25,
+    "externality": 0.5833333333333334,
+    "kl": 0.21368916829427084,
+    "pg_loss": 0.008611043294270834
+  },
+  {
+    "step": 19,
+    "loss": 0.03363316853841146,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 2.3333333333333335,
+    "kl": 0.1727574666341146,
+    "pg_loss": 0.016357421875
+  },
+  {
+    "step": 20,
+    "loss": 11.562015406290689,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 7.916666666666667,
+    "exploitability": 1.5416666666666667,
+    "collusion": 0.08333333333333333,
+    "externality": 0.5416666666666666,
+    "kl": 0.2639122009277344,
+    "pg_loss": 11.535624186197916
+  },
+  {
+    "step": 21,
+    "loss": 0.13645070280617802,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 12.041666666666666,
+    "kl": 0.3199920654296875,
+    "pg_loss": 0.10445149626320926
+  },
+  {
+    "step": 22,
+    "loss": 5.711658601226615,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 14.291666666666666,
+    "exploitability": 2.75,
+    "collusion": 0.0,
+    "externality": 0.48611111111111116,
+    "kl": 0.4289131164550781,
+    "pg_loss": 5.668767289581107
+  },
+  {
+    "step": 23,
+    "loss": 0.055061148937481146,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 11.375,
+    "kl": 0.3571173350016276,
+    "pg_loss": 0.019349415437318385
+  },
+  {
+    "step": 24,
+    "loss": 0.09864323933919271,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 7.666666666666667,
+    "exploitability": 3.6458333333333335,
+    "collusion": 0.0,
+    "externality": 0.4166666666666667,
+    "kl": 0.45550282796223956,
+    "pg_loss": 0.05309295654296875
+  },
+  {
+    "step": 25,
+    "loss": 0.12852738698323568,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 9.541666666666666,
+    "exploitability": 2.9166666666666665,
+    "collusion": 0.041666666666666664,
+    "externality": 0.5,
+    "kl": 0.30108197530110675,
+    "pg_loss": 0.098419189453125
+  },
+  {
+    "step": 26,
+    "loss": 0.04164008860194979,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 10.583333333333334,
+    "kl": 0.4092547098795573,
+    "pg_loss": 0.0007146176139940508
+  },
+  {
+    "step": 27,
+    "loss": 0.1182385762532552,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 9.041666666666666,
+    "exploitability": 0.041666666666666664,
+    "collusion": 0.0,
+    "externality": 0.6666666666666666,
+    "kl": 0.5212224324544271,
+    "pg_loss": 0.0661163330078125
+  },
+  {
+    "step": 28,
+    "loss": 0.14476371556326437,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 5.916666666666667,
+    "exploitability": 1.5625,
+    "collusion": 0.0,
+    "externality": 0.34722222222222215,
+    "kl": 0.5936864217122396,
+    "pg_loss": 0.0853950733920404
+  },
+  {
+    "step": 29,
+    "loss": 0.08865140279134115,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 4.75,
+    "exploitability": 1.4375,
+    "collusion": 0.2916666666666667,
+    "externality": 0.6388888888888888,
+    "kl": 0.5038045247395834,
+    "pg_loss": 0.03827095031738281
+  },
+  {
+    "step": 30,
+    "loss": 29.5822816212972,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 7.916666666666667,
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.6944444444444443,
+    "kl": 0.6025810241699219,
+    "pg_loss": 29.522023518880207
+  },
+  {
+    "step": 31,
+    "loss": 0.06299610096709027,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 9.25,
+    "exploitability": 2.6458333333333335,
+    "collusion": 0.0,
+    "externality": 0.45833333333333326,
+    "kl": 0.6015796661376953,
+    "pg_loss": 0.002838134353320735
+  },
+  {
+    "step": 32,
+    "loss": 4.271902147928874,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 11.333333333333334,
+    "exploitability": 2.4583333333333335,
+    "collusion": 0.375,
+    "externality": 0.47222222222222215,
+    "kl": 0.7586231231689453,
+    "pg_loss": 4.1960398356119795
+  },
+  {
+    "step": 33,
+    "loss": 0.1974463144938151,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.041666666666666,
+    "exploitability": 0.5416666666666666,
+    "collusion": 0.041666666666666664,
+    "externality": 0.5555555555555555,
+    "kl": 0.7249590555826823,
+    "pg_loss": 0.12495040893554688
+  },
+  {
+    "step": 34,
+    "loss": 0.0679406483968099,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 13.666666666666666,
+    "exploitability": 2.0416666666666665,
+    "collusion": 0.041666666666666664,
+    "externality": 0.47222222222222215,
+    "kl": 0.43251927693684894,
+    "pg_loss": 0.024688720703125
+  },
+  {
+    "step": 35,
+    "loss": 0.15259348551432292,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 5.833333333333333,
+    "exploitability": 0.625,
+    "collusion": 0.5416666666666666,
+    "externality": 0.5694444444444444,
+    "kl": 0.6598841349283854,
+    "pg_loss": 0.08660507202148438
+  },
+  {
+    "step": 36,
+    "loss": 0.3486464182535807,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.583333333333334,
+    "exploitability": 1.75,
+    "collusion": 0.0,
+    "externality": 0.2638888888888889,
+    "kl": 0.653924306233724,
+    "pg_loss": 0.2832539876302083
+  },
+  {
+    "step": 37,
+    "loss": 0.1501983642578125,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 6.958333333333333,
+    "exploitability": 0.0,
+    "collusion": 0.2916666666666667,
+    "externality": 0.5833333333333334,
+    "kl": 0.6168212890625,
+    "pg_loss": 0.0885162353515625
+  },
+  {
+    "step": 38,
+    "loss": 0.10486354827880859,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 13.958333333333334,
+    "exploitability": 5.416666666666667,
+    "collusion": 0.0,
+    "externality": 0.375,
+    "kl": 0.49931907653808594,
+    "pg_loss": 0.054931640625
+  },
+  {
+    "step": 39,
+    "loss": 0.07546234130859376,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.0,
+    "utility": 8.583333333333334,
+    "kl": 0.6767018636067709,
+    "pg_loss": 0.007792154947916667
+  },
+  {
+    "step": 40,
+    "loss": 0.0676303227742513,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 11.416666666666666,
+    "exploitability": 0.25,
+    "collusion": 0.0,
+    "externality": 0.6944444444444445,
+    "kl": 0.7012767791748047,
+    "pg_loss": -0.0024973551432291665
+  },
+  {
+    "step": 41,
+    "loss": 0.11230875651041666,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.25,
+    "exploitability": 3.0208333333333335,
+    "collusion": 0.0,
+    "externality": 0.4444444444444444,
+    "kl": 0.8817698160807291,
+    "pg_loss": 0.02413177490234375
+  },
+  {
+    "step": 42,
+    "loss": 1.1613475799560549,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 3.375,
+    "exploitability": 1.8958333333333333,
+    "collusion": 0.0,
+    "externality": 0.7083333333333334,
+    "kl": 0.8037427266438802,
+    "pg_loss": 1.0809733072916667
+  },
+  {
+    "step": 43,
+    "loss": 0.1648802439371745,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 6.333333333333333,
+    "exploitability": 0.375,
+    "collusion": 0.041666666666666664,
+    "externality": 0.6388888888888888,
+    "kl": 1.2489713033040364,
+    "pg_loss": 0.039983113606770836
+  },
+  {
+    "step": 44,
+    "loss": 0.28373641858634074,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 9.625,
+    "exploitability": 1.4791666666666667,
+    "collusion": 0.041666666666666664,
+    "externality": 0.375,
+    "kl": 1.3812179565429688,
+    "pg_loss": 0.14561462293204386
+  },
+  {
+    "step": 45,
+    "loss": 0.16994590759277345,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 14.375,
+    "exploitability": 1.8958333333333333,
+    "collusion": 0.0,
+    "externality": 0.375,
+    "kl": 1.2478052775065105,
+    "pg_loss": 0.0451653798421224
+  },
+  {
+    "step": 46,
+    "loss": 0.18141377766927083,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.708333333333334,
+    "exploitability": 1.0833333333333333,
+    "collusion": 0.0,
+    "externality": 0.5972222222222222,
+    "kl": 1.4009043375651042,
+    "pg_loss": 0.041323343912760414
+  },
+  {
+    "step": 47,
+    "loss": 0.3948776245117188,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 6.875,
+    "exploitability": 0.4166666666666667,
+    "collusion": 0.2916666666666667,
+    "externality": 0.5972222222222222,
+    "kl": 1.5266977945963542,
+    "pg_loss": 0.24220784505208334
+  },
+  {
+    "step": 48,
+    "loss": 0.2684466044108073,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 11.541666666666666,
+    "exploitability": 2.7083333333333335,
+    "collusion": 0.0,
+    "externality": 0.6111111111111112,
+    "kl": 1.7160415649414062,
+    "pg_loss": 0.09684244791666667
+  },
+  {
+    "step": 49,
+    "loss": 0.3276507059733073,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 11.708333333333334,
+    "exploitability": 0.5833333333333334,
+    "collusion": 0.3333333333333333,
+    "externality": 0.4444444444444444,
+    "kl": 2.2868474324544272,
+    "pg_loss": 0.09896596272786458
+  },
+  {
+    "step": 50,
+    "loss": 10582.672978337605,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 5.875,
+    "exploitability": 0.8541666666666666,
+    "collusion": 0.2916666666666667,
+    "externality": 0.7638888888888888,
+    "kl": 2.4456494649251304,
+    "pg_loss": 10582.428413391113
+  },
+  {
+    "step": 51,
+    "loss": 0.21471322377522786,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 9.166666666666666,
+    "exploitability": 1.4583333333333333,
+    "collusion": 0.041666666666666664,
+    "externality": 0.4305555555555556,
+    "kl": 1.5263951619466145,
+    "pg_loss": 0.062073707580566406
+  },
+  {
+    "step": 52,
+    "loss": 0.4328048706054688,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 10.875,
+    "exploitability": 1.25,
+    "collusion": 0.0,
+    "externality": 0.375,
+    "kl": 2.45068359375,
+    "pg_loss": 0.18773651123046875
+  },
+  {
+    "step": 53,
+    "loss": 0.31697667439778643,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 6.625,
+    "exploitability": 1.0416666666666667,
+    "collusion": 0.041666666666666664,
+    "externality": 0.5694444444444444,
+    "kl": 2.8032379150390625,
+    "pg_loss": 0.03665288289388021
+  },
+  {
+    "step": 54,
+    "loss": 0.3047828674316406,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 10.125,
+    "exploitability": 0.3958333333333333,
+    "collusion": 0.08333333333333333,
+    "externality": 0.5833333333333334,
+    "kl": 2.7974955240885415,
+    "pg_loss": 0.025033315022786457
+  },
+  {
+    "step": 55,
+    "loss": 0.3143814086914063,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 9.916666666666666,
+    "exploitability": 0.14583333333333334,
+    "collusion": 0.0,
+    "externality": 0.49999999999999994,
+    "kl": 2.637273152669271,
+    "pg_loss": 0.050654093424479164
+  },
+  {
+    "step": 56,
+    "loss": 0.3223587056117443,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 8.75,
+    "exploitability": 0.020833333333333332,
+    "collusion": 0.375,
+    "externality": 0.6666666666666666,
+    "kl": 2.735687255859375,
+    "pg_loss": 0.04878998002580678
+  },
+  {
+    "step": 57,
+    "loss": 0.44068756103515627,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 7.458333333333333,
+    "exploitability": 0.8125,
+    "collusion": 0.08333333333333333,
+    "externality": 0.6666666666666666,
+    "kl": 2.397852579752604,
+    "pg_loss": 0.20090230305989584
+  },
+  {
+    "step": 58,
+    "loss": 0.4695167558747926,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 10.666666666666666,
+    "exploitability": 2.3541666666666665,
+    "collusion": 0.0,
+    "externality": 0.3333333333333333,
+    "kl": 3.7848536173502603,
+    "pg_loss": 0.09103139413976653
+  },
+  {
+    "step": 59,
+    "loss": 0.38944753011067706,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 11.0,
+    "exploitability": 0.8333333333333334,
+    "collusion": 0.041666666666666664,
+    "externality": 0.6388888888888888,
+    "kl": 3.19427490234375,
+    "pg_loss": 0.07002003987630208
+  },
+  {
+    "step": 60,
+    "loss": 0.5564727783203125,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 4.375,
+    "exploitability": 2.5208333333333335,
+    "collusion": 0.2916666666666667,
+    "externality": 0.638888888888889,
+    "kl": 4.385528564453125,
+    "pg_loss": 0.117919921875
+  },
+  {
+    "step": 61,
+    "loss": 0.6601565043131511,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 6.75,
+    "exploitability": 2.9375,
+    "collusion": 0.2916666666666667,
+    "externality": 0.38888888888888884,
+    "kl": 4.115781148274739,
+    "pg_loss": 0.2485783894856771
+  },
+  {
+    "step": 62,
+    "loss": 0.5887272516886394,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 11.583333333333334,
+    "exploitability": 2.9375,
+    "collusion": 0.0,
+    "externality": 0.34722222222222215,
+    "kl": 3.6461029052734375,
+    "pg_loss": 0.22411696116129556
+  },
+  {
+    "step": 63,
+    "loss": 0.3064524332682292,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 13.208333333333334,
+    "exploitability": 1.1666666666666667,
+    "collusion": 0.2916666666666667,
+    "externality": 0.5277777777777778,
+    "kl": 2.607142130533854,
+    "pg_loss": 0.04573822021484375
+  },
+  {
+    "step": 64,
+    "loss": 0.35186296566195474,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 14.458333333333334,
+    "exploitability": 2.2916666666666665,
+    "collusion": 0.0,
+    "externality": 0.5416666666666666,
+    "kl": 3.077021280924479,
+    "pg_loss": 0.04416083756950684
+  },
+  {
+    "step": 65,
+    "loss": 0.399160893758138,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 8.541666666666666,
+    "exploitability": 0.3541666666666667,
+    "collusion": 0.2916666666666667,
+    "externality": 0.4166666666666667,
+    "kl": 2.8031463623046875,
+    "pg_loss": 0.11884625752766927
+  },
+  {
+    "step": 66,
+    "loss": 0.44321187337239587,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 13.083333333333334,
+    "exploitability": 0.5833333333333334,
+    "collusion": 0.0,
+    "externality": 0.47222222222222215,
+    "kl": 2.7563985188802085,
+    "pg_loss": 0.167572021484375
+  },
+  {
+    "step": 67,
+    "loss": 0.26610819563211413,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 7.791666666666667,
+    "exploitability": 0.9166666666666666,
+    "collusion": 0.0,
+    "externality": 0.6527777777777778,
+    "kl": 2.2711690266927085,
+    "pg_loss": 0.03899129296284324
+  },
+  {
+    "step": 68,
+    "loss": 0.3482396443684896,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 10.75,
+    "exploitability": 1.0,
+    "collusion": 0.0,
+    "externality": 0.4444444444444444,
+    "kl": 2.8758341471354165,
+    "pg_loss": 0.060656229654947914
+  },
+  {
+    "step": 69,
+    "loss": 0.37476704915364584,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.25,
+    "exploitability": 1.0833333333333333,
+    "collusion": 0.0,
+    "externality": 0.5555555555555556,
+    "kl": 1.7956517537434895,
+    "pg_loss": 0.19520187377929688
+  },
+  {
+    "step": 70,
+    "loss": 0.7597799936930338,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.875,
+    "exploitability": 1.0625,
+    "collusion": 0.0,
+    "externality": 0.5416666666666666,
+    "kl": 2.3944574991861978,
+    "pg_loss": 0.5203342437744141
+  },
+  {
+    "step": 71,
+    "loss": 0.38499782880147304,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 6.416666666666667,
+    "exploitability": 3.8958333333333335,
+    "collusion": 0.2916666666666667,
+    "externality": 0.513888888888889,
+    "kl": 1.8571319580078125,
+    "pg_loss": 0.19928463300069174
+  },
+  {
+    "step": 72,
+    "loss": 0.3699874871623857,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 10.875,
+    "exploitability": 1.0208333333333333,
+    "collusion": 0.0,
+    "externality": 0.625,
+    "kl": 1.7298126220703125,
+    "pg_loss": 0.1970062249553545
+  },
+  {
+    "step": 73,
+    "loss": 0.46298103332519536,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 9.416666666666666,
+    "exploitability": 0.4375,
+    "collusion": 0.375,
+    "externality": 0.5694444444444444,
+    "kl": 1.4157117207845051,
+    "pg_loss": 0.3214098612467448
+  },
+  {
+    "step": 74,
+    "loss": 0.28198928833007814,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.333333333333334,
+    "exploitability": 0.375,
+    "collusion": 0.0,
+    "externality": 0.5694444444444444,
+    "kl": 1.648729960123698,
+    "pg_loss": 0.11711629231770833
+  },
+  {
+    "step": 75,
+    "loss": 5.651864115397135,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 13.083333333333334,
+    "exploitability": 0.0,
+    "collusion": 0.3333333333333333,
+    "externality": 0.5694444444444445,
+    "kl": 1.6751963297526042,
+    "pg_loss": 5.484344482421875
+  },
+  {
+    "step": 76,
+    "loss": 0.25010223388671876,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.833333333333334,
+    "exploitability": 0.75,
+    "collusion": 0.041666666666666664,
+    "externality": 0.6527777777777777,
+    "kl": 1.3915303548177083,
+    "pg_loss": 0.11094919840494792
+  },
+  {
+    "step": 77,
+    "loss": 0.24840825398763022,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 8.583333333333334,
+    "exploitability": 0.8541666666666666,
+    "collusion": 0.0,
+    "externality": 0.4583333333333333,
+    "kl": 1.6354395548502605,
+    "pg_loss": 0.08486429850260417
+  },
+  {
+    "step": 78,
+    "loss": 0.12597859700520836,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.708333333333334,
+    "exploitability": 2.8958333333333335,
+    "collusion": 0.0,
+    "externality": 0.36111111111111116,
+    "kl": 0.8337605794270834,
+    "pg_loss": 0.0426025390625
+  },
+  {
+    "step": 79,
+    "loss": 0.14722239176432292,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 9.5,
+    "exploitability": 2.5625,
+    "collusion": 0.3333333333333333,
+    "externality": 0.3055555555555556,
+    "kl": 1.0402984619140625,
+    "pg_loss": 0.043192545572916664
+  },
+  {
+    "step": 80,
+    "loss": 0.1334564208984375,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 13.375,
+    "exploitability": 0.7916666666666666,
+    "collusion": 0.0,
+    "externality": 0.5416666666666666,
+    "kl": 0.690948486328125,
+    "pg_loss": 0.064361572265625
+  },
+  {
+    "step": 81,
+    "loss": 0.11386235555013023,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 7.916666666666667,
+    "exploitability": 2.3125,
+    "collusion": 0.3333333333333333,
+    "externality": 0.4305555555555555,
+    "kl": 1.153551737467448,
+    "pg_loss": -0.0014928181966145833
+  },
+  {
+    "step": 82,
+    "loss": 0.24794895979539433,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 6.666666666666667,
+    "exploitability": 2.375,
+    "collusion": 0.2916666666666667,
+    "externality": 0.4444444444444444,
+    "kl": 0.9330113728841146,
+    "pg_loss": 0.15464782250698286
+  },
+  {
+    "step": 83,
+    "loss": 0.11461512247721355,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 11.625,
+    "exploitability": 0.041666666666666664,
+    "collusion": 0.0,
+    "externality": 0.6666666666666666,
+    "kl": 0.8709335327148438,
+    "pg_loss": 0.027521769205729168
+  },
+  {
+    "step": 84,
+    "loss": 0.11454416910807291,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.708333333333334,
+    "exploitability": 1.4791666666666667,
+    "collusion": 0.0,
+    "externality": 0.5555555555555555,
+    "kl": 1.0163014729817708,
+    "pg_loss": 0.012914021809895834
+  },
+  {
+    "step": 85,
+    "loss": 0.12278035481770834,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 11.666666666666666,
+    "exploitability": 0.10416666666666667,
+    "collusion": 0.0,
+    "externality": 0.5972222222222222,
+    "kl": 0.5804239908854166,
+    "pg_loss": 0.06473795572916667
+  },
+  {
+    "step": 86,
+    "loss": 0.16893537469053022,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 11.958333333333334,
+    "exploitability": 0.0,
+    "collusion": 0.0,
+    "externality": 0.47222222222222215,
+    "kl": 1.037218729654948,
+    "pg_loss": 0.06521350172503541
+  },
+  {
+    "step": 87,
+    "loss": 0.13404261271158854,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 13.875,
+    "exploitability": 1.0625,
+    "collusion": 0.2916666666666667,
+    "externality": 0.375,
+    "kl": 0.9549382527669271,
+    "pg_loss": 0.038548787434895836
+  },
+  {
+    "step": 88,
+    "loss": 0.06689224243164062,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.875,
+    "exploitability": 1.1041666666666667,
+    "collusion": 0.0,
+    "externality": 0.3611111111111111,
+    "kl": 0.5645014444986979,
+    "pg_loss": 0.010442097981770834
+  },
+  {
+    "step": 89,
+    "loss": 0.14110285441080728,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 11.375,
+    "exploitability": 1.6041666666666667,
+    "collusion": 0.0,
+    "externality": 0.4583333333333333,
+    "kl": 0.6011937459309896,
+    "pg_loss": 0.08098347981770833
+  },
+  {
+    "step": 90,
+    "loss": 0.09175626039505005,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 10.583333333333334,
+    "exploitability": 1.4583333333333333,
+    "collusion": 0.0,
+    "externality": 0.4583333333333333,
+    "kl": 0.527587890625,
+    "pg_loss": 0.03899747133255005
+  },
+  {
+    "step": 91,
+    "loss": 0.16136423746744794,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 16.75,
+    "exploitability": 0.0,
+    "collusion": 0.041666666666666664,
+    "externality": 0.48611111111111116,
+    "kl": 0.65826416015625,
+    "pg_loss": 0.09553782145182292
+  },
+  {
+    "step": 92,
+    "loss": 0.0963244120279948,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 7.958333333333333,
+    "exploitability": 0.8958333333333334,
+    "collusion": 0.3333333333333333,
+    "externality": 0.5833333333333334,
+    "kl": 0.9376093546549479,
+    "pg_loss": 0.0025634765625
+  },
+  {
+    "step": 93,
+    "loss": 0.12232920328776042,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 10.75,
+    "exploitability": 0.1875,
+    "collusion": 0.0,
+    "externality": 0.6944444444444445,
+    "kl": 0.6599884033203125,
+    "pg_loss": 0.056330362955729164
+  },
+  {
+    "step": 94,
+    "loss": 0.17852579752604167,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 13.5,
+    "exploitability": 2.8958333333333335,
+    "collusion": 0.0,
+    "externality": 0.4305555555555556,
+    "kl": 0.680267333984375,
+    "pg_loss": 0.11049906412760417
+  },
+  {
+    "step": 95,
+    "loss": 0.09398880004882813,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 8.041666666666666,
+    "exploitability": 0.6875,
+    "collusion": 0.0,
+    "externality": 0.5,
+    "kl": 0.8592198689778646,
+    "pg_loss": 0.008066813151041666
+  },
+  {
+    "step": 96,
+    "loss": 0.10010429021009865,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 14.875,
+    "exploitability": 2.125,
+    "collusion": 0.0,
+    "externality": 0.4444444444444444,
+    "kl": 0.6493784586588541,
+    "pg_loss": 0.03516644434421323
+  },
+  {
+    "step": 97,
+    "loss": 0.13423716227213542,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 4.916666666666667,
+    "exploitability": 1.1875,
+    "collusion": 0.0,
+    "externality": 0.513888888888889,
+    "kl": 0.9511871337890625,
+    "pg_loss": 0.039118448893229164
+  },
+  {
+    "step": 98,
+    "loss": 0.11144943237304689,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 9.5,
+    "exploitability": 0.4375,
+    "collusion": 0.0,
+    "externality": 0.6527777777777778,
+    "kl": 0.9248275756835938,
+    "pg_loss": 0.0189666748046875
+  },
+  {
+    "step": 99,
+    "loss": 0.10467376708984376,
+    "games": [
+      "negotiation_gtbench"
+    ],
+    "utility": 12.458333333333334,
+    "exploitability": 0.3333333333333333,
+    "collusion": 0.0,
+    "externality": 0.5416666666666667,
+    "kl": 0.9358571370442709,
+    "pg_loss": 0.011088053385416666
+  }
+]

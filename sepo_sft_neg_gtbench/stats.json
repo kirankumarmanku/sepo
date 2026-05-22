@@ -1,0 +1,19 @@
+{
+  "total": 4000,
+  "train": 3200,
+  "valid": 800,
+  "episodes_per_opponent": 200,
+  "opponents": [
+    "fair-neg",
+    "tft-neg",
+    "concede-neg",
+    "greedy-neg",
+    "hardball-neg"
+  ],
+  "strategies": [
+    "proportional",
+    "conservative",
+    "adaptive",
+    "defensive"
+  ]
+}

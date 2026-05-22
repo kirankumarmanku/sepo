@@ -1,0 +1,22 @@
+  Loading tokenizer from kirankumarmanku/gemma-4-E4B-sepo-sft-v2...
+  Loading base model from google/gemma-4-E4B-it...
+Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  14%|█▎        | 281/2076 [00:00<00:00, 2805.09it/s]Loading weights:  27%|██▋       | 562/2076 [00:00<00:00, 2207.44it/s]Loading weights:  38%|███▊      | 791/2076 [00:01<00:03, 351.11it/s] Loading weights:  44%|████▍     | 923/2076 [00:02<00:03, 359.99it/s]Loading weights:  49%|████▉     | 1018/2076 [00:02<00:03, 342.59it/s]Loading weights:  53%|█████▎    | 1090/2076 [00:02<00:02, 340.57it/s]Loading weights:  55%|█████▌    | 1149/2076 [00:02<00:02, 342.92it/s]Loading weights:  58%|█████▊    | 1200/2076 [00:02<00:02, 328.75it/s]Loading weights:  60%|█████▉    | 1244/2076 [00:03<00:02, 334.07it/s]Loading weights:  62%|██████▏   | 1286/2076 [00:03<00:02, 329.54it/s]Loading weights:  64%|██████▍   | 1325/2076 [00:03<00:02, 321.44it/s]Loading weights:  66%|██████▌   | 1362/2076 [00:03<00:02, 324.01it/s]Loading weights:  67%|██████▋   | 1397/2076 [00:03<00:02, 323.28it/s]Loading weights:  72%|███████▏  | 1494/2076 [00:03<00:01, 472.06it/s]Loading weights:  84%|████████▎ | 1737/2076 [00:03<00:00, 956.89it/s]Loading weights:  95%|█████████▍| 1967/2076 [00:03<00:00, 1307.83it/s]Loading weights: 100%|██████████| 2076/2076 [00:03<00:00, 532.16it/s] 
+  Applying final adapter: kirankumarmanku/gemma-4-E4B-sepo-sft-v2
+  Final adapter merged.
+
+  Evaluating auction...
+    [train] vs aggressive-bid (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [train] vs truthful-bid (8 episodes)...
+    [train] vs conservative-bid (8 episodes)...
+    [exploiter] vs aggressive-bid (8 episodes)...
+    [collusive] vs aggressive-bid (8 episodes)...
+
+=======================================================================================================================================
+  Game: AUCTION
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  sft                                           0.646      3.875      1.104      6.625      0.000    0.312    0.208     -1.054    0.149
+
+  Results saved → eval_results/gemma4_auction_sft/metrics.json

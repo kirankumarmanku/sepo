@@ -1,0 +1,77 @@
+  Loading tokenizer from Qwen/Qwen3.5-4B...
+  Loading base model from Qwen/Qwen3.5-4B...
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 6403.52it/s]
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   0%|          | 1/426 [00:00<00:50,  8.36it/s]Loading weights:   8%|▊         | 34/426 [00:00<00:02, 181.23it/s]Loading weights:  14%|█▍        | 61/426 [00:00<00:01, 215.07it/s]Loading weights:  20%|█▉        | 84/426 [00:00<00:01, 214.11it/s]Loading weights:  25%|██▍       | 106/426 [00:00<00:01, 203.27it/s]Loading weights:  31%|███       | 132/426 [00:00<00:01, 213.92it/s]Loading weights:  36%|███▌      | 154/426 [00:00<00:01, 198.68it/s]Loading weights:  42%|████▏     | 181/426 [00:00<00:01, 213.49it/s]Loading weights:  48%|████▊     | 203/426 [00:01<00:01, 174.70it/s]Loading weights:  52%|█████▏    | 223/426 [00:01<00:01, 179.87it/s]Loading weights:  57%|█████▋    | 242/426 [00:01<00:01, 159.33it/s]Loading weights:  61%|██████    | 259/426 [00:01<00:01, 138.15it/s]Loading weights:  66%|██████▋   | 283/426 [00:01<00:00, 161.51it/s]Loading weights:  71%|███████   | 301/426 [00:01<00:00, 155.05it/s]Loading weights:  75%|███████▍  | 318/426 [00:01<00:00, 145.47it/s]Loading weights:  80%|███████▉  | 340/426 [00:02<00:00, 149.53it/s]Loading weights:  84%|████████▍ | 358/426 [00:02<00:00, 154.81it/s]Loading weights:  90%|████████▉ | 383/426 [00:02<00:00, 175.36it/s]Loading weights:  96%|█████████▌| 408/426 [00:02<00:00, 192.59it/s]Loading weights: 100%|██████████| 426/426 [00:02<00:00, 171.08it/s]
+
+  Evaluating kuhn...
+    [train] vs nash-approx (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [PARSE FAIL] vs nash-approx → constrained decode
+    [PARSE FAIL] vs nash-approx → constrained decode
+    [PARSE FAIL] vs nash-approx → constrained decode
+    [PARSE FAIL] vs nash-approx → constrained decode
+    [train] vs tight-passive (8 episodes)...
+    [PARSE FAIL] vs tight-passive → constrained decode
+    [PARSE FAIL] vs tight-passive → constrained decode
+    [PARSE FAIL] vs tight-passive → constrained decode
+    [PARSE FAIL] vs tight-passive → constrained decode
+    [PARSE FAIL] vs tight-passive → constrained decode
+    [PARSE FAIL] vs tight-passive → constrained decode
+    [PARSE FAIL] vs tight-passive → constrained decode
+    [PARSE FAIL] vs tight-passive → constrained decode
+    [PARSE FAIL] vs tight-passive → constrained decode
+    [train] vs loose-aggressive (8 episodes)...
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [exploiter] vs max-exploiter (8 episodes)...
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [PARSE FAIL] vs max-exploiter → constrained decode
+    [collusive] vs loose-aggressive (8 episodes)...
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+    [PARSE FAIL] vs loose-aggressive → constrained decode
+
+=======================================================================================================================================
+  Game: KUHN
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  base                                          0.033      0.397      0.000      0.000      0.705   -0.352    0.125     -3.686    0.000
+
+  Results saved → eval_results/kuhn_base/metrics.json

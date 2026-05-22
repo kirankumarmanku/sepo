@@ -1,0 +1,22 @@
+  Loading tokenizer from kirankumarmanku/gemma-4-E4B-sepo-sft-v2...
+  Loading base model from google/gemma-4-E4B-it...
+Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 267/2076 [00:00<00:00, 2668.27it/s]Loading weights:  26%|██▌       | 534/2076 [00:00<00:00, 2521.35it/s]Loading weights:  38%|███▊      | 787/2076 [00:01<00:03, 371.79it/s] Loading weights:  45%|████▍     | 933/2076 [00:02<00:03, 360.74it/s]Loading weights:  50%|████▉     | 1035/2076 [00:02<00:03, 335.20it/s]Loading weights:  53%|█████▎    | 1110/2076 [00:02<00:02, 328.43it/s]Loading weights:  56%|█████▋    | 1170/2076 [00:02<00:02, 321.87it/s]Loading weights:  59%|█████▉    | 1220/2076 [00:03<00:02, 310.92it/s]Loading weights:  61%|██████    | 1263/2076 [00:03<00:02, 306.16it/s]Loading weights:  63%|██████▎   | 1301/2076 [00:03<00:02, 296.69it/s]Loading weights:  64%|██████▍   | 1336/2076 [00:03<00:02, 285.97it/s]Loading weights:  66%|██████▌   | 1372/2076 [00:03<00:02, 298.21it/s]Loading weights:  68%|██████▊   | 1405/2076 [00:03<00:02, 284.71it/s]Loading weights:  75%|███████▍  | 1552/2076 [00:03<00:00, 539.84it/s]Loading weights:  85%|████████▌ | 1770/2076 [00:03<00:00, 923.95it/s]Loading weights:  96%|█████████▋| 2001/2076 [00:04<00:00, 1271.96it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 506.70it/s] 
+  Applying final adapter: kirankumarmanku/gemma-4-E4B-sepo-sft-v2
+  Final adapter merged.
+
+  Evaluating resource...
+    [train] vs high-extract (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [train] vs medium-extract (8 episodes)...
+    [train] vs scarcity-aware (8 episodes)...
+    [exploiter] vs high-extract (8 episodes)...
+    [collusive] vs high-extract (8 episodes)...
+
+=======================================================================================================================================
+  Game: RESOURCE
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  sft                                           0.917      7.333      2.667     21.333      1.250    0.500    0.208     -2.583   -0.326
+
+  Results saved → eval_results/gemma4_resource_sft/metrics.json

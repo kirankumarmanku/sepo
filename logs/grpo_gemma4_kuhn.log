@@ -1,0 +1,1574 @@
+Device: cuda
+Game: kuhn  rounds=16
+Detected PEFT adapter: kirankumarmanku/gemma-4-E4B-sepo-kuhn-sft  (base: google/gemma-4-E4B-it)
+  Loading base: google/gemma-4-E4B-it
+Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 256/2076 [00:00<00:00, 2556.66it/s]Loading weights:  25%|██▍       | 512/2076 [00:00<00:00, 2171.34it/s]Loading weights:  35%|███▌      | 733/2076 [00:00<00:00, 2120.66it/s]Loading weights:  46%|████▌     | 947/2076 [00:02<00:03, 292.08it/s] Loading weights:  52%|█████▏    | 1082/2076 [00:02<00:03, 288.14it/s]Loading weights:  57%|█████▋    | 1178/2076 [00:02<00:03, 298.64it/s]Loading weights:  60%|██████    | 1254/2076 [00:03<00:02, 286.68it/s]Loading weights:  63%|██████▎   | 1313/2076 [00:03<00:02, 290.36it/s]Loading weights:  66%|██████▌   | 1363/2076 [00:03<00:02, 289.96it/s]Loading weights:  68%|██████▊   | 1407/2076 [00:03<00:02, 288.45it/s]Loading weights:  78%|███████▊  | 1613/2076 [00:03<00:00, 540.63it/s]Loading weights:  92%|█████████▏| 1901/2076 [00:03<00:00, 935.38it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 515.76it/s]
+  Applying SFT adapter: kirankumarmanku/gemma-4-E4B-sepo-kuhn-sft
+  LoRA targets: 132 modules
+trainable params: 9,076,736 || all params: 7,950,177,568 || trainable%: 0.1142
+LoRA mode: using base model (adapters disabled) as reference — no second copy loaded.
+
+Starting GRPO training — 100 steps (from step 0)
+SEPO weights: kuhn:λe=1.5  λc=2.4  λx=0.0
+SEPO refresh: every 5 steps OR when cumulative KL > 0.5
+
+  [05:11:57] rollout opp=nash-approx (1/3)
+    [05:12:36] r01 llm=PBBBBBPPBB opp=BPCBBPPBBB u=-1.0 pen=0.642
+    [05:12:52] r02 llm=PBBPBBPBBPB opp=BBBBBBBPFPF u=-7.0 pen=0.642
+    [05:13:05] r03 llm=PBPPPPBBBP opp=BPPPPBBBPP u=-5.0 pen=0.642
+    [05:13:20] r04 llm=PBBBPPPPBB opp=BPFPPPPBBB u=1.0 pen=0.642
+[transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+  [05:13:40] rollout opp=tight-passive (2/3)
+    [05:14:17] r01 llm=PBBPBBBPB opp=BPFPFBBBB u=-1.0 pen=0.000
+    [05:14:28] r02 llm=BBPPPBBPP opp=BBPPBBBPP u=-5.0 pen=0.000
+    [05:14:44] r03 llm=PBBBBPBPPB opp=BPFPFBPPPF u=0.0 pen=0.000
+    [05:14:59] r04 llm=BBBPPBPPBP opp=PFPPBPPBPP u=0.0 pen=0.000
+  [05:15:17] rollout opp=loose-aggressive (3/3)
+    [05:15:47] r01 llm=BPBBPBBPBB opp=PPBBBPFBBB u=-3.0 pen=1.000
+    [05:16:02] r02 llm=BBBBPBBPBB opp=PFBBBPFBBB u=1.0 pen=1.000
+    [05:16:14] r03 llm=PBPBBBBPBB opp=BBBBBPFBBB u=1.0 pen=1.000
+    [05:16:26] r04 llm=BPPPPBPPP opp=PPPPBPPPP u=5.0 pen=1.000
+[05:16:44] Step    0 | loss=0.000020 | u=-0.170 | e=0.306 | c=0.037 | x=0.332 | kl=0.000000 | pg=0.000020
+  [05:16:44] rollout opp=nash-approx (1/3)
+    [05:16:56] r01 llm=PBPBBPBPBB opp=BPPBBPCBBB u=1.0 pen=0.547
+    [05:17:12] r02 llm=PBBPBCPBBPBB opp=BBBBBBBBBBPF u=-13.0 pen=0.547
+    [05:17:25] r03 llm=PBBPBPBBP opp=BBBPFBBPP u=-6.0 pen=0.547
+    [05:17:38] r04 llm=PBBBBPBBPB opp=BBBPFBBBPC u=-5.0 pen=0.547
+  [05:17:56] rollout opp=tight-passive (2/3)
+    [05:18:08] r01 llm=PBPBPBPP opp=PFBBPFPP u=1.0 pen=0.547
+    [05:18:21] r02 llm=BBPBBBBPBP opp=BBBBBPFBPP u=-6.0 pen=0.547
+    [05:18:35] r03 llm=BBPBPPBBBB opp=PFBPPBPFBB u=-3.0 pen=0.547
+    [05:18:49] r04 llm=PBPBBBBPBB opp=BPPBBPFBPF u=-1.0 pen=0.547
+  [05:19:05] rollout opp=loose-aggressive (3/3)
+    [05:19:16] r01 llm=BBBBPBPBB opp=BBBBBBBBB u=-1.0 pen=0.547
+    [05:19:32] r02 llm=PBBPBBPBPPBB opp=BBBBBBBPPBBB u=-13.0 pen=0.547
+    [05:19:47] r03 llm=PBPPBBPBBPBB opp=BPPBBBBBBBBB u=-13.0 pen=0.547
+    [05:20:02] r04 llm=PBBPBBBBPBB opp=BBBBBBBBBPF u=-9.0 pen=0.547
+  [05:20:19] rollout opp=nash-approx (1/3)
+    [05:20:34] r01 llm=PPPPPBBPBP opp=PPPPBBBBPP u=-9.0 pen=0.547
+    [05:20:47] r02 llm=PBBPBBBPBB opp=BPFBBBBBBB u=-5.0 pen=0.547
+    [05:21:01] r03 llm=PBBBBPBPPB opp=BBBBBBPPPF u=-1.0 pen=0.547
+    [05:21:14] r04 llm=PBBBBPBBPBB opp=BBBPFBPFBBB u=2.0 pen=0.547
+  [05:21:34] rollout opp=tight-passive (2/3)
+    [05:21:47] r01 llm=BBPBBPBBBB opp=BBBPFBBBPF u=-4.0 pen=0.547
+    [05:21:59] r02 llm=BBPBBBBP opp=BBPFBBPP u=2.0 pen=0.547
+    [05:22:12] r03 llm=BBBBPBBP opp=PFPFPFPP u=8.0 pen=0.547
+    [05:22:26] r04 llm=PBBBPBBPBP opp=BBBPPBBBPP u=-8.0 pen=0.547
+  [05:22:41] rollout opp=loose-aggressive (3/3)
+    [05:22:55] r01 llm=BBPBPPBPPB opp=BBBPPBPPBB u=-3.0 pen=0.547
+    [05:23:09] r02 llm=PBPBBPBBPBB opp=BBBBBBBBBBB u=-9.0 pen=0.547
+    [05:23:23] r03 llm=PBPPBBPBBPB opp=BPPBPFBBBBB u=-3.0 pen=0.547
+    [05:23:37] r04 llm=PBBBBPBBBP opp=BPFBBBBBPP u=-3.0 pen=0.547
+  [05:23:56] rollout opp=nash-approx (1/3)
+    [05:24:08] r01 llm=BBPBBBBBB opp=BBBBBPFBB u=-3.0 pen=0.547
+    [05:24:20] r02 llm=PPBPBBPBB opp=PPPPBBBBB u=2.0 pen=0.547
+    [05:24:31] r03 llm=PBBBPPPB opp=BBPFPPBB u=0.0 pen=0.547
+    [05:24:43] r04 llm=PPPBBBBB opp=PPBBBBPF u=-1.0 pen=0.547
+  [05:24:58] rollout opp=tight-passive (2/3)
+    [05:25:12] r01 llm=PBBPPBBPBB opp=BBPPBBBBPF u=-8.0 pen=0.547
+    [05:25:24] r02 llm=PBPBBPPPBB opp=BBBPFPPBBB u=-4.0 pen=0.547
+    [05:25:36] r03 llm=PBBBBPPP opp=BBBBPPPP u=-2.0 pen=0.547
+    [05:25:49] r04 llm=BPPBBPBBB opp=PPBBBPFPF u=2.0 pen=0.547
+  [05:26:05] rollout opp=loose-aggressive (3/3)
+    [05:26:17] r01 llm=BBPBBBBBB opp=BBBBBBBBB u=-2.0 pen=0.547
+    [05:26:28] r02 llm=BBPBBPBBB opp=BBBBBBBBB u=-2.0 pen=0.547
+    [05:26:40] r03 llm=BBPBBPPB opp=BBPFPPPF u=6.0 pen=0.547
+    [05:26:53] r04 llm=PBPPBPBPBB opp=BPPBBBBBBB u=1.0 pen=0.547
+  [05:27:08] rollout opp=nash-approx (1/3)
+    [05:27:20] r01 llm=BBPBBPBB opp=BBPFPPBB u=2.0 pen=0.547
+    [05:27:32] r02 llm=BBPBPBBBB opp=PFBBBPFPF u=3.0 pen=0.547
+    [05:27:45] r03 llm=PBBPBPBBPB opp=BBBBPPBBBB u=-7.0 pen=0.547
+    [05:27:59] r04 llm=BBBBBPPBB opp=BBPFPPBPF u=5.0 pen=0.547
+  [05:28:14] rollout opp=tight-passive (2/3)
+    [05:28:26] r01 llm=PPPBBPBBPB opp=PPBBBBBBBB u=-9.0 pen=0.547
+    [05:28:41] r02 llm=PBPPPBBPBB opp=BBPPBPFBPF u=-5.0 pen=0.547
+    [05:28:54] r03 llm=PBPPPBPBB opp=PFPPBBBPF u=0.0 pen=0.547
+    [05:29:09] r04 llm=PBBBBPBBPB opp=BBBPFBPFPF u=-3.0 pen=0.547
+  [05:29:27] rollout opp=loose-aggressive (3/3)
+    [05:29:38] r01 llm=PBBBBPPBB opp=BBBBPPBBB u=-3.0 pen=0.547
+    [05:29:52] r02 llm=PBBBPBBPB opp=PFBBBBBPF u=0.0 pen=0.547
+    [05:30:06] r03 llm=BBPBBPBPPBB opp=BBBBBBPPBBB u=-10.0 pen=0.547
+    [05:30:22] r04 llm=PBPBBPBBPBB opp=BPPPFBBBBBB u=-6.0 pen=0.547
+  [SEPO refresh] game=kuhn step=5 cumKL=0.026
+  [05:30:40] rollout opp=nash-approx (1/3)
+    [05:31:19] r01 llm=BPPPPBBBB opp=PPPPBBBPF u=0.0 pen=0.000
+    [05:31:32] r02 llm=PBBPBBBBPP opp=BBBBPFBBPP u=-2.0 pen=0.000
+    [05:31:46] r03 llm=PBBPBPPBBPB opp=BBBBPPBPFBB u=-5.0 pen=0.000
+    [05:31:57] r04 llm=BBBBPBPP opp=BBBBBBPP u=4.0 pen=0.000
+  [05:32:13] rollout opp=tight-passive (2/3)
+    [05:32:52] r01 llm=PBPBPBPPP opp=PFBBBPPPP u=-2.0 pen=0.000
+    [05:33:04] r02 llm=BBPBPBFBP opp=BBPFBBBPP u=-2.0 pen=0.000
+    [05:33:17] r03 llm=PBBPBBBPB opp=BPFBBPFBB u=-3.0 pen=0.000
+    [05:33:30] r04 llm=BBBBPBPPP opp=PFPFBPPPP u=0.0 pen=0.000
+  [05:33:47] rollout opp=loose-aggressive (3/3)
+    [05:34:15] r01 llm=BBPBPPPPBP opp=BBBPPPPBPP u=0.0 pen=1.200
+    [05:34:25] r02 llm=PBBBPPBB opp=BBBBPPBB u=0.0 pen=1.200
+    [05:34:41] r03 llm=BBPBBPBBPBB opp=BBBBBBBBBBB u=-13.0 pen=1.200
+    [05:34:55] r04 llm=BBPBBPBPPBB opp=BBBBBBPPBBB u=-10.0 pen=1.200
+[05:35:12] Step    5 | loss=0.005144 | u=-0.074 | e=0.267 | c=0.000 | x=0.278 | kl=0.007282 | pg=0.003688
+  [05:35:12] rollout opp=nash-approx (1/3)
+    [05:35:24] r01 llm=BPPBPBPBB opp=PPPCBPPBB u=-1.0 pen=0.400
+    [05:35:36] r02 llm=PBPBBBPBB opp=PCBBBBBPF u=0.0 pen=0.400
+    [05:35:50] r03 llm=BPBFPPPBP opp=PPBBPPBPP u=-2.0 pen=0.400
+    [05:36:04] r04 llm=PPPBPPBBPBB opp=PPBPPBPFBBB u=0.0 pen=0.400
+  [05:36:22] rollout opp=tight-passive (2/3)
+    [05:36:35] r01 llm=PBPBBPBBB opp=BPPPFPFBB u=2.0 pen=0.400
+    [05:36:49] r02 llm=PBBBPBPBB opp=BBPFBPPBB u=-1.0 pen=0.400
+    [05:37:02] r03 llm=BPBBBPPBP opp=PPPFPPBPP u=3.0 pen=0.400
+    [05:37:15] r04 llm=BPBBPBBB opp=PPBBPFPF u=1.0 pen=0.400
+  [05:37:30] rollout opp=loose-aggressive (3/3)
+    [05:37:42] r01 llm=PBCBBPBBBB opp=BBBBBBPFPF u=0.0 pen=0.400
+    [05:37:57] r02 llm=PBBBBPBBPBB opp=BBBBBBBBBBB u=-13.0 pen=0.400
+    [05:38:11] r03 llm=PBBPBBPBBB opp=BBBBPFBBBB u=-3.0 pen=0.400
+    [05:38:26] r04 llm=PBBPBBPBPBB opp=BBBBBBBPPBB u=-10.0 pen=0.400
+  [05:38:45] rollout opp=nash-approx (1/3)
+    [05:38:56] r01 llm=BBPBBBBB opp=BBBBBBBB u=5.0 pen=0.400
+    [05:39:08] r02 llm=BBPBBPBPPBB opp=BBBBBBPPBBB u=-6.0 pen=0.400
+    [05:39:22] r03 llm=PBPPBPPPBB opp=BPPPFPPBPC u=7.0 pen=0.400
+    [05:39:34] r04 llm=BPPBPBPBB opp=PPBBBPPBB u=5.0 pen=0.400
+  [05:39:50] rollout opp=tight-passive (2/3)
+    [05:40:05] r01 llm=PBBPBBBBPB opp=BPFBPFPFBB u=-1.0 pen=0.400
+    [05:40:17] r02 llm=BPBPPPBB opp=PPPPPPBB u=-1.0 pen=0.400
+    [05:40:30] r03 llm=PBBBPBBBB opp=BBPFBPFBB u=-1.0 pen=0.400
+    [05:40:43] r04 llm=BBPBPBBPB opp=BBBBBPFBB u=-11.0 pen=0.400
+  [05:40:59] rollout opp=loose-aggressive (3/3)
+    [05:41:14] r01 llm=BBPBPBPPBB opp=BBBPPPPBBB u=-6.0 pen=0.400
+    [05:41:25] r02 llm=PBBBBBPP opp=PFBBBBPP u=8.0 pen=0.400
+    [05:41:37] r03 llm=PBBBPBBPP opp=BBBBBBBPP u=4.0 pen=0.400
+    [05:41:50] r04 llm=PBBPBBPBB opp=BPFBBPPBB u=0.0 pen=0.400
+  [05:42:05] rollout opp=nash-approx (1/3)
+    [05:42:18] r01 llm=PBBBPPBPBB opp=BPCPPBBBBB u=0.0 pen=0.400
+    [05:42:31] r02 llm=PBBBBBBBB opp=BBBPFBBBB u=-3.0 pen=0.400
+    [05:42:42] r03 llm=PPBBPBPP opp=PPBBPFPP u=3.0 pen=0.400
+    [05:42:56] r04 llm=PBBPBBPBBPP opp=BPFBPFBBBPP u=-4.0 pen=0.400
+  [05:43:12] rollout opp=tight-passive (2/3)
+    [05:43:24] r01 llm=BBBBPBPPB opp=BBBBBPPBB u=-7.0 pen=0.400
+    [05:43:35] r02 llm=BBBBBBPBB opp=BBBBBBBBB u=-7.0 pen=0.400
+    [05:43:49] r03 llm=PBBPBPBPBB opp=BPFBPPPPBB u=-8.0 pen=0.400
+    [05:44:01] r04 llm=PBBPPBBPP opp=BBBPPBBPP u=-7.0 pen=0.400
+  [05:44:18] rollout opp=loose-aggressive (3/3)
+    [05:44:30] r01 llm=BBPBBPBPBB opp=BBBBBBBBBB u=-1.0 pen=0.400
+    [05:44:40] r02 llm=PBBBBPPP opp=BBPFPPPP u=6.0 pen=0.400
+    [05:44:52] r03 llm=BBPBPPBBB opp=BBBPPBBBB u=0.0 pen=0.400
+    [05:45:05] r04 llm=PBBPBBBPBB opp=BPFBBBBBBB u=-7.0 pen=0.400
+  [05:45:21] rollout opp=nash-approx (1/3)
+    [05:45:34] r01 llm=PBBBBBPPBP opp=BBBBBPPBPP u=2.0 pen=0.400
+    [05:45:47] r02 llm=PBPPPBCBB opp=BPPPPBBBB u=2.0 pen=0.400
+    [05:45:59] r03 llm=PBBPBPBPBP opp=BBBBBPCBPP u=-5.0 pen=0.400
+    [05:46:12] r04 llm=BBBBPBPBB opp=BBPFPFBBB u=7.0 pen=0.400
+  [05:46:29] rollout opp=tight-passive (2/3)
+    [05:46:43] r01 llm=BBPBPBPBB opp=PFPFBPPPF u=2.0 pen=0.400
+    [05:46:57] r02 llm=BBPBBBBPBP opp=BBBPFBBBPP u=-4.0 pen=0.400
+    [05:47:11] r03 llm=PBBBBBBPBB opp=BPFBBPFBPF u=-1.0 pen=0.400
+    [05:47:26] r04 llm=BBBBPBBPBB opp=BBPFBPFBPF u=-1.0 pen=0.400
+  [05:47:43] rollout opp=loose-aggressive (3/3)
+    [05:47:55] r01 llm=BBPBBBBPB opp=BBBPFBBBB u=-4.0 pen=0.400
+    [05:48:09] r02 llm=PBBBBBBPBB opp=BBBBBPFBPF u=-6.0 pen=0.400
+    [05:48:24] r03 llm=PBBBPPBPPBB opp=BBBPPBPPBBB u=-3.0 pen=0.400
+    [05:48:40] r04 llm=PBBPBBPBBPBB opp=BPFBBBBBBBBB u=-13.0 pen=0.400
+  [SEPO refresh] game=kuhn step=10 cumKL=0.048
+  [05:48:58] rollout opp=nash-approx (1/3)
+    [05:49:39] r01 llm=PBPBBPPBP opp=BBBBPPBPP u=-9.0 pen=2.727
+    [05:49:51] r02 llm=PPBPBBBB opp=PPPPBBPC u=7.0 pen=2.727
+    [05:50:03] r03 llm=PPBPPBPPBB opp=PPPPBPPBBB u=-4.0 pen=2.727
+    [05:50:19] r04 llm=PBBPBBPBBPB opp=BPFBPFBPCPF u=-6.0 pen=2.727
+  [05:50:34] rollout opp=tight-passive (2/3)
+    [05:51:14] r01 llm=PBBPBPBP opp=PFPPPPPP u=-1.0 pen=1.750
+    [05:51:26] r02 llm=PBPBBBBPBB opp=BPPBBBBBPF u=-4.0 pen=1.750
+    [05:51:37] r03 llm=PBPBPBBBB opp=PFPFBBBPF u=2.0 pen=1.750
+    [05:51:49] r04 llm=PBPBBBPP opp=BBBBPFPP u=0.0 pen=1.750
+  [05:52:04] rollout opp=loose-aggressive (3/3)
+    [05:52:28] r01 llm=PBBPBPPBPP opp=BBBBPPBBPP u=-4.0 pen=1.636
+    [05:52:43] r02 llm=BBBBPBCPBB opp=PFPFBBBBBB u=-2.0 pen=1.636
+    [05:52:57] r03 llm=BBPBBPBPBB opp=BBBBBBPPBB u=-6.0 pen=1.636
+    [05:53:11] r04 llm=PBPBBBBBB opp=PFBPFBBPF u=6.0 pen=1.636
+[05:53:28] Step   10 | loss=0.000022 | u=-0.508 | e=1.359 | c=0.000 | x=0.379 | kl=0.005756 | pg=-0.001129
+  [05:53:28] rollout opp=nash-approx (1/3)
+    [05:53:40] r01 llm=PBBBCPBPB opp=BBBBBBBBB u=-9.0 pen=2.038
+    [05:53:52] r02 llm=BBPPPBPB opp=BBPPPFPF u=3.0 pen=2.038
+    [05:54:05] r03 llm=PBPBBBBPBP opp=BBBPFBBBPP u=0.0 pen=2.038
+    [05:54:19] r04 llm=PBBPBBBBPB opp=BPFBBBBBBB u=-3.0 pen=2.038
+  [05:54:34] rollout opp=tight-passive (2/3)
+    [05:54:47] r01 llm=PBBPPPBBB opp=BPFPPPFBB u=2.0 pen=2.038
+    [05:55:02] r02 llm=PBBPBFPPBP opp=BPFBBBPPPP u=-6.0 pen=2.038
+    [05:55:15] r03 llm=PBPBBBPPP opp=BPPBBPPPP u=-4.0 pen=2.038
+    [05:55:28] r04 llm=BBBBBBBB opp=PFPFPFPF u=5.0 pen=2.038
+  [05:55:44] rollout opp=loose-aggressive (3/3)
+    [05:55:58] r01 llm=PBBBPPBCPBP opp=BBBPPBBBBPP u=-6.0 pen=2.038
+    [05:56:10] r02 llm=PBBBBPPBB opp=BBBBPPBBB u=5.0 pen=2.038
+    [05:56:23] r03 llm=PBBPBPBBPB opp=BPFBBBPFBB u=-4.0 pen=2.038
+    [05:56:37] r04 llm=BBPBBPBBPBB opp=PFBBBBBBBBB u=-9.0 pen=2.038
+  [05:56:54] rollout opp=nash-approx (1/3)
+    [05:57:07] r01 llm=PBPBBPPPBB opp=BPPBBPPBPF u=-5.0 pen=2.038
+    [05:57:18] r02 llm=PBBBBPBBP opp=BBBBBBBPP u=-2.0 pen=2.038
+    [05:57:32] r03 llm=BBPBBPPPBP opp=PFBBBPPBPP u=-5.0 pen=2.038
+    [05:57:44] r04 llm=BBBBPBBB opp=PFPCBBPF u=7.0 pen=2.038
+  [05:57:59] rollout opp=tight-passive (2/3)
+    [05:58:13] r01 llm=PBPBPPBBPBP opp=BPPPPBPFBPP u=-1.0 pen=2.038
+    [05:58:27] r02 llm=BBPBBPBBBB opp=BBBBBBPFPF u=-7.0 pen=2.038
+    [05:58:37] r03 llm=BPBBPBPB opp=PPBBBBBB u=-5.0 pen=2.038
+    [05:58:52] r04 llm=BBPBPPPBP opp=PFBPPPPPP u=1.0 pen=2.038
+  [05:59:07] rollout opp=loose-aggressive (3/3)
+    [05:59:18] r01 llm=BBBBBBPC opp=BBBBBBBB u=-6.0 pen=2.038
+    [05:59:33] r02 llm=PBCPBPBBPBB opp=BBBBBBPFBBB u=-2.0 pen=2.038
+    [05:59:47] r03 llm=PBBPBBPPPBB opp=BBBBBBPPBBB u=-6.0 pen=2.038
+    [06:00:03] r04 llm=PBBPBBPBBPBB opp=BBBBBBBBBBBB u=-8.0 pen=2.038
+  [06:00:18] rollout opp=nash-approx (1/3)
+    [06:00:31] r01 llm=BBPBPBBPCB opp=BBBPPBBBPF u=3.0 pen=2.038
+    [06:00:44] r02 llm=BBBBBPBP opp=PFBBPPPP u=1.0 pen=2.038
+    [06:00:57] r03 llm=PBBPBBBBPBP opp=BBBBBBBBBPP u=-2.0 pen=2.038
+    [06:01:12] r04 llm=PBBPBBPBBPB opp=BBBBBBBBBPF u=-12.0 pen=2.038
+  [06:01:27] rollout opp=tight-passive (2/3)
+    [06:01:40] r01 llm=PBPPBBBPBB opp=BPPBBBBBPF u=-4.0 pen=2.038
+    [06:01:53] r02 llm=PBBBPBPPP opp=BPFPPPPPP u=1.0 pen=2.038
+    [06:02:07] r03 llm=PBBPBBPBPB opp=BBBBBBPFBB u=-9.0 pen=2.038
+    [06:02:22] r04 llm=PBBPBBBPBB opp=BBBBPFPPPF u=-1.0 pen=2.038
+  [06:02:39] rollout opp=loose-aggressive (3/3)
+    [06:02:49] r01 llm=PBBBPBPB opp=BBBBBBBB u=-3.0 pen=2.038
+    [06:03:02] r02 llm=BPBBPBBPBB opp=PPBBBBBBBB u=-6.0 pen=2.038
+    [06:03:15] r03 llm=PBBBBPBBB opp=BBBPFBBBB u=-3.0 pen=2.038
+    [06:03:28] r04 llm=PBBBBPBBB opp=BPFPFBBPF u=-1.0 pen=2.038
+  [06:03:44] rollout opp=nash-approx (1/3)
+    [06:03:58] r01 llm=BBBBBBPBB opp=PFPFBBBPF u=6.0 pen=2.038
+    [06:04:10] r02 llm=PPPPPBBBP opp=PPPPBBBPP u=2.0 pen=2.038
+    [06:04:24] r03 llm=PBBPBBPBBPBB opp=BBBBBBBBBBPF u=-9.0 pen=2.038
+    [06:04:37] r04 llm=BPBBPPPBP opp=PPBBPPBPP u=-2.0 pen=2.038
+  [06:04:55] rollout opp=tight-passive (2/3)
+    [06:05:08] r01 llm=PBBPBBPBPB opp=BBBBBBPFPF u=-8.0 pen=2.038
+    [06:05:24] r02 llm=PBBPPPBPPBB opp=BPFPPBPPBPF u=-3.0 pen=2.038
+    [06:05:36] r03 llm=PBPBBPBP opp=PFPFPPPP u=2.0 pen=2.038
+    [06:05:47] r04 llm=BBPBPBPB opp=BBBBPFBB u=-3.0 pen=2.038
+  [06:06:03] rollout opp=loose-aggressive (3/3)
+    [06:06:17] r01 llm=BBPBCPBPPBB opp=PFBBBBPPBBB u=-3.0 pen=2.038
+    [06:06:31] r02 llm=PBBBBPBBPC opp=BPFBBBBBBB u=-2.0 pen=2.038
+    [06:06:44] r03 llm=BBPBPPPPBB opp=BBBPPPPBBB u=-4.0 pen=2.038
+    [06:06:58] r04 llm=BBPBPPBBBP opp=BBBPPBBBPP u=-4.0 pen=2.038
+  [SEPO refresh] game=kuhn step=15 cumKL=0.025
+  [06:07:18] rollout opp=nash-approx (1/3)
+    [06:07:59] r01 llm=PBPPBBPBBPBP opp=BPPBBBBPFBPP u=-1.0 pen=0.000
+    [06:08:15] r02 llm=PBBPBPPPPBP opp=BPCBPPPPBPP u=-4.0 pen=0.000
+    [06:08:27] r03 llm=PBBBBBBPB opp=BPFBBBBPF u=-4.0 pen=0.000
+    [06:08:39] r04 llm=PPPBPBPBB opp=PPBBBBBBB u=-2.0 pen=0.000
+  [06:08:57] rollout opp=tight-passive (2/3)
+    [06:09:36] r01 llm=PBBPPBBP opp=PFPPPFPP u=6.0 pen=3.000
+    [06:09:49] r02 llm=PBPBPBBBP opp=PFPFBPFPP u=-1.0 pen=3.000
+    [06:10:03] r03 llm=BPPBBPBBBB opp=PPBPFBBBBB u=-4.0 pen=3.000
+    [06:10:14] r04 llm=PPBBBBPBB opp=PPBBBBBBB u=-4.0 pen=3.000
+  [06:10:30] rollout opp=loose-aggressive (3/3)
+    [06:10:57] r01 llm=PBBBBPBPBP opp=BBBBBPFBPP u=-3.0 pen=1.364
+    [06:11:12] r02 llm=BBBBPBPPBB opp=PFBBBPPBPF u=-3.0 pen=1.364
+    [06:11:25] r03 llm=BBPBPPBPP opp=BBBPPBBPP u=-1.0 pen=1.364
+    [06:11:36] r04 llm=BBBBPBBB opp=BBPFPFBB u=4.0 pen=1.364
+[06:11:51] Step   15 | loss=0.004972 | u=0.122 | e=0.970 | c=0.000 | x=0.285 | kl=0.016163 | pg=0.001740
+  [06:11:51] rollout opp=nash-approx (1/3)
+    [06:12:06] r01 llm=PBBBBPBBPBB opp=BBBBBBBBBPF u=-10.0 pen=1.455
+    [06:12:19] r02 llm=PBBPBCBBPBB opp=BBBBBBBBBPF u=-6.0 pen=1.455
+    [06:12:32] r03 llm=BBPBPPPPBP opp=BBBPPPPBPP u=5.0 pen=1.455
+    [06:12:45] r04 llm=BBPBBBBPBP opp=BBBBBPFBPP u=1.0 pen=1.455
+  [06:13:04] rollout opp=tight-passive (2/3)
+    [06:13:18] r01 llm=BBPBBBBPBB opp=PFBBBPFBPF u=-4.0 pen=1.455
+    [06:13:29] r02 llm=PBPBPBBPB opp=BPPPPBBBB u=-3.0 pen=1.455
+    [06:13:41] r03 llm=PBPBPBBPB opp=BPPPPBBBB u=-3.0 pen=1.455
+    [06:13:55] r04 llm=PBPBBBPPBP opp=BPPBBPPBPP u=-3.0 pen=1.455
+  [06:14:12] rollout opp=loose-aggressive (3/3)
+    [06:14:28] r01 llm=PBBPBBBBPBB opp=BPFBBBBBBBB u=-9.0 pen=1.455
+    [06:14:40] r02 llm=BBBBPBBPBP opp=BBBBBPFBPP u=-3.0 pen=1.455
+    [06:14:52] r03 llm=PBBBBPBBBB opp=BBBBBBBBBB u=-8.0 pen=1.455
+    [06:15:05] r04 llm=PBBBBPBPPB opp=BBBPFBPPBB u=0.0 pen=1.455
+  [06:15:25] rollout opp=nash-approx (1/3)
+    [06:15:37] r01 llm=PPBBPBBPB opp=PPBBBBBPF u=-3.0 pen=1.455
+    [06:15:50] r02 llm=PBPPBBPBPB opp=BPPBPFBBBB u=0.0 pen=1.455
+    [06:16:03] r03 llm=PBBBBPPPB opp=BPCBBPPBB u=-2.0 pen=1.455
+    [06:16:16] r04 llm=PBBBPBBBB opp=BBPFBPFPF u=-2.0 pen=1.455
+  [06:16:34] rollout opp=tight-passive (2/3)
+    [06:16:45] r01 llm=PBPBPPBP opp=BBBBPPPP u=-2.0 pen=1.455
+    [06:16:57] r02 llm=PPBBPBBP opp=PPPFPFPP u=1.0 pen=1.455
+    [06:17:10] r03 llm=PPPPBBBB opp=PPPPPFPF u=6.0 pen=1.455
+    [06:17:23] r04 llm=BBPBPPBBBP opp=BBBPPBBBPP u=-8.0 pen=1.455
+  [06:17:38] rollout opp=loose-aggressive (3/3)
+    [06:17:53] r01 llm=PBBPBPPBBPBB opp=BBBBPPBBBBBB u=-13.0 pen=1.455
+    [06:18:06] r02 llm=BBPBBBPPBB opp=BBBBBPPBPF u=1.0 pen=1.455
+    [06:18:21] r03 llm=PBBBPPBPPBB opp=BBBPPBPPBBB u=-6.0 pen=1.455
+    [06:18:33] r04 llm=BPPBPBPBB opp=PPPFBBBPF u=3.0 pen=1.455
+  [06:18:51] rollout opp=nash-approx (1/3)
+    [06:19:02] r01 llm=PBPBPBPP opp=BBPFPCPP u=2.0 pen=1.455
+    [06:19:13] r02 llm=PPPBBBPP opp=PPBBBBPP u=-4.0 pen=1.455
+    [06:19:27] r03 llm=PBPPPPPBP opp=BBPPPPBPP u=-8.0 pen=1.455
+    [06:19:39] r04 llm=BBPPPBPBB opp=PFPPBPPBB u=5.0 pen=1.455
+  [06:19:55] rollout opp=tight-passive (2/3)
+    [06:20:06] r01 llm=BPBBBBBB opp=PPPFBBBB u=0.0 pen=1.455
+    [06:20:18] r02 llm=BBPBBPPB opp=PFPFPPBB u=3.0 pen=1.455
+    [06:20:32] r03 llm=BBPPPBPPP opp=PFPPBPPPP u=-3.0 pen=1.455
+    [06:20:45] r04 llm=PBPBBFPBB opp=PFPFBBBPF u=3.0 pen=1.455
+  [06:21:01] rollout opp=loose-aggressive (3/3)
+    [06:21:13] r01 llm=PBBBPPBBP opp=BBBPPBBPP u=-1.0 pen=1.455
+    [06:21:26] r02 llm=BBBBPPPBB opp=BBPFPPBPF u=3.0 pen=1.455
+    [06:21:40] r03 llm=PBPBBPBBPB opp=PFBBBBBBBB u=-3.0 pen=1.455
+    [06:21:53] r04 llm=PBBBBPBBBB opp=BBBBBBPFBB u=1.0 pen=1.455
+  [06:22:11] rollout opp=nash-approx (1/3)
+    [06:22:24] r01 llm=BBPPPBBBP opp=PCPPBPFPP u=5.0 pen=1.455
+    [06:22:38] r02 llm=PBBBPBPPBB opp=BPCPPPPBBB u=-5.0 pen=1.455
+    [06:22:52] r03 llm=BPPBBPBBBB opp=PPBPFBPFBB u=1.0 pen=1.455
+    [06:23:04] r04 llm=PBBBPBBPB opp=PCBBBPCBB u=3.0 pen=1.455
+  [06:23:22] rollout opp=tight-passive (2/3)
+    [06:23:34] r01 llm=BBBBBBPBP opp=BBBBPFBPP u=-3.0 pen=1.455
+    [06:23:45] r02 llm=BPBBPBPP opp=PPBBBBPP u=-2.0 pen=1.455
+    [06:23:58] r03 llm=BBBBPBPBP opp=BBPFBBBPP u=-8.0 pen=1.455
+    [06:24:10] r04 llm=BBPPPBPP opp=PFPPPFPP u=4.0 pen=1.455
+  [06:24:26] rollout opp=loose-aggressive (3/3)
+    [06:24:40] r01 llm=BBPBBPBBBB opp=PFBBBBPFBB u=2.0 pen=1.455
+    [06:24:55] r02 llm=PBPBBPBBBP opp=BPPBBBBBPP u=1.0 pen=1.455
+    [06:25:07] r03 llm=PBBPBBBBBB opp=BBBBBBPFBB u=7.0 pen=1.455
+    [06:25:17] r04 llm=BCBBBCPBB opp=BBBBBBBBB u=-6.0 pen=1.455
+  [SEPO refresh] game=kuhn step=20 cumKL=0.068
+  [06:25:35] rollout opp=nash-approx (1/3)
+    [06:26:11] r01 llm=PBBPBBBPBB opp=BPFBBBBBBB u=-4.0 pen=0.000
+    [06:26:24] r02 llm=PPPBBPBBPBC opp=PPBBBBPFBBB u=-5.0 pen=0.000
+    [06:26:39] r03 llm=PPPBPBBPBB opp=PPPFBPFBPC u=-3.0 pen=0.000
+    [06:26:51] r04 llm=BCPBPPPBB opp=BBPFPPBBB u=-1.0 pen=0.000
+  [06:27:09] rollout opp=tight-passive (2/3)
+    [06:27:43] r01 llm=PBBBBPBPB opp=BBBPFPFBB u=-3.0 pen=1.333
+    [06:27:55] r02 llm=PBBBBBPBB opp=PFPFPFBBB u=-3.0 pen=1.333
+    [06:28:07] r03 llm=PBPBPBPPP opp=PFBBBPPPP u=-2.0 pen=1.333
+    [06:28:18] r04 llm=BBBBBBPB opp=BBBBPFBB u=-1.0 pen=1.333
+  [06:28:33] rollout opp=loose-aggressive (3/3)
+    [06:28:58] r01 llm=BBPCPBBBB opp=BBBBBPFBB u=1.0 pen=0.000
+    [06:29:10] r02 llm=PBBPBPBBPBB opp=BBBBBBBBBBB u=-13.0 pen=0.000
+    [06:29:24] r03 llm=BPBBPBPPBB opp=PPBBBPPBBB u=6.0 pen=0.000
+    [06:29:35] r04 llm=PPPBBBBB opp=PPPFBBBB u=2.0 pen=0.000
+[06:29:50] Step   20 | loss=0.002806 | u=-0.207 | e=0.296 | c=0.000 | x=0.320 | kl=0.015405 | pg=-0.000275
+  [06:29:50] rollout opp=nash-approx (1/3)
+    [06:30:02] r01 llm=PPBBPPPP opp=PPBBPPPP u=-3.0 pen=0.444
+    [06:30:17] r02 llm=PBPBPBBPBB opp=BPPPPBBBPF u=-4.0 pen=0.444
+    [06:30:30] r03 llm=PBBBBPBBPBB opp=BBBBBBBBBPF u=-6.0 pen=0.444
+    [06:30:42] r04 llm=PBBBBPBPBB opp=BBBBBPFBBB u=-5.0 pen=0.444
+  [06:30:57] rollout opp=tight-passive (2/3)
+    [06:31:09] r01 llm=PBPPBPPBB opp=BBPPPPBBB u=-3.0 pen=0.444
+    [06:31:20] r02 llm=PBPBBBPB opp=PFBBBBBB u=-5.0 pen=0.444
+    [06:31:32] r03 llm=PPPPPBPBB opp=PPPPBPPPF u=5.0 pen=0.444
+    [06:31:45] r04 llm=PBBBPPBBPP opp=BPFPPBBBPP u=-5.0 pen=0.444
+  [06:32:01] rollout opp=loose-aggressive (3/3)
+    [06:32:17] r01 llm=PBPPBBPBBPBB opp=BPPBBBBBBBBB u=-13.0 pen=0.444
+    [06:32:30] r02 llm=PPPBBBBPBB opp=PPBPFBBBBB u=0.0 pen=0.444
+    [06:32:40] r03 llm=BBPPBBPB opp=BBPPBBBB u=0.0 pen=0.444
+    [06:32:52] r04 llm=BBBBBBPBB opp=BBPFBBBBB u=1.0 pen=0.444
+  [06:33:08] rollout opp=nash-approx (1/3)
+    [06:33:20] r01 llm=PBBBBBBPBB opp=BBBPFBBBBB u=-2.0 pen=0.444
+    [06:33:34] r02 llm=PBBBBPBCPBB opp=BBBPFBBBBBB u=-6.0 pen=0.444
+    [06:33:46] r03 llm=BBBBPBBBB opp=BBPCBBBBB u=-3.0 pen=0.444
+    [06:33:58] r04 llm=PBBBBPBPPB opp=BBBBBBPPBB u=1.0 pen=0.444
+  [06:34:15] rollout opp=tight-passive (2/3)
+    [06:34:30] r01 llm=PBBPBPPBBBB opp=BPFBPPBPFBB u=-6.0 pen=0.444
+    [06:34:41] r02 llm=PPBBBBPB opp=PPBBBBBB u=-3.0 pen=0.444
+    [06:34:55] r03 llm=BBBBPBBBB opp=PFPFBBBPF u=2.0 pen=0.444
+    [06:35:08] r04 llm=BBPBBBPBP opp=PFBBPFBPP u=2.0 pen=0.444
+  [06:35:24] rollout opp=loose-aggressive (3/3)
+    [06:35:38] r01 llm=PBPBPBBPBB opp=BBBPPBBBPF u=-4.0 pen=0.444
+    [06:35:51] r02 llm=BBBFPBPBB opp=BBBBBPPPF u=-2.0 pen=0.444
+    [06:36:06] r03 llm=BBPBBPBBPBB opp=BBBPFBBBBBB u=-10.0 pen=0.444
+    [06:36:17] r04 llm=BPPBBBBP opp=PPBBBBPP u=4.0 pen=0.444
+  [06:36:33] rollout opp=nash-approx (1/3)
+    [06:36:47] r01 llm=PBPPBPBBBB opp=BPPBPPPFBB u=-1.0 pen=0.444
+    [06:37:02] r02 llm=PBBBPBBPBB opp=BBBPPPCBPF u=-2.0 pen=0.444
+    [06:37:14] r03 llm=PBBPBBPBB opp=PFPPBBBBB u=-6.0 pen=0.444
+    [06:37:26] r04 llm=PBBBBBPP opp=PFBBBBPP u=4.0 pen=0.444
+  [06:37:41] rollout opp=tight-passive (2/3)
+    [06:37:54] r01 llm=BBPBBPBBPBB opp=BBBBBBPFBBB u=-10.0 pen=0.444
+    [06:38:06] r02 llm=PPBBPBPBP opp=PPBBBPPPP u=-2.0 pen=0.444
+    [06:38:19] r03 llm=BBPBPBBBB opp=BBBPPPFBB u=-1.0 pen=0.444
+    [06:38:31] r04 llm=BBBBPBPP opp=PFBBPFPP u=-1.0 pen=0.444
+  [06:38:46] rollout opp=loose-aggressive (3/3)
+    [06:39:00] r01 llm=PBBPBBBBPB opp=BPFBBBPFBB u=-7.0 pen=0.444
+    [06:39:12] r02 llm=PBBPBBPBPB opp=BBBBBBPFBB u=-3.0 pen=0.444
+    [06:39:23] r03 llm=PBPBCBPPBB opp=BBBBBPPBBB u=-2.0 pen=0.444
+    [06:39:36] r04 llm=PPPBBPBPBP opp=PPBBBBPPPP u=0.0 pen=0.444
+  [06:39:55] rollout opp=nash-approx (1/3)
+    [06:40:10] r01 llm=BBPBBPBPPB opp=PFBPFBPPPF u=-2.0 pen=0.444
+    [06:40:23] r02 llm=PPPBBBBP opp=PPBBPCPP u=0.0 pen=0.444
+    [06:40:35] r03 llm=PBBPBBBPBB opp=BBBBBBPPBB u=-1.0 pen=0.444
+    [06:40:48] r04 llm=PBBPBBPBBPP opp=BPCBBBBBBPP u=-6.0 pen=0.444
+  [06:41:04] rollout opp=tight-passive (2/3)
+    [06:41:18] r01 llm=PBBPBPBPPB opp=BPFBPPPPBB u=-5.0 pen=0.444
+    [06:41:30] r02 llm=BPBBBBPB opp=PPPFBBBB u=-4.0 pen=0.444
+    [06:41:43] r03 llm=PBPBPBBPP opp=BBPFBPFPP u=0.0 pen=0.444
+    [06:41:54] r04 llm=BPPBBBBPB opp=PPBBBPFPF u=2.0 pen=0.444
+  [06:42:10] rollout opp=loose-aggressive (3/3)
+    [06:42:21] r01 llm=BBBBBBBB opp=BBBBBBPF u=2.0 pen=0.444
+    [06:42:36] r02 llm=PBBPBBBBPBB opp=BBBBBBBBBPF u=-5.0 pen=0.444
+    [06:42:46] r03 llm=PBBBPBBPB opp=BBBBBPFBB u=9.0 pen=0.444
+    [06:42:57] r04 llm=PBBBBBBPB opp=BBBBBBBBB u=6.0 pen=0.444
+  [SEPO refresh] game=kuhn step=25 cumKL=0.095
+  [06:43:13] rollout opp=nash-approx (1/3)
+    [06:43:52] r01 llm=PBBBBBBBB opp=BBBPFPFBB u=-1.0 pen=0.000
+    [06:44:05] r02 llm=BPPBPBBPBB opp=PPPFBBBBBB u=-6.0 pen=0.000
+    [06:44:16] r03 llm=PPPBBBBB opp=PPBBBBBB u=-1.0 pen=0.000
+    [06:44:30] r04 llm=PBPBBBBPBB opp=BPPPFBBBPF u=2.0 pen=0.000
+  [06:44:46] rollout opp=tight-passive (2/3)
+    [06:45:26] r01 llm=BBPBPBBPBP opp=PFBPPBBBPP u=-3.0 pen=0.900
+    [06:45:39] r02 llm=BBPBBBBPP opp=PFBBBPFPP u=-1.0 pen=0.900
+    [06:45:54] r03 llm=PBPBBPBBPBP opp=BBBPFBPFBPP u=-4.0 pen=0.900
+    [06:46:09] r04 llm=PBPPBPBPBB opp=BPPPFBPPPF u=-2.0 pen=0.900
+  [06:46:26] rollout opp=loose-aggressive (3/3)
+    [06:46:50] r01 llm=PBBPBFBBBF opp=BBBBBBBBBB u=-7.0 pen=0.480
+    [06:47:06] r02 llm=BBPBBPBPPBB opp=PFBPFBPPBPF u=0.0 pen=0.480
+    [06:47:22] r03 llm=BBPBBPBBPBB opp=BBBPFBBBBBB u=-5.0 pen=0.480
+    [06:47:34] r04 llm=BBBPBBPBB opp=BBPPBBBBB u=-7.0 pen=0.480
+[06:47:51] Step   25 | loss=0.003559 | u=-0.370 | e=0.200 | c=0.067 | x=0.294 | kl=0.031606 | pg=-0.002762
+  → Saved checkpoint: grpo_gemma4_kuhn/step_0025
+  [06:47:52] rollout opp=nash-approx (1/3)
+    [06:48:04] r01 llm=PBBBPPPB opp=PFPFPPBB u=2.0 pen=0.460
+    [06:48:17] r02 llm=PBBBPBBPP opp=BBBBBPCPP u=-4.0 pen=0.460
+    [06:48:28] r03 llm=PBPBPBBPBB opp=BBBBBPFBBB u=1.0 pen=0.460
+    [06:48:40] r04 llm=BBBBBCPB opp=BBPFBBBB u=-1.0 pen=0.460
+  [06:48:55] rollout opp=tight-passive (2/3)
+    [06:49:08] r01 llm=BBPPBBPBP opp=BBPPBBBPP u=-8.0 pen=0.460
+    [06:49:21] r02 llm=PBPBBBPPB opp=PFBBBPPBB u=-6.0 pen=0.460
+    [06:49:35] r03 llm=PBBPPBBBB opp=PFPPBPFBB u=0.0 pen=0.460
+    [06:49:47] r04 llm=BBBPPPBP opp=PFPPPPPP u=-1.0 pen=0.460
+  [06:50:03] rollout opp=loose-aggressive (3/3)
+    [06:50:18] r01 llm=BBPBBPBBPBB opp=BBBBBBBBBBB u=-12.0 pen=0.460
+    [06:50:31] r02 llm=BPBBPBPPBB opp=PPBBBPPBBB u=-3.0 pen=0.460
+    [06:50:44] r03 llm=BBPFPPPBB opp=PFBBPPBBB u=0.0 pen=0.460
+    [06:50:56] r04 llm=BBBBBBPB opp=BBPFBBBB u=1.0 pen=0.460
+  [06:51:12] rollout opp=nash-approx (1/3)
+    [06:51:27] r01 llm=PBBPBBBPPB opp=BPFBPFPPBB u=-4.0 pen=0.460
+    [06:51:40] r02 llm=PPBFBBPBB opp=PPBBBBBPF u=-2.0 pen=0.460
+    [06:51:53] r03 llm=PBBBBBBPBB opp=BBBPFBBBBB u=-3.0 pen=0.460
+    [06:52:07] r04 llm=BBPBBPBPPP opp=BBBBBBPPPP u=-2.0 pen=0.460
+  [06:52:25] rollout opp=tight-passive (2/3)
+    [06:52:40] r01 llm=PPPBBPBPPBB opp=PPBPFBPPBBB u=-6.0 pen=0.460
+    [06:52:54] r02 llm=BBBPPBPPBP opp=BBPPBPPBPP u=-7.0 pen=0.460
+    [06:53:04] r03 llm=BBPBBPBPP opp=BBBBBBBPP u=-6.0 pen=0.460
+    [06:53:17] r04 llm=BBPPBPPB opp=PFPPPPPF u=4.0 pen=0.460
+  [06:53:33] rollout opp=loose-aggressive (3/3)
+    [06:53:45] r01 llm=PBBPBBBPBB opp=BPFBBBBBBB u=-2.0 pen=0.460
+    [06:53:57] r02 llm=BBBBBBBB opp=PFBBBBPF u=8.0 pen=0.460
+    [06:54:11] r03 llm=PBPBBPBPBB opp=BBBBBPFBPF u=-4.0 pen=0.460
+    [06:54:21] r04 llm=BBPBPCPB opp=BBBBBBPF u=8.0 pen=0.460
+  [06:54:37] rollout opp=nash-approx (1/3)
+    [06:54:50] r01 llm=BPPBBPBBB opp=PPBBBBBPF u=-4.0 pen=0.460
+    [06:55:00] r02 llm=BBBBBBPB opp=BBBBPFPF u=3.0 pen=0.460
+    [06:55:15] r03 llm=PBBPBBPPPBB opp=BPCBPFPPBBB u=-3.0 pen=0.460
+    [06:55:27] r04 llm=PBPBPBBPBB opp=BBBPPPFBBB u=5.0 pen=0.460
+  [06:55:42] rollout opp=tight-passive (2/3)
+    [06:55:55] r01 llm=PPPPBBPB opp=PPPPPFPF u=2.0 pen=0.460
+    [06:56:10] r02 llm=PBBPBPPPBP opp=BPFPFPPBPP u=0.0 pen=0.460
+    [06:56:22] r03 llm=PBBBPBBP opp=PFPFBBPP u=-2.0 pen=0.460
+    [06:56:37] r04 llm=PBBBBPBBPP opp=BPFPFBPFPP u=2.0 pen=0.460
+  [06:56:54] rollout opp=loose-aggressive (3/3)
+    [06:57:08] r01 llm=PBBPBBBBPBB opp=BBBBBBBBBBB u=-8.0 pen=0.460
+    [06:57:20] r02 llm=BPBPBBBB opp=PPPPBBBB u=8.0 pen=0.460
+    [06:57:34] r03 llm=PBBBBPBBPBB opp=BBBBBBBBBBB u=-13.0 pen=0.460
+    [06:57:49] r04 llm=BBPBCBPPBB opp=PFBBBPPBBB u=-4.0 pen=0.460
+  [06:58:04] rollout opp=nash-approx (1/3)
+    [06:58:18] r01 llm=PBPBBBBPB opp=PCBPFPFPF u=6.0 pen=0.460
+    [06:58:32] r02 llm=PBBPBBPPPB opp=BPFBPCPPPF u=5.0 pen=0.460
+    [06:58:44] r03 llm=BPPBPBBBB opp=PPPFBBBBB u=-3.0 pen=0.460
+    [06:58:56] r04 llm=BBPBBBPBP opp=BBBBBPPPP u=1.0 pen=0.460
+  [06:59:13] rollout opp=tight-passive (2/3)
+    [06:59:25] r01 llm=PBPBPBBP opp=BBPFPFPP u=3.0 pen=0.460
+    [06:59:39] r02 llm=PBBPBBPBPB opp=BPFBPFPFBB u=-3.0 pen=0.460
+    [06:59:52] r03 llm=PBPBBBPPBP opp=BBBPFPPBPP u=-3.0 pen=0.460
+    [07:00:07] r04 llm=PBPBBPBPPBB opp=BPPPFBPPBBB u=-6.0 pen=0.460
+  [07:00:23] rollout opp=loose-aggressive (3/3)
+    [07:00:36] r01 llm=PBBPBBBBBB opp=BBBBBBBBBB u=-10.0 pen=0.460
+    [07:00:49] r02 llm=BBPBPBBPB opp=BBBPPBBPF u=4.0 pen=0.460
+    [07:01:01] r03 llm=PBBPBBPBPBB opp=BBBBBBBPPBB u=-2.0 pen=0.460
+    [07:01:12] r04 llm=BBBBBBBP opp=BBBBBBPP u=4.0 pen=0.460
+  [SEPO refresh] game=kuhn step=30 cumKL=0.121
+  [07:01:28] rollout opp=nash-approx (1/3)
+    [07:02:06] r01 llm=BBBBPBBBB opp=PFBBBBBBB u=-7.0 pen=0.000
+    [07:02:21] r02 llm=BPPBBPBBPBP opp=PPBBBBPFBPP u=-2.0 pen=0.000
+    [07:02:32] r03 llm=PBBPBPBBPB opp=BBBBBBBBBB u=-10.0 pen=0.000
+    [07:02:44] r04 llm=BBBBPBBBB opp=PFBBBBBBB u=1.0 pen=0.000
+  [07:03:01] rollout opp=tight-passive (2/3)
+    [07:03:42] r01 llm=PBPBPBBPBB opp=BPPPPPFBBB u=-6.0 pen=1.140
+    [07:03:56] r02 llm=PBPBBPBBBB opp=PFBPFBPFBB u=-4.0 pen=1.140
+    [07:04:12] r03 llm=PBPBPBBPBB opp=BPPPPPFBPF u=-2.0 pen=1.140
+    [07:04:26] r04 llm=PBBBBPBBPBB opp=BBBBBBPFBPF u=-7.0 pen=1.140
+  [07:04:46] rollout opp=loose-aggressive (3/3)
+    [07:05:13] r01 llm=PBPBBBBPBP opp=BBBBBBBBPP u=-3.0 pen=3.545
+    [07:05:25] r02 llm=BBPPPBFPBB opp=BBPPBBBBBB u=-1.0 pen=3.545
+    [07:05:37] r03 llm=BBPBBPBBB opp=PFBBBBBBB u=-7.0 pen=3.545
+    [07:05:49] r04 llm=PBBBBBBBB opp=BBBPFBBBB u=3.0 pen=3.545
+[07:06:06] Step   30 | loss=-0.002418 | u=-0.559 | e=0.988 | c=0.033 | x=0.454 | kl=0.026540 | pg=-0.007726
+  [07:06:06] rollout opp=nash-approx (1/3)
+    [07:06:19] r01 llm=BBBBPBPBB opp=PFPCPFBPF u=8.0 pen=1.562
+    [07:06:32] r02 llm=PBPBBBPPP opp=BPPPCPPPP u=4.0 pen=1.562
+    [07:06:45] r03 llm=PBBPBBBPBB opp=BPFBBPFBBB u=0.0 pen=1.562
+    [07:06:59] r04 llm=PBPBBPBBPBB opp=PCBPFBPFBBB u=-3.0 pen=1.562
+  [07:07:16] rollout opp=tight-passive (2/3)
+    [07:07:29] r01 llm=PBBBPBBBB opp=BPFPPPFBB u=-1.0 pen=1.562
+    [07:07:41] r02 llm=BBPBBPPBB opp=BBBPFPPBB u=-6.0 pen=1.562
+    [07:07:53] r03 llm=PBBBBBBBB opp=BBBPFBBPF u=-4.0 pen=1.562
+    [07:08:07] r04 llm=PBBPBBBBPP opp=BPFBBBBBPP u=-6.0 pen=1.562
+  [07:08:24] rollout opp=loose-aggressive (3/3)
+    [07:08:40] r01 llm=PBBBCPBBPBB opp=BBBBBBPFBPF u=-3.0 pen=1.562
+    [07:08:53] r02 llm=BPPBBPBBPBB opp=PPBPFBBBBBB u=1.0 pen=1.562
+    [07:09:07] r03 llm=BBPBBPBBBB opp=BBBPFBBBBB u=-6.0 pen=1.562
+    [07:09:19] r04 llm=PBBBBPPBF opp=BBBBBPPBB u=-2.0 pen=1.562
+  [07:09:36] rollout opp=nash-approx (1/3)
+    [07:09:49] r01 llm=PBBBPPPPBB opp=BPFPPPPBPF u=-5.0 pen=1.562
+    [07:10:02] r02 llm=PBBPPBBBC opp=BBBPPPFBB u=-4.0 pen=1.562
+    [07:10:14] r03 llm=BBBPBBBP opp=PFPPBBPP u=4.0 pen=1.562
+    [07:10:27] r04 llm=BPBCPBBPBC opp=PPBBBPFBBB u=-2.0 pen=1.562
+  [07:10:43] rollout opp=tight-passive (2/3)
+    [07:10:55] r01 llm=PBPBPBPBB opp=BBPFBBBBB u=-6.0 pen=1.562
+    [07:11:08] r02 llm=BPPPPBPBB opp=PPPPPFBBB u=2.0 pen=1.562
+    [07:11:20] r03 llm=PBBPPBBPB opp=BBPPBPFPF u=-3.0 pen=1.562
+    [07:11:35] r04 llm=PBBPBBBBBP opp=BPFBPFBBPP u=-1.0 pen=1.562
+  [07:11:53] rollout opp=loose-aggressive (3/3)
+    [07:12:08] r01 llm=PBPPBBBBPBB opp=BPPBPFBBBPF u=-4.0 pen=1.562
+    [07:12:22] r02 llm=PBBPBBPBBB opp=BPFBPFBBBB u=-4.0 pen=1.562
+    [07:12:38] r03 llm=BBPBBPBFPBB opp=PFBBBBBBBPF u=-5.0 pen=1.562
+    [07:12:50] r04 llm=BBPBBPPPBB opp=BBBBBPPBBB u=-2.0 pen=1.562
+  [07:13:09] rollout opp=nash-approx (1/3)
+    [07:13:23] r01 llm=PBPPPPPPBB opp=BPPPPPPBBB u=-9.0 pen=1.562
+    [07:13:37] r02 llm=PPPBPPBBPB opp=PPBPPBBBPF u=1.0 pen=1.562
+    [07:13:51] r03 llm=PBBPBPBPBB opp=BPFBBBBBPC u=-3.0 pen=1.562
+    [07:14:04] r04 llm=BBBBBPPBB opp=BBPFPPBBB u=1.0 pen=1.562
+  [07:14:21] rollout opp=tight-passive (2/3)
+    [07:14:34] r01 llm=BBBPBPPBB opp=PFPPPPBBB u=0.0 pen=1.562
+    [07:14:46] r02 llm=PPPBPBBBB opp=PPBBBPFPF u=-3.0 pen=1.562
+    [07:14:58] r03 llm=BBBPBBBP opp=BBPPPFPP u=3.0 pen=1.562
+    [07:15:10] r04 llm=PBPBPPBBP opp=BPPPPPFPP u=2.0 pen=1.562
+  [07:15:26] rollout opp=loose-aggressive (3/3)
+    [07:15:38] r01 llm=PBPPBBPPBB opp=BPPBBPPBBB u=-7.0 pen=1.562
+    [07:15:50] r02 llm=PBBPBBBBPP opp=BBBBBBBBPP u=2.0 pen=1.562
+    [07:16:01] r03 llm=PPBBPBPB opp=PPPFBBBB u=-1.0 pen=1.562
+    [07:16:14] r04 llm=PBPPBPBBPBB opp=BPPBPPBBBBB u=-3.0 pen=1.562
+  [07:16:29] rollout opp=nash-approx (1/3)
+    [07:16:41] r01 llm=PBBBBPBFBB opp=BBBBBBBBPF u=-6.0 pen=1.562
+    [07:16:54] r02 llm=BPBBPBBPBB opp=PPPFBPCBBB u=-1.0 pen=1.562
+    [07:17:07] r03 llm=BPPBBBBPBP opp=PPBBBBBBPP u=-3.0 pen=1.562
+    [07:17:20] r04 llm=PBBBBBPPBB opp=BPCBBPPBBB u=-5.0 pen=1.562
+  [07:17:39] rollout opp=tight-passive (2/3)
+    [07:17:51] r01 llm=PPBBPPBB opp=PPPFPPPF u=2.0 pen=1.562
+    [07:18:03] r02 llm=PBPBBBPBP opp=BBPFBBBPP u=-3.0 pen=1.562
+    [07:18:16] r03 llm=BBPBPBCPP opp=PFBPPBBPP u=-5.0 pen=1.562
+    [07:18:30] r04 llm=PPPBPPBBPB opp=PPBPPBPFPF u=-2.0 pen=1.562
+  [07:18:45] rollout opp=loose-aggressive (3/3)
+    [07:18:56] r01 llm=BBPBBBBB opp=BBBBBBBB u=-3.0 pen=1.562
+    [07:19:09] r02 llm=BBPBPBBBB opp=PFPFBBBBB u=3.0 pen=1.562
+    [07:19:24] r03 llm=BBPBBBBPBB opp=BBBPFPFBPF u=3.0 pen=1.562
+    [07:19:37] r04 llm=PBBPBBBBBB opp=BBBBBBBBBB u=0.0 pen=1.562
+  [SEPO refresh] game=kuhn step=35 cumKL=0.239
+  [07:19:52] rollout opp=nash-approx (1/3)
+    [07:20:27] r01 llm=BPPBPBBBB opp=PPBPPBBBB u=-3.0 pen=0.818
+    [07:20:42] r02 llm=BBPBBPBBBB opp=PFBPCBBBPC u=1.0 pen=0.818
+    [07:20:54] r03 llm=BBPBPBPPP opp=BBPFBPPPP u=-3.0 pen=0.818
+    [07:21:09] r04 llm=PBBBPBBPBB opp=BBBPPPCBBB u=-8.0 pen=0.818
+  [07:21:26] rollout opp=tight-passive (2/3)
+    [07:22:03] r01 llm=PBPBPBBB opp=BBPFPFBB u=2.0 pen=1.200
+    [07:22:17] r02 llm=PBPPBPPPPP opp=BPPBPPPPPP u=-4.0 pen=1.200
+    [07:22:29] r03 llm=BPPBBPFPF opp=PPBBBBBBB u=-11.0 pen=1.200
+    [07:22:41] r04 llm=BPBPPBPP opp=PPPPPFPP u=6.0 pen=1.200
+  [07:22:56] rollout opp=loose-aggressive (3/3)
+    [07:23:20] r01 llm=PBPBBBBBB opp=BPPBBBBPF u=-4.0 pen=0.000
+    [07:23:33] r02 llm=PBPPBBBPCB opp=BPPPFBBBBB u=1.0 pen=0.000
+    [07:23:44] r03 llm=BPBBBBPBB opp=PPBBBBBBB u=-7.0 pen=0.000
+    [07:23:56] r04 llm=BBBBPBBPP opp=BBBBBBBPP u=-3.0 pen=0.000
+[07:24:13] Step   35 | loss=0.007940 | u=-0.176 | e=0.448 | c=0.000 | x=0.336 | kl=0.041481 | pg=-0.000356
+  [07:24:13] rollout opp=nash-approx (1/3)
+    [07:24:26] r01 llm=BBPBPBBB opp=PFPFPCPC u=8.0 pen=0.673
+    [07:24:39] r02 llm=PBPBBPBPBB opp=BBBPFPFBBB u=-6.0 pen=0.673
+    [07:24:53] r03 llm=PBPPBPBBBP opp=BPPBPPBBPP u=1.0 pen=0.673
+    [07:25:08] r04 llm=BPPBPPBBPB opp=PPBPPBPFPC u=-4.0 pen=0.673
+  [07:25:23] rollout opp=tight-passive (2/3)
+    [07:25:35] r01 llm=PBPBBPBBBB opp=BBBBBBBBBB u=-10.0 pen=0.673
+    [07:25:49] r02 llm=PPPBBBBBP opp=PPBPFPFPP u=-2.0 pen=0.673
+    [07:26:00] r03 llm=BBPBBBBPBB opp=BBBBBPFBBB u=-7.0 pen=0.673
+    [07:26:14] r04 llm=PPBBPPPBP opp=PPPFPPBPP u=-1.0 pen=0.673
+  [07:26:31] rollout opp=loose-aggressive (3/3)
+    [07:26:45] r01 llm=BBBPPBBPBB opp=BBPPBBBBBB u=-6.0 pen=0.673
+    [07:26:58] r02 llm=BBBBPBBPBB opp=BBBBBPFBBB u=-3.0 pen=0.673
+    [07:27:11] r03 llm=PBPBBPBBBC opp=PFBBBBBBBB u=-2.0 pen=0.673
+    [07:27:22] r04 llm=BBPBBBBPP opp=BBBBBBBPP u=-6.0 pen=0.673
+  [07:27:39] rollout opp=nash-approx (1/3)
+    [07:27:52] r01 llm=PBPBBBBBB opp=BPPPFPFBB u=2.0 pen=0.673
+    [07:28:06] r02 llm=BBBBPBBBP opp=BBPCBPCPP u=7.0 pen=0.673
+    [07:28:20] r03 llm=PBBPBPBBPBP opp=BBBBBBPCBPP u=-6.0 pen=0.673
+    [07:28:32] r04 llm=BPPBFPPBB opp=PPBBBPPBB u=2.0 pen=0.673
+  [07:28:50] rollout opp=tight-passive (2/3)
+    [07:29:03] r01 llm=BBBPPBBPP opp=PFPPBBBPP u=-2.0 pen=0.673
+    [07:29:17] r02 llm=PBBPBPPPBP opp=BBBPFPPBPP u=-5.0 pen=0.673
+    [07:29:30] r03 llm=PBPBBPBB opp=PFBBPPPF u=5.0 pen=0.673
+    [07:29:41] r04 llm=PPBBPBPP opp=PPBBBBPP u=0.0 pen=0.673
+  [07:29:56] rollout opp=loose-aggressive (3/3)
+    [07:30:12] r01 llm=PBPBBPBBPBB opp=BBBPFBPFBBB u=-7.0 pen=0.673
+    [07:30:23] r02 llm=PPBBPBBBB opp=PPBBBBBBB u=5.0 pen=0.673
+    [07:30:38] r03 llm=PBBPBPBBBB opp=BPFBPPBBPF u=-1.0 pen=0.673
+    [07:30:47] r04 llm=BBPBBFPF opp=BBBBBBBB u=-5.0 pen=0.673
+  [07:31:03] rollout opp=nash-approx (1/3)
+    [07:31:17] r01 llm=BBPBBPBPBB opp=PFBPFBPPBB u=-3.0 pen=0.673
+    [07:31:29] r02 llm=PBBPBBBPB opp=BPFBBBBPC u=-1.0 pen=0.673
+    [07:31:40] r03 llm=PCBBPBBPB opp=BBPFBBBBB u=4.0 pen=0.673
+    [07:31:54] r04 llm=PBBBBBPPBB opp=BPFPFPPBPF u=-3.0 pen=0.673
+  [07:32:12] rollout opp=tight-passive (2/3)
+    [07:32:27] r01 llm=PBPPBBBPPB opp=BPPBPFPPPF u=0.0 pen=0.673
+    [07:32:39] r02 llm=BBPBPBBPB opp=PFPFBBBBB u=-6.0 pen=0.673
+    [07:32:52] r03 llm=BBBPBPPP opp=PFPPPPPP u=8.0 pen=0.673
+    [07:33:03] r04 llm=BBBPPBBP opp=BBPPBBPP u=-2.0 pen=0.673
+  [07:33:19] rollout opp=loose-aggressive (3/3)
+    [07:33:32] r01 llm=PBBBPBBPBB opp=BBBBBBBBPF u=-7.0 pen=0.673
+    [07:33:43] r02 llm=PCBPPBBPBB opp=BBPPBBBBBB u=1.0 pen=0.673
+    [07:33:56] r03 llm=PBBBBPBBBB opp=BBBBBBBBBB u=-9.0 pen=0.673
+    [07:34:09] r04 llm=BBPBPBBPB opp=BBBBBBBBB u=-6.0 pen=0.673
+  [07:34:26] rollout opp=nash-approx (1/3)
+    [07:34:41] r01 llm=BBBBPBBPBF opp=PFPFBBBBBB u=-3.0 pen=0.673
+    [07:34:55] r02 llm=PBBBBPBBPBP opp=BBBPCBBBBPP u=-9.0 pen=0.673
+    [07:35:07] r03 llm=PBBBPPPBB opp=PFBBPPBPF u=-2.0 pen=0.673
+    [07:35:21] r04 llm=PBBBPBPBB opp=BBBBPFBPC u=-4.0 pen=0.673
+  [07:35:38] rollout opp=tight-passive (2/3)
+    [07:35:51] r01 llm=PPBBPBBPP opp=PPBBBBBPP u=-7.0 pen=0.673
+    [07:36:06] r02 llm=PBBPBBBBBB opp=BPFBPFPFBB u=-1.0 pen=0.673
+    [07:36:19] r03 llm=PBBBPBBPB opp=BBBPPPFPF u=0.0 pen=0.673
+    [07:36:32] r04 llm=BPPBBPBP opp=PPBBPPPP u=1.0 pen=0.673
+  [07:36:47] rollout opp=loose-aggressive (3/3)
+    [07:36:59] r01 llm=BBBBBBBB opp=PFBBBBBB u=5.0 pen=0.673
+    [07:37:10] r02 llm=BBBBBPPB opp=BBBBPPBB u=1.0 pen=0.673
+    [07:37:22] r03 llm=PBBPBBPBF opp=BBPPBBBBB u=-2.0 pen=0.673
+    [07:37:36] r04 llm=PBBPBBPFBPBP opp=BBBBBBBBBBPP u=-12.0 pen=0.673
+  [SEPO refresh] game=kuhn step=40 cumKL=0.264
+  [07:37:52] rollout opp=nash-approx (1/3)
+    [07:38:30] r01 llm=BBPPBPBP opp=BBPPPPPP u=-1.0 pen=0.000
+    [07:38:43] r02 llm=BPPBBPPBB opp=PPBPFPPPF u=-4.0 pen=0.000
+    [07:38:55] r03 llm=BBPBPBPBP opp=BBPFBBBPP u=2.0 pen=0.000
+    [07:39:09] r04 llm=PBPPBPBBPB opp=BPPBBBBBBB u=-3.0 pen=0.000
+  [07:39:24] rollout opp=tight-passive (2/3)
+    [07:40:00] r01 llm=PBPBPBBPP opp=BPPPPBBPP u=-5.0 pen=0.240
+    [07:40:12] r02 llm=PBBBPBCBB opp=BBPFBBBPF u=-3.0 pen=0.240
+    [07:40:26] r03 llm=PBPBPPBPPP opp=PFBPPBPPPP u=-8.0 pen=0.240
+    [07:40:41] r04 llm=PBPPPBPPBP opp=PFPPBPPBPP u=-6.0 pen=0.240
+  [07:40:58] rollout opp=loose-aggressive (3/3)
+    [07:41:23] r01 llm=PBBBBPBBPBB opp=BBBBBBBBBBB u=-5.0 pen=0.600
+    [07:41:35] r02 llm=BBBFBBBB opp=BBBBPFBB u=3.0 pen=0.600
+    [07:41:47] r03 llm=PBBBBPBBPBB opp=BBBBBBBBBBB u=-4.0 pen=0.600
+    [07:41:57] r04 llm=PBFPFPCBB opp=BBBBBBBBB u=-4.0 pen=0.600
+[07:42:12] Step   40 | loss=0.022227 | u=-0.378 | e=0.133 | c=0.033 | x=0.324 | kl=0.065207 | pg=0.009186
+  [07:42:12] rollout opp=nash-approx (1/3)
+    [07:42:24] r01 llm=PBPPBPPBB opp=BBPPPPBBB u=-3.0 pen=0.280
+    [07:42:36] r02 llm=BBPBPBPB opp=PFPFBBBB u=-5.0 pen=0.280
+    [07:42:50] r03 llm=BBPBPPBBPBB opp=BBBPPBBBBPC u=-6.0 pen=0.280
+    [07:43:03] r04 llm=PBBBBPBBBB opp=BBBBBBPFBB u=-5.0 pen=0.280
+  [07:43:18] rollout opp=tight-passive (2/3)
+    [07:43:30] r01 llm=PPBBPCPBP opp=PPBBBBBPP u=-5.0 pen=0.280
+    [07:43:44] r02 llm=BBPBPPBBPB opp=BBBPPBPFBB u=-6.0 pen=0.280
+    [07:43:58] r03 llm=BPPBBPBBPB opp=PPBPFBPFPF u=0.0 pen=0.280
+    [07:44:11] r04 llm=BPBBPBPBB opp=PPBBPFBBB u=-8.0 pen=0.280
+  [07:44:28] rollout opp=loose-aggressive (3/3)
+    [07:44:41] r01 llm=BBBPBBPBB opp=PFPPBBBBB u=-1.0 pen=0.280
+    [07:44:57] r02 llm=PBBBBPBBPBP opp=BBBPFBBBBPP u=-3.0 pen=0.280
+    [07:45:09] r03 llm=PBPBFPBBPB opp=BBBBBBBBBB u=-9.0 pen=0.280
+    [07:45:21] r04 llm=BBBCPBCBB opp=BBBBBBBBB u=-6.0 pen=0.280
+  [07:45:38] rollout opp=nash-approx (1/3)
+    [07:45:53] r01 llm=PBPBBPBPBB opp=BPPPFPFBBB u=2.0 pen=0.280
+    [07:46:03] r02 llm=PBBPBPBPB opp=BBBBBBBBB u=-11.0 pen=0.280
+    [07:46:17] r03 llm=BBBBPBBPBB opp=BBBBBPFBBB u=-3.0 pen=0.280
+    [07:46:32] r04 llm=PBBBPBBPBP opp=BPCPPPFBPP u=3.0 pen=0.280
+  [07:46:50] rollout opp=tight-passive (2/3)
+    [07:47:04] r01 llm=BPPPPBBBP opp=PPPPBPFPP u=-4.0 pen=0.280
+    [07:47:17] r02 llm=PBBBBBPPBP opp=BBBPFPPBPP u=-3.0 pen=0.280
+    [07:47:32] r03 llm=BBPBPPBPPBP opp=BBBPPBPPBPP u=-8.0 pen=0.280
+    [07:47:46] r04 llm=PPPBBBBPBP opp=PPBPFBBBPP u=-3.0 pen=0.280
+  [07:48:04] rollout opp=loose-aggressive (3/3)
+    [07:48:17] r01 llm=PBPBBPBBPBB opp=BBBBBBBBBPF u=-2.0 pen=0.280
+    [07:48:27] r02 llm=PPPBPBBBF opp=PPBBBBBBB u=-6.0 pen=0.280
+    [07:48:41] r03 llm=PBPBPBBPBB opp=BBPFBBBBPF u=-4.0 pen=0.280
+    [07:48:54] r04 llm=PBBBPPCBPC opp=BPFPPBBBBB u=1.0 pen=0.280
+  [07:49:11] rollout opp=nash-approx (1/3)
+    [07:49:26] r01 llm=PBBPBBPBPBB opp=BBBBBBBPPPF u=-7.0 pen=0.280
+    [07:49:37] r02 llm=PBBPBBBB opp=PCPPBBBB u=-2.0 pen=0.280
+    [07:49:48] r03 llm=BBBPBBPBB opp=BBPPBBBBB u=3.0 pen=0.280
+    [07:50:00] r04 llm=PBBBBBBP opp=BBPFPFPP u=6.0 pen=0.280
+  [07:50:15] rollout opp=tight-passive (2/3)
+    [07:50:27] r01 llm=PBPBBBBBB opp=PFBBBBBPF u=-1.0 pen=0.280
+    [07:50:38] r02 llm=BPPPBBPB opp=PPPPBBBB u=0.0 pen=0.280
+    [07:50:53] r03 llm=BBPBPPBBPBP opp=PFBPPBPFBPP u=-3.0 pen=0.280
+    [07:51:05] r04 llm=PBBBBBBBP opp=BPFBBBBPP u=-1.0 pen=0.280
+  [07:51:21] rollout opp=loose-aggressive (3/3)
+    [07:51:37] r01 llm=PBPPBBPBBPBB opp=BPPBBBBBBBBB u=-13.0 pen=0.280
+    [07:51:51] r02 llm=BBPBBPBBBB opp=BBBBBBPFBB u=-2.0 pen=0.280
+    [07:52:03] r03 llm=BBBBPBBPB opp=PFBBBPFBB u=1.0 pen=0.280
+    [07:52:14] r04 llm=BBBFPBBPBB opp=BBBBBBBBBB u=3.0 pen=0.280
+  [07:52:31] rollout opp=nash-approx (1/3)
+    [07:52:44] r01 llm=PBBBPBBPBB opp=BPFPPPFBPF u=2.0 pen=0.280
+    [07:52:56] r02 llm=BBBCBPBB opp=BBBBPPPF u=9.0 pen=0.280
+    [07:53:08] r03 llm=PBBBBBBPB opp=BBBPFBBBB u=-3.0 pen=0.280
+    [07:53:19] r04 llm=BBBCPBCPBB opp=BBBBBBBBBB u=-9.0 pen=0.280
+  [07:53:34] rollout opp=tight-passive (2/3)
+    [07:53:46] r01 llm=BBBBPPPB opp=PFPFPPBB u=1.0 pen=0.280
+    [07:53:58] r02 llm=BPBBBPPB opp=PPPFPPPF u=6.0 pen=0.280
+    [07:54:11] r03 llm=BPBBPBBPBB opp=PPBBBBBBPF u=-6.0 pen=0.280
+    [07:54:24] r04 llm=BBPPPBBPB opp=PFPPBBBPF u=-2.0 pen=0.280
+  [07:54:40] rollout opp=loose-aggressive (3/3)
+    [07:54:54] r01 llm=PBBPBBPBBPB opp=BBBBBBBBBPF u=-10.0 pen=0.280
+    [07:55:05] r02 llm=BBBBPBBB opp=BBBBBBPF u=0.0 pen=0.280
+    [07:55:20] r03 llm=PBBBBBBPBB opp=BBBPFBBBBB u=-6.0 pen=0.280
+    [07:55:34] r04 llm=PBBBBPBPBB opp=BPFBBBPPBB u=-10.0 pen=0.280
+  [SEPO refresh] game=kuhn step=45 cumKL=0.369
+  [07:55:50] rollout opp=nash-approx (1/3)
+    [07:56:28] r01 llm=BBBBPPPBB opp=BBBBPPBBB u=-11.0 pen=2.333
+    [07:56:40] r02 llm=BPBPBPPP opp=PPPPPPPP u=6.0 pen=2.333
+    [07:56:53] r03 llm=BBPPPBPPC opp=PFPPBPPBB u=0.0 pen=2.333
+    [07:57:05] r04 llm=PBPBPPBBBB opp=BPPPPBBBBB u=0.0 pen=2.333
+  [07:57:20] rollout opp=tight-passive (2/3)
+    [07:58:02] r01 llm=BBPBPBPBP opp=PFPFBPPPP u=-1.0 pen=1.750
+    [07:58:14] r02 llm=PBBBBBBB opp=PFPFBBBB u=0.0 pen=1.750
+    [07:58:25] r03 llm=PBBBBPBBB opp=BPFBBBBBB u=-4.0 pen=1.750
+    [07:58:38] r04 llm=PBPPBPBPBB opp=BPPPFBBBBB u=-6.0 pen=1.750
+  [07:58:53] rollout opp=loose-aggressive (3/3)
+    [07:59:20] r01 llm=PBBBBPBBPB opp=BBBPFBBBBB u=1.0 pen=2.182
+    [07:59:32] r02 llm=PBPPBPBPP opp=BPPBBBBPP u=3.0 pen=2.182
+    [07:59:47] r03 llm=PBPBBPBBPBB opp=BPPBBBBBBPF u=-7.0 pen=2.182
+    [08:00:00] r04 llm=PBPBBBPPB opp=BBBPFPPBB u=0.0 pen=2.182
+[08:00:18] Step   45 | loss=0.011201 | u=-0.411 | e=1.392 | c=0.000 | x=0.399 | kl=0.073655 | pg=-0.003530
+  [08:00:18] rollout opp=nash-approx (1/3)
+    [08:00:32] r01 llm=PBPBBPBPPBB opp=PFBBBBPPBBB u=-7.0 pen=2.088
+    [08:00:43] r02 llm=BBPBPBBB opp=BBPFBBBB u=3.0 pen=2.088
+    [08:00:56] r03 llm=PPBBPBPP opp=PPPFPCPP u=1.0 pen=2.088
+    [08:01:10] r04 llm=PBBBPBBPBP opp=PFPFBBBBPP u=-5.0 pen=2.088
+  [08:01:26] rollout opp=tight-passive (2/3)
+    [08:01:38] r01 llm=BBPPPBPB opp=PFPPPFPF u=8.0 pen=2.088
+    [08:01:50] r02 llm=BPBBPBPB opp=PPBBPFPF u=1.0 pen=2.088
+    [08:02:05] r03 llm=PBBPBBPBBBB opp=BPFBPFBBBPF u=-4.0 pen=2.088
+    [08:02:18] r04 llm=BBPPPBPBB opp=BBPPPFBPF u=-2.0 pen=2.088
+  [08:02:33] rollout opp=loose-aggressive (3/3)
+    [08:02:45] r01 llm=BBPCCBCPBB opp=BBBBBBBBBB u=-2.0 pen=2.088
+    [08:02:57] r02 llm=BBBBPBBPB opp=BBBBBBBBB u=-1.0 pen=2.088
+    [08:03:07] r03 llm=BBPPBBPB opp=BBPPBBPF u=3.0 pen=2.088
+    [08:03:20] r04 llm=PBBPCBBBBB opp=BBBBBBPFBB u=-2.0 pen=2.088
+  [08:03:36] rollout opp=nash-approx (1/3)
+    [08:03:48] r01 llm=PBPPPBPB opp=PFPPPCBB u=4.0 pen=2.088
+    [08:04:01] r02 llm=PBBPPBBBP opp=BBPPBBBPP u=-1.0 pen=2.088
+    [08:04:14] r03 llm=BBPBBPBBPB opp=PFBBBBBBPF u=0.0 pen=2.088
+    [08:04:29] r04 llm=PBBBBPCBPB opp=BBBPFBPFBB u=-5.0 pen=2.088
+  [08:04:44] rollout opp=tight-passive (2/3)
+    [08:04:59] r01 llm=PBBPBBPBBBB opp=BBBBBBBPFPF u=-7.0 pen=2.088
+    [08:05:12] r02 llm=PBPBPBBPBP opp=PFBBBPFBPP u=-3.0 pen=2.088
+    [08:05:25] r03 llm=BBBBPBBPP opp=PFPFBBBPP u=0.0 pen=2.088
+    [08:05:38] r04 llm=BBPBBPPPBP opp=PFBBBPPBPP u=-3.0 pen=2.088
+  [08:05:56] rollout opp=loose-aggressive (3/3)
+    [08:06:07] r01 llm=BBPBBBBBB opp=BBBBBBBBB u=-6.0 pen=2.088
+    [08:06:18] r02 llm=PBBBPBPPBB opp=BBBBBPPBBB u=1.0 pen=2.088
+    [08:06:31] r03 llm=PBBPBBPBBPBF opp=BBBBBBBBBBBB u=-11.0 pen=2.088
+    [08:06:45] r04 llm=PBBPFBBBPBB opp=BBBBPFBBBBB u=-4.0 pen=2.088
+  [08:07:02] rollout opp=nash-approx (1/3)
+    [08:07:13] r01 llm=PBBBBBCBP opp=BBBPFBBPP u=5.0 pen=2.088
+    [08:07:24] r02 llm=PBBPBBBPB opp=BPFBBBBBB u=0.0 pen=2.088
+    [08:07:36] r03 llm=PBPBBBBPB opp=PFBPFPFBB u=2.0 pen=2.088
+    [08:07:50] r04 llm=PBBPBPPBPPB opp=BPFBPPBPPBB u=-2.0 pen=2.088
+  [08:08:08] rollout opp=tight-passive (2/3)
+    [08:08:20] r01 llm=BBBBPCBP opp=PFPFBBPP u=1.0 pen=2.088
+    [08:08:32] r02 llm=BPPBBBPB opp=PPBBBBPF u=0.0 pen=2.088
+    [08:08:44] r03 llm=BBBPPBBP opp=PFPPPFPP u=2.0 pen=2.088
+    [08:08:56] r04 llm=BBPBPBBB opp=PFPFPFBB u=3.0 pen=2.088
+  [08:09:12] rollout opp=loose-aggressive (3/3)
+    [08:09:23] r01 llm=PBBBBPBBB opp=BBBBBBBBB u=-3.0 pen=2.088
+    [08:09:36] r02 llm=PBBPPPFPBB opp=BPFPPBPPPF u=3.0 pen=2.088
+    [08:09:49] r03 llm=PBBPBBPBFPCB opp=BBBBBBBBBBBB u=-3.0 pen=2.088
+    [08:10:02] r04 llm=PBBBBPBBBB opp=BBBBBBPFBB u=-3.0 pen=2.088
+  [08:10:20] rollout opp=nash-approx (1/3)
+    [08:10:32] r01 llm=BBPBPBPBB opp=BBPCBPPBB u=-9.0 pen=2.088
+    [08:10:44] r02 llm=PPBBPBBPB opp=PPBBBBBBB u=0.0 pen=2.088
+    [08:10:58] r03 llm=PBBPBPBBBP opp=BPFBPPPCPP u=-1.0 pen=2.088
+    [08:11:12] r04 llm=PBBBBPBBPB opp=BPFPFBPFBB u=7.0 pen=2.088
+  [08:11:29] rollout opp=tight-passive (2/3)
+    [08:11:42] r01 llm=BBBBBPBB opp=PFBBPPPF u=5.0 pen=2.088
+    [08:11:56] r02 llm=BBBFPBBPBP opp=PFBBBPFBPP u=-2.0 pen=2.088
+    [08:12:09] r03 llm=PBPBPPBBBB opp=BBBPPBBBBB u=-9.0 pen=2.088
+    [08:12:22] r04 llm=PBBPBPPPBB opp=BPFPFPPBBB u=-1.0 pen=2.088
+  [08:12:38] rollout opp=loose-aggressive (3/3)
+    [08:12:51] r01 llm=PBBPBBPBBBB opp=BBBBBBBBBBB u=-12.0 pen=2.088
+    [08:13:03] r02 llm=BBPBPPBPPP opp=BBBPPBPPPP u=4.0 pen=2.088
+    [08:13:16] r03 llm=BBPBBBBBB opp=BBBBBBBPF u=1.0 pen=2.088
+    [08:13:30] r04 llm=PBBPFPBBPBB opp=BBBBBBBBBBB u=-12.0 pen=2.088
+  [SEPO refresh] game=kuhn step=50 cumKL=0.428
+  [08:13:48] rollout opp=nash-approx (1/3)
+    [08:14:25] r01 llm=PBBBPBBPP opp=BBPFBPFPP u=-3.0 pen=1.800
+    [08:14:38] r02 llm=PBBBBBPPB opp=BBBPFPPPF u=6.0 pen=1.800
+    [08:14:51] r03 llm=BPPBCPPPBP opp=PPBBBPPBPP u=-3.0 pen=1.800
+    [08:15:03] r04 llm=BBPBBPBPB opp=BBBPCBBBB u=0.0 pen=1.800
+  [08:15:20] rollout opp=tight-passive (2/3)
+    [08:15:56] r01 llm=PBPBBPBBBP opp=BPPBBBBBPP u=-6.0 pen=1.000
+    [08:16:09] r02 llm=BBBBPPPBB opp=PFPFPPBPF u=3.0 pen=1.000
+    [08:16:20] r03 llm=PBBPBBBP opp=BBPPBBPP u=-3.0 pen=1.000
+    [08:16:34] r04 llm=BPBPPBPBB opp=PPPPBPPBB u=2.0 pen=1.000
+  [08:16:49] rollout opp=loose-aggressive (3/3)
+    [08:17:13] r01 llm=PBPBBPCPB opp=PFBPFBBBB u=3.0 pen=2.000
+    [08:17:27] r02 llm=BBPPPBBPBB opp=BBPPBBBBPF u=-7.0 pen=2.000
+    [08:17:38] r03 llm=BBPBBBPBP opp=BBBBBBBPP u=9.0 pen=2.000
+    [08:17:54] r04 llm=PBBPBBPBFPBB opp=BBBBBBBBBBPF u=-12.0 pen=2.000
+[08:18:11] Step   50 | loss=0.021707 | u=-0.200 | e=1.067 | c=0.000 | x=0.374 | kl=0.154157 | pg=-0.009125
+  → Saved checkpoint: grpo_gemma4_kuhn/step_0050
+  [08:18:11] rollout opp=nash-approx (1/3)
+    [08:18:23] r01 llm=PBPBBBCPB opp=BBBBBBBBB u=-3.0 pen=1.600
+    [08:18:36] r02 llm=PBBBBPBBBB opp=BBBPFBBBBB u=-7.0 pen=1.600
+    [08:18:48] r03 llm=BPBCBBBB opp=PPBBPFPC u=3.0 pen=1.600
+    [08:19:00] r04 llm=BBBPPPPB opp=PFPPPPBB u=-1.0 pen=1.600
+  [08:19:16] rollout opp=tight-passive (2/3)
+    [08:19:29] r01 llm=BPPBBBPPP opp=PPBPFPPPP u=1.0 pen=1.600
+    [08:19:43] r02 llm=BBPBPBPCB opp=PFPFPFBBB u=-2.0 pen=1.600
+    [08:19:58] r03 llm=PBPBBBPPBP opp=BPPPFPPBPP u=-4.0 pen=1.600
+    [08:20:10] r04 llm=PPPBBBBB opp=PPPFBBPF u=3.0 pen=1.600
+  [08:20:26] rollout opp=loose-aggressive (3/3)
+    [08:20:41] r01 llm=PBPPBBPBPBP opp=BPPBBBPFBPP u=0.0 pen=1.600
+    [08:20:56] r02 llm=BBPBBPBBPBB opp=BBBBBBBBBPF u=-10.0 pen=1.600
+    [08:21:07] r03 llm=BCBBBBPBC opp=BBBBBBBBB u=-2.0 pen=1.600
+    [08:21:19] r04 llm=BBBBPBPPB opp=BBPFBPPBB u=4.0 pen=1.600
+  [08:21:37] rollout opp=nash-approx (1/3)
+    [08:21:48] r01 llm=PBCPBBBBPB opp=BBBBBBBBBB u=-2.0 pen=1.600
+    [08:22:01] r02 llm=BBBBPBPBP opp=BBBBPFBPP u=-1.0 pen=1.600
+    [08:22:13] r03 llm=BPBPBBBP opp=PPPPBBPP u=2.0 pen=1.600
+    [08:22:24] r04 llm=BPPPPBPF opp=PPPPBBBB u=1.0 pen=1.600
+  [08:22:40] rollout opp=tight-passive (2/3)
+    [08:22:53] r01 llm=PBBBPBBBB opp=BBBBBBBPF u=-9.0 pen=1.600
+    [08:23:06] r02 llm=PBBBPPFPBP opp=BBBPPBBBPP u=-5.0 pen=1.600
+    [08:23:20] r03 llm=PBBPBBPBPBP opp=BBBBPFPFBPP u=-6.0 pen=1.600
+    [08:23:34] r04 llm=BPBBBBPBB opp=PPPFPFBBB u=-1.0 pen=1.600
+  [08:23:52] rollout opp=loose-aggressive (3/3)
+    [08:24:02] r01 llm=BBPPBBPBB opp=BBPPBBBBB u=1.0 pen=1.600
+    [08:24:14] r02 llm=PBPPPBBBB opp=BPPPPPFBB u=0.0 pen=1.600
+    [08:24:27] r03 llm=PBBPBBBBPBF opp=BBBBBBBBBBB u=-12.0 pen=1.600
+    [08:24:41] r04 llm=PBPPBBBBBB opp=BPPBPFBBBB u=-3.0 pen=1.600
+  [08:24:58] rollout opp=nash-approx (1/3)
+    [08:25:10] r01 llm=PBBBBBBBB opp=BBBBBBBBB u=-3.0 pen=1.600
+    [08:25:24] r02 llm=PBBPBPBBBB opp=BBBBBBPFBB u=-7.0 pen=1.600
+    [08:25:39] r03 llm=PBBPPPBBBP opp=BPCPPBPFPP u=-3.0 pen=1.600
+    [08:25:53] r04 llm=BBPBBPFPBP opp=BBBPCBPPPP u=1.0 pen=1.600
+  [08:26:11] rollout opp=tight-passive (2/3)
+    [08:26:26] r01 llm=PBPPBPBPBB opp=BPPBPPPPPF u=0.0 pen=1.600
+    [08:26:39] r02 llm=PBPBBBPBB opp=BPPBBPPBB u=-3.0 pen=1.600
+    [08:26:53] r03 llm=BFPBBPBBB opp=BBBBBPFPF u=-2.0 pen=1.600
+    [08:27:11] r04 llm=PBBPBPPBPPBB opp=BBBBPPBPPBBB u=-14.0 pen=1.600
+  [08:27:29] rollout opp=loose-aggressive (3/3)
+    [08:27:40] r01 llm=BBBBBPBB opp=BBBBPPBB u=1.0 pen=1.600
+    [08:27:51] r02 llm=PCPBBPCBB opp=BBBBBBBBB u=-3.0 pen=1.600
+    [08:28:04] r03 llm=BBPBBPBBPB opp=PFBBBBBBBB u=-3.0 pen=1.600
+    [08:28:17] r04 llm=PBBBPBBPB opp=BBPFBBBBB u=-7.0 pen=1.600
+  [SEPO refresh] game=kuhn step=54 cumKL=0.550
+  [08:28:32] rollout opp=nash-approx (1/3)
+    [08:29:11] r01 llm=BBBPPBBPBP opp=BBPPBPCBPP u=6.0 pen=0.600
+    [08:29:26] r02 llm=PBBPBBBPPBB opp=BBBBBBPPBPF u=-12.0 pen=0.600
+    [08:29:38] r03 llm=PBPBBBBBP opp=BBBPFBBPP u=-3.0 pen=0.600
+    [08:29:53] r04 llm=PBPPBBPBBBP opp=BPPBPFBBBPP u=-1.0 pen=0.600
+  [08:30:10] rollout opp=tight-passive (2/3)
+    [08:30:45] r01 llm=PBPBBBBPB opp=BBBBBPFBB u=-4.0 pen=0.375
+    [08:30:58] r02 llm=PBBPBBPB opp=PFPPBBPF u=1.0 pen=0.375
+    [08:31:09] r03 llm=PBBPCBBPBB opp=BBBBBPFBBB u=-7.0 pen=0.375
+    [08:31:23] r04 llm=BBBBPBBBB opp=PFBBBPFBB u=-1.0 pen=0.375
+  [08:31:38] rollout opp=loose-aggressive (3/3)
+    [08:32:03] r01 llm=PBPPBBPPBB opp=BPPBBPPBBB u=1.0 pen=3.000
+    [08:32:19] r02 llm=PBBPBBBBPBB opp=BPFBPFBBBBB u=-10.0 pen=3.000
+    [08:32:35] r03 llm=PBBBBPBCPBP opp=BPFPFBBBBPP u=-3.0 pen=3.000
+    [08:32:47] r04 llm=PBBPBBBPB opp=BBBBBPFPF u=0.0 pen=3.000
+  [SEPO refresh] game=kuhn step=55 cumKL=0.105
+  [08:33:05] rollout opp=nash-approx (1/3)
+    [08:33:42] r01 llm=PBBBBBBBB opp=BPCBBBBPC u=2.0 pen=0.000
+    [08:33:55] r02 llm=PBPBBPBBPB opp=BPPBBBPFBB u=0.0 pen=0.000
+    [08:34:09] r03 llm=PPBBPBPPBP opp=PPPFBPPBPP u=-2.0 pen=0.000
+    [08:34:24] r04 llm=PBBPPBBBB opp=BPFPPPCPF u=3.0 pen=0.000
+  [08:34:41] rollout opp=tight-passive (2/3)
+    [08:35:23] r01 llm=PBBPBBBBPB opp=BPFBPFPFPF u=2.0 pen=2.182
+    [08:35:36] r02 llm=PBBBBBBB opp=PFPFPFPF u=8.0 pen=2.182
+    [08:35:50] r03 llm=PBBBPPBBPB opp=BBBPPBPFPF u=-1.0 pen=2.182
+    [08:36:03] r04 llm=PBBPBPBPBB opp=BPFBBPFBPF u=-5.0 pen=2.182
+  [08:36:19] rollout opp=loose-aggressive (3/3)
+    [08:36:45] r01 llm=BBPBBPBPBB opp=BBBPFBPPBB u=-3.0 pen=0.000
+    [08:36:57] r02 llm=PBBPBPBPBP opp=BBBBBBBBPP u=-7.0 pen=0.000
+    [08:37:09] r03 llm=PBBPBPBBB opp=BBBBBBBPF u=-4.0 pen=0.000
+    [08:37:23] r04 llm=PBBPBPPBPPB opp=BBBBPPBPPBB u=-7.0 pen=0.000
+[08:37:41] Step   55 | loss=0.026278 | u=0.041 | e=0.485 | c=0.000 | x=0.290 | kl=0.123150 | pg=0.001648
+  [08:37:41] rollout opp=nash-approx (1/3)
+    [08:37:54] r01 llm=BBPBFPBPBB opp=BBBBBBPPBB u=-6.0 pen=0.727
+    [08:38:07] r02 llm=BBBPPBBPP opp=BBPPBBBPP u=-3.0 pen=0.727
+    [08:38:19] r03 llm=PBPBBPPPBB opp=BBBBBPPBPF u=0.0 pen=0.727
+    [08:38:30] r04 llm=PBBPBBPBBPBB opp=BBBBBBBBBBBB u=-4.0 pen=0.727
+  [08:38:47] rollout opp=tight-passive (2/3)
+    [08:39:01] r01 llm=BBPBPBBPB opp=PFBBBBBPF u=-3.0 pen=0.727
+    [08:39:13] r02 llm=PPPBBBPP opp=PPPFPFPP u=4.0 pen=0.727
+    [08:39:28] r03 llm=PBBPBBPBBPC opp=BPFBPFBBBBB u=-9.0 pen=0.727
+    [08:39:42] r04 llm=BBPBPBPPBB opp=BBPFBPPBPF u=-3.0 pen=0.727
+  [08:39:57] rollout opp=loose-aggressive (3/3)
+    [08:40:10] r01 llm=BBPBFPPPFB opp=BBBBBPPBBB u=-1.0 pen=0.727
+    [08:40:23] r02 llm=BBPBBPBBBB opp=BBBPFBPFBB u=5.0 pen=0.727
+    [08:40:34] r03 llm=BCPBBBFPB opp=BBBBBBBBB u=0.0 pen=0.727
+    [08:40:47] r04 llm=PBBPBPBBBB opp=BBBBPPBBBB u=-1.0 pen=0.727
+  [08:41:05] rollout opp=nash-approx (1/3)
+    [08:41:17] r01 llm=BBBBPBPBP opp=BBBBPFBPP u=-1.0 pen=0.727
+    [08:41:30] r02 llm=BBPBBPBBBP opp=BBBPCBBBPP u=-1.0 pen=0.727
+    [08:41:42] r03 llm=PBBPPPBBPB opp=BBBPPBPFBB u=-2.0 pen=0.727
+    [08:41:54] r04 llm=BBBBPBPBB opp=PFBBBBBPF u=4.0 pen=0.727
+  [08:42:11] rollout opp=tight-passive (2/3)
+    [08:42:25] r01 llm=BBPBBPBBB opp=PFBPFBBPF u=0.0 pen=0.727
+    [08:42:37] r02 llm=PBPBPFPBB opp=PFBBBBBBB u=-7.0 pen=0.727
+    [08:42:50] r03 llm=PPPBPCBBP opp=PPBBBPFPP u=0.0 pen=0.727
+    [08:43:02] r04 llm=BBPBBPBBB opp=BBBPFPFPF u=-1.0 pen=0.727
+  [08:43:20] rollout opp=loose-aggressive (3/3)
+    [08:43:33] r01 llm=PBPBBBPBB opp=BPPPFPPBB u=-3.0 pen=0.727
+    [08:43:45] r02 llm=PBFPBPBBBP opp=BBBBBBBBPP u=-6.0 pen=0.727
+    [08:44:01] r03 llm=PBPPBPPBBPCB opp=BPPBPPBBBBBB u=-10.0 pen=0.727
+    [08:44:14] r04 llm=PBPBBBBPB opp=BPPBBBBBB u=-6.0 pen=0.727
+  [08:44:31] rollout opp=nash-approx (1/3)
+    [08:44:43] r01 llm=PBBBPBBPB opp=BPFPPBBPF u=3.0 pen=0.727
+    [08:44:57] r02 llm=BBPBBBPBP opp=PFPFPCBPP u=5.0 pen=0.727
+    [08:45:09] r03 llm=BCPBBPBPBC opp=BBBPFBBBBB u=-3.0 pen=0.727
+    [08:45:23] r04 llm=BBPBPBBPBP opp=BBBPPBBBPP u=-8.0 pen=0.727
+  [08:45:40] rollout opp=tight-passive (2/3)
+    [08:45:55] r01 llm=PBBBBPBPBP opp=BPFPFPFBPP u=2.0 pen=0.727
+    [08:46:06] r02 llm=BBPPPFBPP opp=BBPPBPFPP u=1.0 pen=0.727
+    [08:46:19] r03 llm=PCPBBPBBPP opp=BPPBBBPFPP u=-5.0 pen=0.727
+    [08:46:33] r04 llm=PBPBBPBBPBP opp=BBBBBBPFBPP u=-7.0 pen=0.727
+  [08:46:50] rollout opp=loose-aggressive (3/3)
+    [08:47:03] r01 llm=BBPPPPPBB opp=BBPPPPBBB u=-1.0 pen=0.727
+    [08:47:15] r02 llm=PBCPBBBBPB opp=BBBBBBBBBB u=-2.0 pen=0.727
+    [08:47:26] r03 llm=BPPBPPBBB opp=PPBPPBBBB u=0.0 pen=0.727
+    [08:47:39] r04 llm=BBPBBBPPP opp=PFBPFPPPP u=3.0 pen=0.727
+  [SEPO refresh] game=kuhn step=59 cumKL=0.698
+  [08:47:57] rollout opp=nash-approx (1/3)
+    [08:48:33] r01 llm=PBBPBBBBBB opp=BBBBBBPFPF u=0.0 pen=0.000
+    [08:48:44] r02 llm=PBPCPBPPP opp=BBBPPPPPP u=5.0 pen=0.000
+    [08:48:59] r03 llm=PBPBBPBBPBP opp=BPPBBBBBBPP u=-7.0 pen=0.000
+    [08:49:11] r04 llm=PBPBPBPP opp=PFPFBBPP u=-1.0 pen=0.000
+  [08:49:26] rollout opp=tight-passive (2/3)
+    [08:50:01] r01 llm=PBPBBPBPB opp=PFBBBBBBB u=-8.0 pen=0.000
+    [08:50:14] r02 llm=PPPBBPBBB opp=PPBPFPFBB u=0.0 pen=0.000
+    [08:50:28] r03 llm=BPPPBBPBB opp=PPPPBBBPF u=-2.0 pen=0.000
+    [08:50:43] r04 llm=BBPBPPCBPBB opp=PFBPPBPFBBB u=-4.0 pen=0.000
+  [08:51:00] rollout opp=loose-aggressive (3/3)
+    [08:51:24] r01 llm=BBBBPBFPB opp=BBPFBBBBB u=2.0 pen=0.267
+    [08:51:36] r02 llm=BBPBBPBBBP opp=BBBBBBBBPP u=-2.0 pen=0.267
+    [08:51:49] r03 llm=BBPBPBBPBF opp=PFBBBPFBBB u=-3.0 pen=0.267
+    [08:52:00] r04 llm=BBBPBFBP opp=PFPPBBPP u=3.0 pen=0.267
+  [SEPO refresh] game=kuhn step=60 cumKL=0.151
+  [08:52:15] rollout opp=nash-approx (1/3)
+    [08:52:53] r01 llm=PBPPBBBBBP opp=BPPBBBPCPP u=-2.0 pen=0.000
+    [08:53:08] r02 llm=BBPBPBBPBB opp=PCBPPBBBBB u=-5.0 pen=0.000
+    [08:53:21] r03 llm=PBPPBBPBPBB opp=BPPBBBPCBBB u=-8.0 pen=0.000
+    [08:53:34] r04 llm=BBPBBBPBB opp=PFPFBBBPC u=7.0 pen=0.000
+  [08:53:51] rollout opp=tight-passive (2/3)
+    [08:54:28] r01 llm=BPBBPBBB opp=PPPFBBBB u=2.0 pen=0.600
+    [08:54:42] r02 llm=PBBBPPBPBB opp=BBBPPPFBBB u=-4.0 pen=0.600
+    [08:54:55] r03 llm=PBPBBBPBB opp=BPPPFPPBB u=0.0 pen=0.600
+    [08:55:10] r04 llm=PPPBBPBPBP opp=PPBPFPFBPP u=0.0 pen=0.600
+  [08:55:25] rollout opp=loose-aggressive (3/3)
+    [08:55:48] r01 llm=BBPBBBPPB opp=BBBPFPPBB u=4.0 pen=0.000
+    [08:56:00] r02 llm=BBBPBBPB opp=BBPPBBPF u=4.0 pen=0.000
+    [08:56:13] r03 llm=BBBBPCPPBB opp=BBBBBPPBBB u=-7.0 pen=0.000
+    [08:56:26] r04 llm=BBPBPPBPBB opp=BBBPPPFBBB u=-7.0 pen=0.000
+[08:56:42] Step   60 | loss=0.037597 | u=0.165 | e=0.133 | c=0.000 | x=0.288 | kl=0.196350 | pg=-0.001673
+  [08:56:42] rollout opp=nash-approx (1/3)
+    [08:56:54] r01 llm=BBBFPBBB opp=BBBBBBPF u=-4.0 pen=0.200
+    [08:57:08] r02 llm=PBPBBBBPBB opp=BPPPFBBBBB u=-7.0 pen=0.200
+    [08:57:20] r03 llm=PCBBBBPBB opp=BBBBBBBPF u=8.0 pen=0.200
+    [08:57:33] r04 llm=BPPBBPBP opp=PPPCPPPP u=0.0 pen=0.200
+  [08:57:48] rollout opp=tight-passive (2/3)
+    [08:58:03] r01 llm=PBBPBBPBPBB opp=BPFBPFBBBBB u=-7.0 pen=0.200
+    [08:58:16] r02 llm=PBBBPBBPB opp=BPFPPPFBB u=-5.0 pen=0.200
+    [08:58:27] r03 llm=BFPBBPPB opp=BBPFPPBB u=1.0 pen=0.200
+    [08:58:40] r04 llm=PBPPBBBBBP opp=BPPBPFBBPP u=-6.0 pen=0.200
+  [08:58:55] rollout opp=loose-aggressive (3/3)
+    [08:59:07] r01 llm=PBPBPPBPF opp=BBBPPPFBB u=0.0 pen=0.200
+    [08:59:22] r02 llm=BPPBBPBBPBB opp=PPBPFBBBBBB u=-6.0 pen=0.200
+    [08:59:36] r03 llm=PBBPCPBBPBB opp=BPFBBBBBBPF u=-3.0 pen=0.200
+    [08:59:48] r04 llm=PBBPPBBBP opp=BBBPPPFPP u=6.0 pen=0.200
+  [09:00:06] rollout opp=nash-approx (1/3)
+    [09:00:19] r01 llm=BBPBPBPPFP opp=BBBPPPPBPP u=2.0 pen=0.200
+    [09:00:33] r02 llm=PBBPCBPPBP opp=BPFBBBPPPP u=-1.0 pen=0.200
+    [09:00:46] r03 llm=BBBBPBPBP opp=BBPFBPPPP u=-1.0 pen=0.200
+    [09:00:59] r04 llm=BBPBBBBPBF opp=PFBPCBBBBB u=-2.0 pen=0.200
+  [09:01:17] rollout opp=tight-passive (2/3)
+    [09:01:29] r01 llm=BBBBBBPBB opp=PFBBBBBPF u=-4.0 pen=0.200
+    [09:01:41] r02 llm=BBPBPBPP opp=BBPFPFPP u=3.0 pen=0.200
+    [09:01:54] r03 llm=PBPPBPBBB opp=BPPPFBBBB u=-5.0 pen=0.200
+    [09:02:07] r04 llm=BBPBPPPBP opp=PFBBPPBPP u=0.0 pen=0.200
+  [09:02:23] rollout opp=loose-aggressive (3/3)
+    [09:02:35] r01 llm=PBPBBPBPBB opp=BBBBBBBBBB u=-6.0 pen=0.200
+    [09:02:48] r02 llm=PBBPBBBBPB opp=BBBBBBBBPF u=-3.0 pen=0.200
+    [09:03:03] r03 llm=PBBPBCPFBPBB opp=BBBBBBBBBBBB u=-15.0 pen=0.200
+    [09:03:16] r04 llm=PBBBBPFPPB opp=BBBBBBPPBB u=-6.0 pen=0.200
+  [SEPO refresh] game=kuhn step=63 cumKL=0.641
+  [09:03:35] rollout opp=nash-approx (1/3)
+    [09:04:17] r01 llm=PBPBPBBPBB opp=BBPFBBBBPF u=-8.0 pen=2.945
+    [09:04:32] r02 llm=BBBBPBPPBP opp=BBPFBPPBPP u=-2.0 pen=2.945
+    [09:04:46] r03 llm=BBPBBPFBBB opp=PFBPFBBBPC u=-3.0 pen=2.945
+    [09:04:58] r04 llm=BPBBBPPB opp=PPBBPPBB u=-4.0 pen=2.945
+  [09:05:13] rollout opp=tight-passive (2/3)
+    [09:05:51] r01 llm=PBBPBBBPBB opp=BPFPFBBBBB u=-6.0 pen=0.750
+    [09:06:05] r02 llm=BPBBBBPBP opp=PPPFBBBPP u=-2.0 pen=0.750
+    [09:06:19] r03 llm=BPPBBPBBBB opp=PPBPFBBBPF u=-1.0 pen=0.750
+    [09:06:32] r04 llm=BFBCPBBPCP opp=BBBBBPFBPP u=-6.0 pen=0.750
+  [09:06:49] rollout opp=loose-aggressive (3/3)
+    [09:07:12] r01 llm=PBPBBBBBB opp=BBBBBBBBB u=-5.0 pen=1.636
+    [09:07:25] r02 llm=PBBBPPBBPB opp=BBBPPBBBBB u=-6.0 pen=1.636
+    [09:07:37] r03 llm=PBBBBBBBB opp=BBBBBBBBB u=-5.0 pen=1.636
+    [09:07:51] r04 llm=BBPBPBBPCB opp=BBBBBPFBBB u=1.0 pen=1.636
+  [09:08:08] rollout opp=nash-approx (1/3)
+    [09:08:21] r01 llm=PBBBPPBPBB opp=BBBPPBBBBB u=-11.0 pen=1.777
+    [09:08:35] r02 llm=PBPPBBPBBB opp=BPPBBBPFPF u=-1.0 pen=1.777
+    [09:08:48] r03 llm=BBBBPBPPB opp=BBPCBPPPF u=7.0 pen=1.777
+    [09:09:01] r04 llm=PBPBPPBBBB opp=BPPPPBBBBB u=-5.0 pen=1.777
+  [09:09:18] rollout opp=tight-passive (2/3)
+    [09:09:30] r01 llm=PBBBPFPBB opp=BBBBBBBBB u=-10.0 pen=1.777
+    [09:09:41] r02 llm=BBBPBBPP opp=BBPPBBPP u=0.0 pen=1.777
+    [09:09:54] r03 llm=BBPBBBBBB opp=BBBPFBBBB u=-7.0 pen=1.777
+    [09:10:05] r04 llm=BBBBBBPBB opp=BBBBPFBBB u=-4.0 pen=1.777
+  [09:10:21] rollout opp=loose-aggressive (3/3)
+    [09:10:32] r01 llm=PCBPBPBBBC opp=BBBPFBBBBB u=1.0 pen=1.777
+    [09:10:43] r02 llm=PPPCBBBBB opp=PPBBBBBBB u=-3.0 pen=1.777
+    [09:10:54] r03 llm=BBBPBBBB opp=PFPPBBBB u=0.0 pen=1.777
+    [09:11:07] r04 llm=PBPPBPBPBP opp=BPPBBBPPPP u=0.0 pen=1.777
+  [SEPO refresh] game=kuhn step=65 cumKL=0.339
+  [09:11:22] rollout opp=nash-approx (1/3)
+    [09:12:03] r01 llm=PBPBBPBBPP opp=BPPPCBBBPP u=-3.0 pen=1.200
+    [09:12:17] r02 llm=PBBBBBPBP opp=PCPFPCBPP u=1.0 pen=1.200
+    [09:12:30] r03 llm=PBBPPBPPB opp=BPCPPPPBB u=0.0 pen=1.200
+    [09:12:43] r04 llm=PBBPBBBPPCB opp=BBBBPFPPBBB u=-3.0 pen=1.200
+  [09:13:01] rollout opp=tight-passive (2/3)
+    [09:13:38] r01 llm=PBBPBBPBBP opp=BPFBPFPFPP u=0.0 pen=0.600
+    [09:13:50] r02 llm=PBBPBBBBP opp=BPFPFBBPP u=-3.0 pen=0.600
+    [09:14:04] r03 llm=PBPPBPPBPB opp=BPPBPPBBBB u=-10.0 pen=0.600
+    [09:14:16] r04 llm=PBBBBPBBBB opp=BBBBBBBBBB u=-10.0 pen=0.600
+  [09:14:34] rollout opp=loose-aggressive (3/3)
+    [09:14:55] r01 llm=PBPCBBBBC opp=BBBBBBBBB u=6.0 pen=2.000
+    [09:15:08] r02 llm=PBBPPPCBPB opp=BBBPPBBBPF u=4.0 pen=2.000
+    [09:15:21] r03 llm=PBBBBPBBPBB opp=BBBBBBBBBBB u=-5.0 pen=2.000
+    [09:15:33] r04 llm=PBBPBBPPBB opp=BBBBBBPPBB u=-6.0 pen=2.000
+[09:15:50] Step   65 | loss=0.053137 | u=0.122 | e=0.844 | c=0.000 | x=0.344 | kl=0.229930 | pg=0.007151
+  [09:15:50] rollout opp=nash-approx (1/3)
+    [09:16:03] r01 llm=PBBBPBBPBB opp=BBPFBPFBBB u=-4.0 pen=1.267
+    [09:16:15] r02 llm=PBBPBBBBB opp=BPFBBPFBB u=-3.0 pen=1.267
+    [09:16:27] r03 llm=BBPBBPPBB opp=BBBBPPBBB u=-7.0 pen=1.267
+    [09:16:40] r04 llm=BPBBPBBB opp=PPPCPCPF u=6.0 pen=1.267
+  [09:16:55] rollout opp=tight-passive (2/3)
+    [09:17:06] r01 llm=BBBPBPBB opp=PFPPPPBB u=0.0 pen=1.267
+    [09:17:17] r02 llm=PFPBBBPPB opp=BBBBBPPBB u=-5.0 pen=1.267
+    [09:17:29] r03 llm=BBPBPBPBB opp=BBPFBPPBB u=-5.0 pen=1.267
+    [09:17:43] r04 llm=BPBBBBBB opp=PPPFPFPF u=5.0 pen=1.267
+  [09:17:58] rollout opp=loose-aggressive (3/3)
+    [09:18:10] r01 llm=BBPBCBBPBF opp=BBBBBPFBBB u=-1.0 pen=1.267
+    [09:18:22] r02 llm=BBPBBBBBB opp=BBBBBBBBB u=-10.0 pen=1.267
+    [09:18:34] r03 llm=BBBBBBPBB opp=PFBBBBBBB u=2.0 pen=1.267
+    [09:18:45] r04 llm=PCBBBBBPP opp=BBBBBBBPP u=-6.0 pen=1.267
+  [09:19:02] rollout opp=nash-approx (1/3)
+    [09:19:15] r01 llm=BBPPBFPBB opp=PCPPBBBPF u=0.0 pen=1.267
+    [09:19:28] r02 llm=PBBPBBBBPP opp=BBBBBBBBPP u=-5.0 pen=1.267
+    [09:19:40] r03 llm=BBPPBBBP opp=BBPPBBPP u=0.0 pen=1.267
+    [09:19:55] r04 llm=PBBPBBBBPB opp=BPFBBBPFPF u=-1.0 pen=1.267
+  [09:20:11] rollout opp=tight-passive (2/3)
+    [09:20:25] r01 llm=PBPPBPBBP opp=BPPBBBBPP u=-3.0 pen=1.267
+    [09:20:38] r02 llm=BBBBBBPBB opp=BBBBBBBPF u=-4.0 pen=1.267
+    [09:20:50] r03 llm=BBBBPBPBB opp=BBBBBBBBB u=-7.0 pen=1.267
+    [09:21:03] r04 llm=BBPPBPPBB opp=BBPPPPBBB u=-5.0 pen=1.267
+  [09:21:20] rollout opp=loose-aggressive (3/3)
+    [09:21:33] r01 llm=BBBBPBCPBB opp=BBBBBBBBPF u=-6.0 pen=1.267
+    [09:21:47] r02 llm=PBBPBBPBBPB opp=BBBBPFBBBBB u=-10.0 pen=1.267
+    [09:21:58] r03 llm=BPPBBPPBB opp=PPBBPPBBB u=-4.0 pen=1.267
+    [09:22:11] r04 llm=BBBPBBPBP opp=PFPPBBBPP u=-1.0 pen=1.267
+  [SEPO refresh] game=kuhn step=68 cumKL=0.569
+  [09:22:28] rollout opp=nash-approx (1/3)
+    [09:23:06] r01 llm=BPPFCBPPBP opp=PPBBBPPBPP u=6.0 pen=0.333
+    [09:23:20] r02 llm=PFPBBPBCPBB opp=BBBPCBBBBPF u=-1.0 pen=0.333
+    [09:23:32] r03 llm=BBPFBBPB opp=PFBBBBBB u=-2.0 pen=0.333
+    [09:23:44] r04 llm=BBPPBPPF opp=BBPPPPBB u=-6.0 pen=0.333
+  [09:23:59] rollout opp=tight-passive (2/3)
+    [09:24:38] r01 llm=BPBBPBPPBP opp=PPPFBPPBPP u=0.0 pen=1.800
+    [09:24:49] r02 llm=PBBBPBBB opp=BBBBPFBB u=-3.0 pen=1.800
+    [09:25:04] r03 llm=BBPBPPBPBP opp=PFBPPPFBPP u=0.0 pen=1.800
+    [09:25:17] r04 llm=PPPBPCPBP opp=PPPFBBBPP u=-6.0 pen=1.800
+  [09:25:33] rollout opp=loose-aggressive (3/3)
+    [09:25:59] r01 llm=PBBPBBPPPBP opp=BBBBPFPPBPP u=-4.0 pen=0.000
+    [09:26:11] r02 llm=BBBPBPBB opp=BBPPPPBB u=3.0 pen=0.000
+    [09:26:25] r03 llm=BBPBCPBPBP opp=PFBBBBBBPP u=-7.0 pen=0.000
+    [09:26:37] r04 llm=BPPBBBBBB opp=PPBBBBBBB u=0.0 pen=0.000
+  [09:26:53] rollout opp=nash-approx (1/3)
+    [09:27:05] r01 llm=BBBBPBBP opp=BBBBPCPP u=4.0 pen=0.711
+    [09:27:20] r02 llm=PBBBBBBPBB opp=BPFBBPFBPF u=3.0 pen=0.711
+    [09:27:32] r03 llm=PBBBBBBP opp=BBBBPFPP u=1.0 pen=0.711
+    [09:27:44] r04 llm=PBBBBBBPP opp=BBBPFBBPP u=-3.0 pen=0.711
+  [09:27:59] rollout opp=tight-passive (2/3)
+    [09:28:13] r01 llm=PPBPPCBPFP opp=PPPPBPFBPP u=-1.0 pen=0.711
+    [09:28:27] r02 llm=BPPBBPPPBB opp=PPBPFPPBPF u=-2.0 pen=0.711
+    [09:28:38] r03 llm=PBBBPPPCB opp=BBBBPPBBB u=-6.0 pen=0.711
+    [09:28:49] r04 llm=BBPBPBBB opp=PFPFBBPF u=5.0 pen=0.711
+  [09:29:04] rollout opp=loose-aggressive (3/3)
+    [09:29:18] r01 llm=BCPBBPBBPBP opp=BBBBBBPFBPP u=-7.0 pen=0.711
+    [09:29:31] r02 llm=BBPBPPPPFB opp=BBBPPPPBBB u=-3.0 pen=0.711
+    [09:29:44] r03 llm=PBPBBPBBBB opp=BPPBBBBBBB u=2.0 pen=0.711
+    [09:29:57] r04 llm=PBBBPBBPBB opp=PFBBBBBBBB u=-3.0 pen=0.711
+  [SEPO refresh] game=kuhn step=70 cumKL=0.479
+  [09:30:18] rollout opp=nash-approx (1/3)
+    [09:30:59] r01 llm=PBBPBBPPBB opp=BBBBPFPPPF u=-2.0 pen=2.340
+    [09:31:14] r02 llm=PBBBBPBBPBB opp=BBBPFBPFBBB u=1.0 pen=2.340
+    [09:31:26] r03 llm=PBBPBBBPPB opp=BBBBBBPPBB u=-1.0 pen=2.340
+    [09:31:40] r04 llm=PPBBPBBPBB opp=PPPFBBBBPF u=3.0 pen=2.340
+  [09:32:00] rollout opp=tight-passive (2/3)
+    [09:32:38] r01 llm=BBPBBBBB opp=PFBBPFPF u=3.0 pen=1.909
+    [09:32:50] r02 llm=BBBBBBPBB opp=BBPFBBBBB u=-7.0 pen=1.909
+    [09:33:03] r03 llm=BBBBPBBBB opp=PFBBBPFBB u=-1.0 pen=1.909
+    [09:33:16] r04 llm=BBPBBPBBPB opp=PFBPFBBBBB u=-6.0 pen=1.909
+  [09:33:31] rollout opp=loose-aggressive (3/3)
+    [09:33:55] r01 llm=PBBFPBPB opp=PFBBBBPF u=3.0 pen=2.633
+    [09:34:07] r02 llm=PBBBBBCPB opp=BBBBBBBPF u=-2.0 pen=2.633
+    [09:34:19] r03 llm=BBBFPBBPB opp=BBBBBBBBB u=-6.0 pen=2.633
+    [09:34:30] r04 llm=BBBPBBPBB opp=BBPPBBBBB u=1.0 pen=2.633
+[09:34:46] Step   70 | loss=0.049932 | u=0.183 | e=1.409 | c=0.075 | x=0.328 | kl=0.250726 | pg=-0.000214
+  [09:34:46] rollout opp=nash-approx (1/3)
+    [09:34:58] r01 llm=PBBPBBBPBB opp=BBBBBPCBBB u=2.0 pen=2.294
+    [09:35:13] r02 llm=PBBBBBBPB opp=BPFPCPFPC u=2.0 pen=2.294
+    [09:35:27] r03 llm=PBPPBPBBBP opp=BPPBBBPFPP u=3.0 pen=2.294
+    [09:35:41] r04 llm=PPBBBPPBP opp=PPPFPPBPP u=-4.0 pen=2.294
+  [09:35:59] rollout opp=tight-passive (2/3)
+    [09:36:12] r01 llm=PBBBPBBBC opp=PFPFBPFBB u=2.0 pen=2.294
+    [09:36:27] r02 llm=PBBPBPBBBP opp=BBBBBBPFPP u=-4.0 pen=2.294
+    [09:36:39] r03 llm=PPBPPBBB opp=PPPPBBPF u=3.0 pen=2.294
+    [09:36:52] r04 llm=PBBPPPPBB opp=BPFPPPPPF u=1.0 pen=2.294
+  [09:37:08] rollout opp=loose-aggressive (3/3)
+    [09:37:22] r01 llm=BBPBPBPPBB opp=PFBPPPPBBB u=-4.0 pen=2.294
+    [09:37:33] r02 llm=BCPBBBPBF opp=BBBBBBBBB u=-5.0 pen=2.294
+    [09:37:46] r03 llm=PBPBBBBBB opp=BPPBBBBBB u=1.0 pen=2.294
+    [09:38:00] r04 llm=BPPBBPBBPBC opp=PPBBBBBBBBB u=-9.0 pen=2.294
+  [09:38:18] rollout opp=nash-approx (1/3)
+    [09:38:31] r01 llm=BBPCBBBPBB opp=BBBBBPFBBB u=-5.0 pen=2.294
+    [09:38:45] r02 llm=PBPBPBPPBP opp=BPPPPPPBPP u=-2.0 pen=2.294
+    [09:38:58] r03 llm=PPBBBPBP opp=PPPFPPPP u=4.0 pen=2.294
+    [09:39:11] r04 llm=BBPBCPFBPBC opp=BBBBBBBBBBB u=0.0 pen=2.294
+  [09:39:26] rollout opp=tight-passive (2/3)
+    [09:39:38] r01 llm=BPBBBBBB opp=PPPFPFPF u=0.0 pen=2.294
+    [09:39:49] r02 llm=BBPBBBPBB opp=BBBBBBBPF u=-7.0 pen=2.294
+    [09:40:02] r03 llm=BBPBBPBCPBB opp=BBBPFBBBBPF u=-7.0 pen=2.294
+    [09:40:15] r04 llm=PBBBBPPPBB opp=BBBPFPPBPF u=-1.0 pen=2.294
+  [09:40:31] rollout opp=loose-aggressive (3/3)
+    [09:40:42] r01 llm=PPPBFBBPB opp=PPBBBBBBB u=-6.0 pen=2.294
+    [09:40:54] r02 llm=PBBBPCBPBP opp=BBBBBBBBPP u=-6.0 pen=2.294
+    [09:41:08] r03 llm=BPPBBPBBBB opp=PPBPFBBBBB u=-6.0 pen=2.294
+    [09:41:21] r04 llm=BBPBBPFBBB opp=BBBPFBBBBB u=-4.0 pen=2.294
+  [SEPO refresh] game=kuhn step=73 cumKL=0.816
+  [09:41:39] rollout opp=nash-approx (1/3)
+    [09:42:15] r01 llm=PPBBPBPBB opp=PPPFBPPPF u=3.0 pen=2.333
+    [09:42:29] r02 llm=BBPCBBBBP opp=PFBPFPFPP u=6.0 pen=2.333
+    [09:42:40] r03 llm=BBPBBPFBP opp=BBBBBBBPP u=-1.0 pen=2.333
+    [09:42:53] r04 llm=BBPBPPBBPBB opp=BBBPPBBBBBB u=-13.0 pen=2.333
+  [09:43:11] rollout opp=tight-passive (2/3)
+    [09:43:45] r01 llm=PPPBPPPB opp=PPBBPPBB u=0.0 pen=1.333
+    [09:43:58] r02 llm=PBPBPBPBB opp=PFPFBPPBB u=0.0 pen=1.333
+    [09:44:10] r03 llm=BPBBPBPB opp=PPBBBBPF u=-3.0 pen=1.333
+    [09:44:24] r04 llm=PBPBBPBBPB opp=BBBPFBBBPF u=-6.0 pen=1.333
+  [09:44:40] rollout opp=loose-aggressive (3/3)
+    [09:45:04] r01 llm=PBBPBBBB opp=BBPPBBBB u=4.0 pen=0.000
+    [09:45:16] r02 llm=PFBPBCPCBBP opp=BBBBBBBBBPP u=-4.0 pen=0.000
+    [09:45:29] r03 llm=PBPBBBBPBP opp=BBBBBPFBPP u=-7.0 pen=0.000
+    [09:45:40] r04 llm=PBBBBBPBB opp=BBBBBPPBB u=1.0 pen=0.000
+  [09:45:55] rollout opp=nash-approx (1/3)
+    [09:46:07] r01 llm=BBBPBBBF opp=PFPPBBBB u=8.0 pen=1.222
+    [09:46:19] r02 llm=PBPPBPBFBF opp=BPPBBBBBBB u=-12.0 pen=1.222
+    [09:46:31] r03 llm=PBBPBBBBPBB opp=BBBBBBBBBBB u=-5.0 pen=1.222
+    [09:46:44] r04 llm=PCBBPPBBBB opp=BBBPPBBBBB u=-4.0 pen=1.222
+  [09:46:59] rollout opp=tight-passive (2/3)
+    [09:47:13] r01 llm=PBPPPPBPPP opp=BPPPPBPPPP u=0.0 pen=1.222
+    [09:47:25] r02 llm=BPPCPBBBP opp=PPBBBPFPP u=0.0 pen=1.222
+    [09:47:41] r03 llm=BBPBPCBPBB opp=PFPFBPFBPF u=2.0 pen=1.222
+    [09:47:57] r04 llm=PBPPBPBBPB opp=BPPPFBPFPF u=-2.0 pen=1.222
+  [09:48:14] rollout opp=loose-aggressive (3/3)
+    [09:48:26] r01 llm=PBPBCBBBB opp=BBBBBBBBB u=2.0 pen=1.222
+    [09:48:37] r02 llm=BBBBPPPB opp=PFPFPPBB u=2.0 pen=1.222
+    [09:48:51] r03 llm=BBPBBPBBPFB opp=BBBBBBBBBPF u=-4.0 pen=1.222
+    [09:49:03] r04 llm=PBPFPBBBB opp=BBBPPBBBB u=3.0 pen=1.222
+  [SEPO refresh] game=kuhn step=75 cumKL=0.681
+  [09:49:18] rollout opp=nash-approx (1/3)
+    [09:49:54] r01 llm=BBPPBBBB opp=BBPPBBPF u=-6.0 pen=0.000
+    [09:50:08] r02 llm=BBPBBBBPBP opp=PFBBBPFBPP u=-6.0 pen=0.000
+    [09:50:21] r03 llm=BBPBBBPBB opp=BBBBPFBBB u=-6.0 pen=0.000
+    [09:50:36] r04 llm=PBBPBPBPBB opp=BPFBPPPPPF u=-2.0 pen=0.000
+  [09:50:52] rollout opp=tight-passive (2/3)
+    [09:51:30] r01 llm=PBPPBBBPP opp=BPPPFBBPP u=-3.0 pen=3.000
+    [09:51:41] r02 llm=BBPFPBCPBB opp=BBBBBBBBPF u=-8.0 pen=3.000
+    [09:51:56] r03 llm=PBBPBPCBPCC opp=BPFPFBPFBBB u=-6.0 pen=3.000
+    [09:52:08] r04 llm=PBPPPPPBB opp=BBPPPPBPF u=-4.0 pen=3.000
+  [09:52:25] rollout opp=loose-aggressive (3/3)
+    [09:52:49] r01 llm=BBPBBBBBB opp=BBBBBBBBB u=-3.0 pen=2.100
+    [09:53:02] r02 llm=PBBPBPPPPBB opp=BBBBPPPPBBB u=-3.0 pen=2.100
+    [09:53:13] r03 llm=PCBPBBBBBF opp=BBBBBBBBBB u=4.0 pen=2.100
+    [09:53:25] r04 llm=BBPCPCCBB opp=PFBBBBBBB u=1.0 pen=2.100
+[09:53:43] Step   75 | loss=0.084204 | u=-0.472 | e=1.133 | c=0.000 | x=0.435 | kl=0.399682 | pg=0.004267
+  → Saved checkpoint: grpo_gemma4_kuhn/step_0075
+  [09:53:44] rollout opp=nash-approx (1/3)
+    [09:53:54] r01 llm=PBPBPCBBC opp=BBBBBBBBB u=-3.0 pen=1.700
+    [09:54:08] r02 llm=PBBBBPFBPBP opp=BPCBBBBBBPP u=-11.0 pen=1.700
+    [09:54:23] r03 llm=BBPBBPBBPB opp=PFBBBBPCPF u=-2.0 pen=1.700
+    [09:54:36] r04 llm=PBBBBBBPBB opp=BBBPFPFBBB u=1.0 pen=1.700
+  [09:54:54] rollout opp=tight-passive (2/3)
+    [09:55:08] r01 llm=PBPBPPBBBP opp=BPPPPBBBPP u=-5.0 pen=1.700
+    [09:55:22] r02 llm=PBPBPBPBB opp=PFBPPPPPF u=-1.0 pen=1.700
+    [09:55:36] r03 llm=PBPBBBBBB opp=BBBPFPFPF u=2.0 pen=1.700
+    [09:55:49] r04 llm=PBBPBBBBPBB opp=BBBBBBBBBBB u=-13.0 pen=1.700
+  [09:56:07] rollout opp=loose-aggressive (3/3)
+    [09:56:19] r01 llm=PBBBBBPBB opp=BBPFBBBBB u=5.0 pen=1.700
+    [09:56:30] r02 llm=PBPBFBPPB opp=BBBBBPPBB u=-2.0 pen=1.700
+    [09:56:41] r03 llm=PBBPFPBBPC opp=BBBBBBBBBB u=-9.0 pen=1.700
+    [09:56:50] r04 llm=BBBFBBBC opp=BBBBBBBB u=5.0 pen=1.700
+  [SEPO refresh] game=kuhn step=77 cumKL=0.679
+  [09:57:06] rollout opp=nash-approx (1/3)
+    [09:57:44] r01 llm=BBBBPCBBB opp=BBBBBPFBB u=8.0 pen=0.000
+    [09:57:55] r02 llm=BBPBBBCPB opp=BBBPFBBBB u=2.0 pen=0.000
+    [09:58:08] r03 llm=PBBPBPBPPB opp=BBBBPPPPPF u=-2.0 pen=0.000
+    [09:58:20] r04 llm=PBPBBBBC opp=PCPFBBBB u=-5.0 pen=0.000
+  [09:58:36] rollout opp=tight-passive (2/3)
+    [09:59:14] r01 llm=PPBBPBPBB opp=PPBBPFBPF u=2.0 pen=0.375
+    [09:59:29] r02 llm=PPPBBPBBB opp=PPBPFPFPF u=1.0 pen=0.375
+    [09:59:41] r03 llm=PPBPPPBB opp=PPPPPPPF u=1.0 pen=0.375
+    [09:59:54] r04 llm=BBBBPBPCB opp=PFBBBBBPF u=-3.0 pen=0.375
+  [10:00:10] rollout opp=loose-aggressive (3/3)
+    [10:00:36] r01 llm=PBFBBPFBBF opp=BBBPFBBBBB u=-6.0 pen=0.720
+    [10:00:46] r02 llm=PBBCBBBB opp=PFBBBBBB u=-2.0 pen=0.720
+    [10:00:57] r03 llm=BBBBBPBB opp=BBPFPPBB u=6.0 pen=0.720
+    [10:01:12] r04 llm=PBBBBPBBPBB opp=BBBPFBBBBBB u=-10.0 pen=0.720
+  [10:01:29] rollout opp=nash-approx (1/3)
+    [10:01:45] r01 llm=PBBBBPBBPBB opp=BPFPFBPFBPF u=-4.0 pen=0.365
+    [10:02:00] r02 llm=PBPBBBPPBB opp=PFBPFPPBPF u=4.0 pen=0.365
+    [10:02:12] r03 llm=PPBPPBPB opp=PPPPPCBB u=0.0 pen=0.365
+    [10:02:24] r04 llm=BPBBBCPCB opp=PPPFBBBBB u=1.0 pen=0.365
+  [10:02:40] rollout opp=tight-passive (2/3)
+    [10:02:54] r01 llm=PBPBBPPBP opp=PFBPFPPPP u=3.0 pen=0.365
+    [10:03:07] r02 llm=PBBBBBPBP opp=PFPFBBBPP u=-3.0 pen=0.365
+    [10:03:19] r03 llm=BBPCBBBPC opp=BBBPFPFBB u=-1.0 pen=0.365
+    [10:03:32] r04 llm=PBPBBBBPBC opp=PFBBBBBBBB u=-9.0 pen=0.365
+  [10:03:49] rollout opp=loose-aggressive (3/3)
+    [10:04:00] r01 llm=PBPBPBBBB opp=BBBPPBBBB u=-3.0 pen=0.365
+    [10:04:14] r02 llm=PBPBPBPPBB opp=BPPPPPPBPF u=0.0 pen=0.365
+    [10:04:28] r03 llm=BBPCBPBBPBC opp=BBBPFBBBBBB u=-9.0 pen=0.365
+    [10:04:41] r04 llm=PBBBBPBBPCB opp=BBBBBBBBBBB u=-8.0 pen=0.365
+  [SEPO refresh] game=kuhn step=79 cumKL=0.706
+  [10:04:58] rollout opp=nash-approx (1/3)
+    [10:05:37] r01 llm=BBPBBBBBP opp=PFBPFPFPP u=5.0 pen=1.200
+    [10:05:49] r02 llm=BBBBPBBPB opp=BBBBBBBBB u=-10.0 pen=1.200
+    [10:05:59] r03 llm=BBBBBPPB opp=BBBBPPBB u=4.0 pen=1.200
+    [10:06:13] r04 llm=PBPBPBPBB opp=PFPFBPPPF u=4.0 pen=1.200
+  [10:06:28] rollout opp=tight-passive (2/3)
+    [10:07:08] r01 llm=PPPBCPBBPBP opp=PPBBBBPFBPP u=-6.0 pen=0.000
+    [10:07:20] r02 llm=BBBBBCPB opp=PFBBBBPF u=-3.0 pen=0.000
+    [10:07:33] r03 llm=PBBBBPPBB opp=BBBPFPPPF u=2.0 pen=0.000
+    [10:07:44] r04 llm=BBPBPPBB opp=BBPFPPBB u=0.0 pen=0.000
+  [10:08:00] rollout opp=loose-aggressive (3/3)
+    [10:08:23] r01 llm=BBBBPBBPP opp=BBBBBPFPP u=-3.0 pen=0.900
+    [10:08:35] r02 llm=BPPBBBBB opp=PPBBBBBB u=2.0 pen=0.900
+    [10:08:47] r03 llm=PBBBPBBBB opp=BBBPPBBBB u=-2.0 pen=0.900
+    [10:08:58] r04 llm=BCPBBPPBP opp=BBBBPPBPP u=-4.0 pen=0.900
+  [SEPO refresh] game=kuhn step=80 cumKL=0.353
+  [10:09:14] rollout opp=nash-approx (1/3)
+    [10:09:55] r01 llm=BBPBPBPBB opp=BBPFBPPPF u=3.0 pen=3.000
+    [10:10:08] r02 llm=BBPBBBBPP opp=PFBPFPFPP u=7.0 pen=3.000
+    [10:10:21] r03 llm=PBBPBPBPPBC opp=BBBBBBPPBBB u=-2.0 pen=3.000
+    [10:10:33] r04 llm=BFBCPBBPB opp=BBBBBBBBB u=-4.0 pen=3.000
+  [10:10:50] rollout opp=tight-passive (2/3)
+    [10:11:29] r01 llm=PBBBBPPPCB opp=BPFPFPPBBB u=-3.0 pen=2.040
+    [10:11:41] r02 llm=PBPBBBPP opp=PFBBBBPP u=0.0 pen=2.040
+    [10:11:55] r03 llm=BPPBPPPBB opp=PPBBPPBBB u=-1.0 pen=2.040
+    [10:12:07] r04 llm=BBPBBBPB opp=BBPFPFPF u=3.0 pen=2.040
+  [10:12:25] rollout opp=loose-aggressive (3/3)
+    [10:12:51] r01 llm=BBBBPBPPCF opp=BBBBBPPBBB u=-5.0 pen=0.615
+    [10:13:03] r02 llm=BBPBBBBPBB opp=BBBBBBBBBB u=-8.0 pen=0.615
+    [10:13:17] r03 llm=BBPBFBBBB opp=PFBBBPFBB u=-6.0 pen=0.615
+    [10:13:29] r04 llm=BBBBPBBPB opp=BBBBBBBBB u=-10.0 pen=0.615
+[10:13:46] Step   80 | loss=0.072699 | u=-0.156 | e=1.150 | c=0.067 | x=0.400 | kl=0.384169 | pg=-0.004135
+  [10:13:46] rollout opp=nash-approx (1/3)
+    [10:14:01] r01 llm=PBBBPPBPB opp=BPFPPPFPF u=3.0 pen=1.885
+    [10:14:13] r02 llm=BBPBBBBF opp=PCPCPFBB u=7.0 pen=1.885
+    [10:14:25] r03 llm=PFBPPPBPBB opp=BBBPPBBBBB u=-6.0 pen=1.885
+    [10:14:36] r04 llm=BBBBPFPP opp=BBPFBBPP u=1.0 pen=1.885
+  [10:14:52] rollout opp=tight-passive (2/3)
+    [10:15:06] r01 llm=BCPBBPBPBP opp=BBBBBPFBPP u=-4.0 pen=1.885
+    [10:15:18] r02 llm=BBPBPBBB opp=BBPFPFBB u=-2.0 pen=1.885
+    [10:15:30] r03 llm=PBBBPBPCB opp=BBBBBBBBB u=-9.0 pen=1.885
+    [10:15:42] r04 llm=BBPPPBFPB opp=PFPPBBBBB u=-2.0 pen=1.885
+  [10:15:58] rollout opp=loose-aggressive (3/3)
+    [10:16:08] r01 llm=BCBPBBBC opp=BBPPBBBB u=2.0 pen=1.885
+    [10:16:20] r02 llm=PBPBPBBPBB opp=BBBBBBBBPF u=-3.0 pen=1.885
+    [10:16:33] r03 llm=PBBBBBPBB opp=BBBBBPPPF u=-3.0 pen=1.885
+    [10:16:44] r04 llm=BBBBPBBP opp=BBBBBBPP u=0.0 pen=1.885
+  [SEPO refresh] game=kuhn step=82 cumKL=0.754
+  [10:16:59] rollout opp=nash-approx (1/3)
+    [10:17:39] r01 llm=BBBBPBBBP opp=BBBBBBBPP u=-4.0 pen=1.740
+    [10:17:51] r02 llm=BBPBFPBBPP opp=BBBBBBBBPP u=-3.0 pen=1.740
+    [10:18:04] r03 llm=BBPBPBPBB opp=BBPFBPPPF u=4.0 pen=1.740
+    [10:18:16] r04 llm=PBBPPBBBB opp=BBBPPPFBB u=-2.0 pen=1.740
+  [10:18:34] rollout opp=tight-passive (2/3)
+    [10:19:12] r01 llm=PFBBCPBBBB opp=BBBBBBBBBB u=-9.0 pen=0.000
+    [10:19:24] r02 llm=PPBPPBBB opp=PPPPPFPF u=8.0 pen=0.000
+    [10:19:38] r03 llm=PBBPPBPBB opp=PFPPBPPPF u=3.0 pen=0.000
+    [10:19:50] r04 llm=BBPBPBBB opp=PFBBPFPF u=5.0 pen=0.000
+  [10:20:05] rollout opp=loose-aggressive (3/3)
+    [10:20:29] r01 llm=BPBBPCCBB opp=PPBBBBBBB u=-3.0 pen=0.600
+    [10:20:39] r02 llm=PBBBBFPP opp=BBBBBBPP u=-3.0 pen=0.600
+    [10:20:53] r03 llm=PFBPBBBBBB opp=BBBBBBPFPF u=-2.0 pen=0.600
+    [10:21:07] r04 llm=PBBPBBBPPBP opp=BBBBBBPPBPP u=-6.0 pen=0.600
+  [10:21:23] rollout opp=nash-approx (1/3)
+    [10:21:37] r01 llm=BPPBBBPBB opp=PPPFPFBPF u=-2.0 pen=0.780
+    [10:21:48] r02 llm=PBPBPBBB opp=BBPFPCBB u=0.0 pen=0.780
+    [10:22:00] r03 llm=BBPBBPBBBP opp=PFBBBBBBPP u=-2.0 pen=0.780
+    [10:22:12] r04 llm=PBPBBPBPBP opp=BBBBBBBBPP u=-11.0 pen=0.780
+  [10:22:28] rollout opp=tight-passive (2/3)
+    [10:22:40] r01 llm=BPPBBPBPBC opp=PPBPFBBBBB u=-4.0 pen=0.780
+    [10:22:52] r02 llm=PBBBBBPBC opp=BPFBBPPBB u=-3.0 pen=0.780
+    [10:23:03] r03 llm=BPBBBBPB opp=PPBBBBPF u=2.0 pen=0.780
+    [10:23:17] r04 llm=BBBBBPPBB opp=PFPFPPBBB u=2.0 pen=0.780
+  [10:23:33] rollout opp=loose-aggressive (3/3)
+    [10:23:45] r01 llm=BPBPPBBBB opp=PPPPBBBPF u=-4.0 pen=0.780
+    [10:23:59] r02 llm=PBBBBPBPBB opp=BPFPFBPPBB u=1.0 pen=0.780
+    [10:24:12] r03 llm=BPPBPBCPBP opp=PPBBBBBBPP u=-3.0 pen=0.780
+    [10:24:24] r04 llm=BBBBPBPCF opp=BBPFBBBBB u=-1.0 pen=0.780
+  [SEPO refresh] game=kuhn step=84 cumKL=0.928
+  [10:24:41] rollout opp=nash-approx (1/3)
+    [10:25:19] r01 llm=BBPBPBPPBB opp=PFBBBPPBBB u=0.0 pen=0.300
+    [10:25:32] r02 llm=PBBPBBPBBBB opp=BBBBBBBBBBB u=-12.0 pen=0.300
+    [10:25:43] r03 llm=PBBBBPBPBB opp=BBBPFBBBBB u=1.0 pen=0.300
+    [10:25:56] r04 llm=PBBBPBPBB opp=PFPFBBBPF u=0.0 pen=0.300
+  [10:26:13] rollout opp=tight-passive (2/3)
+    [10:26:49] r01 llm=BBBBPBPBB opp=PFPFPFBPF u=5.0 pen=0.750
+    [10:27:03] r02 llm=PBBBPCPBB opp=PFPFBBBBB u=-3.0 pen=0.750
+    [10:27:15] r03 llm=BBBBBBPBP opp=BBPFBBBPP u=-4.0 pen=0.750
+    [10:27:28] r04 llm=BPPBBBBC opp=PPPFPFBB u=3.0 pen=0.750
+  [10:27:43] rollout opp=loose-aggressive (3/3)
+    [10:28:07] r01 llm=BBBBPBPPBB opp=BBBBBPPBBB u=-10.0 pen=1.667
+    [10:28:20] r02 llm=BBPBBBBPBP opp=BBBBBBBBPP u=-6.0 pen=1.667
+    [10:28:33] r03 llm=PBBBBBBPBB opp=BBBBBPFBBB u=-6.0 pen=1.667
+    [10:28:45] r04 llm=BBBBPBBB opp=PFBBPFBB u=2.0 pen=1.667
+  [SEPO refresh] game=kuhn step=85 cumKL=0.324
+  [10:29:01] rollout opp=nash-approx (1/3)
+    [10:29:39] r01 llm=BBBBBFPCB opp=BBPCBBBBB u=-4.0 pen=2.700
+    [10:29:51] r02 llm=BBPBPBPB opp=BBPCBBPF u=-8.0 pen=2.700
+    [10:30:03] r03 llm=PBPBBPBBBB opp=PCBBBBBBBB u=6.0 pen=2.700
+    [10:30:18] r04 llm=PBBPBPPBBPBB opp=BPFBPPBPFBPF u=2.0 pen=2.700
+  [10:30:34] rollout opp=tight-passive (2/3)
+    [10:31:09] r01 llm=BPPBBBPPB opp=PPBPFPPPF u=5.0 pen=0.000
+    [10:31:23] r02 llm=BPBBPBPPBP opp=PPPFBPPBPP u=-3.0 pen=0.000
+    [10:31:37] r03 llm=PBBBPPCBPB opp=BPFPPBPFPF u=0.0 pen=0.000
+    [10:31:48] r04 llm=BBPBBFBB opp=BBBBBBPF u=0.0 pen=0.000
+  [10:32:03] rollout opp=loose-aggressive (3/3)
+    [10:32:26] r01 llm=BPPBBBPBB opp=PPBBBPPBB u=5.0 pen=2.333
+    [10:32:37] r02 llm=BCBBBBBP opp=BBBBBBPP u=-3.0 pen=2.333
+    [10:32:50] r03 llm=BBBPPBCBB opp=PFPPBBBPF u=4.0 pen=2.333
+    [10:33:02] r04 llm=BBBCBBPBB opp=PFBBBBBPF u=0.0 pen=2.333
+[10:33:17] Step   85 | loss=0.100623 | u=0.222 | e=1.119 | c=0.000 | x=0.378 | kl=0.489889 | pg=0.002645
+  [10:33:17] rollout opp=nash-approx (1/3)
+    [10:33:29] r01 llm=PCPBFPBBB opp=BPPBBBBBB u=5.0 pen=1.678
+    [10:33:42] r02 llm=PBBPPPPBB opp=PCPPPPBPF u=6.0 pen=1.678
+    [10:33:55] r03 llm=BBBPBBBB opp=PFPPPFBB u=3.0 pen=1.678
+    [10:34:07] r04 llm=BBPPBBPBB opp=BBPPPCBPC u=-1.0 pen=1.678
+  [10:34:22] rollout opp=tight-passive (2/3)
+    [10:34:34] r01 llm=PPPBPPBB opp=PPPFPPBB u=5.0 pen=1.678
+    [10:34:47] r02 llm=BBBFBBBB opp=BBBBPFPF u=3.0 pen=1.678
+    [10:35:01] r03 llm=PCPBBPBBBB opp=BPPPFBBBPF u=-1.0 pen=1.678
+    [10:35:13] r04 llm=PBPBPBPBB opp=PFPFBBBBB u=-3.0 pen=1.678
+  [10:35:28] rollout opp=loose-aggressive (3/3)
+    [10:35:43] r01 llm=BPPBBPBBPBB opp=PPBPFBBBBBB u=-6.0 pen=1.678
+    [10:35:54] r02 llm=PBBBBBBP opp=BBBBPFPP u=4.0 pen=1.678
+    [10:36:09] r03 llm=PBBPBPBBPCB opp=BBBBPPPFBPF u=-7.0 pen=1.678
+    [10:36:21] r04 llm=PBBPBPBBBB opp=BBBBBBPFBB u=-7.0 pen=1.678
+  [SEPO refresh] game=kuhn step=87 cumKL=1.052
+  [10:36:36] rollout opp=nash-approx (1/3)
+    [10:37:13] r01 llm=PCBPCBBBPBB opp=BPFBBBPFBBB u=-3.0 pen=0.375
+    [10:37:25] r02 llm=BBBBPBBBB opp=PFPFBBBPF u=-1.0 pen=0.375
+    [10:37:38] r03 llm=PPBBBPPB opp=PPPCPPPF u=5.0 pen=0.375
+    [10:37:52] r04 llm=BPPBBBFPCP opp=PPBPFBBBPP u=-1.0 pen=0.375
+  [10:38:08] rollout opp=tight-passive (2/3)
+    [10:38:42] r01 llm=PBPPPBCPP opp=BPPPPBBPP u=-1.0 pen=2.000
+    [10:38:55] r02 llm=PBPBBBBPBC opp=BPPPFBBBBB u=-7.0 pen=2.000
+    [10:39:07] r03 llm=PBBBBPPBB opp=BBBBPPBBB u=-9.0 pen=2.000
+    [10:39:22] r04 llm=PCBPBPPBPB opp=BPFBPPPFPF u=-2.0 pen=2.000
+  [10:39:39] rollout opp=loose-aggressive (3/3)
+    [10:40:04] r01 llm=BBPBPBBBB opp=PFBBBBBBB u=0.0 pen=1.500
+    [10:40:17] r02 llm=PBFBBPBBPCB opp=BBBBBBPFBPF u=-9.0 pen=1.500
+    [10:40:30] r03 llm=PBCBBPBPPFB opp=BBBBBBPPBBB u=0.0 pen=1.500
+    [10:40:40] r04 llm=BBPFBFBB opp=BBBBBBBB u=0.0 pen=1.500
+  [10:40:55] rollout opp=nash-approx (1/3)
+    [10:41:08] r01 llm=PBBBBBCPBB opp=BBBPFBBBBB u=-6.0 pen=1.292
+    [10:41:20] r02 llm=BBBBPBPCP opp=PFPCBBBPP u=-1.0 pen=1.292
+    [10:41:31] r03 llm=BBBBBBBB opp=BBBBBBBB u=1.0 pen=1.292
+    [10:41:41] r04 llm=PCPBFPBPP opp=BBBBBBBPP u=-3.0 pen=1.292
+  [10:41:56] rollout opp=tight-passive (2/3)
+    [10:42:10] r01 llm=BBBBPBBBB opp=PFPFBBBPF u=2.0 pen=1.292
+    [10:42:23] r02 llm=PBBPBPBBPB opp=BPFBBBBBPF u=-6.0 pen=1.292
+    [10:42:34] r03 llm=BPBPPBBC opp=PPPPPFBB u=1.0 pen=1.292
+    [10:42:48] r04 llm=PBBBPBCPBB opp=BPFPPBBBPF u=-3.0 pen=1.292
+  [10:43:03] rollout opp=loose-aggressive (3/3)
+    [10:43:17] r01 llm=BBPBBBBPBC opp=BBBPFPFBBB u=-6.0 pen=1.292
+    [10:43:30] r02 llm=BBBBBBPBB opp=PFBBBBBBB u=-5.0 pen=1.292
+    [10:43:43] r03 llm=PBPBBBBPB opp=PFBBBBBPF u=4.0 pen=1.292
+    [10:43:54] r04 llm=PBBBBBCPBB opp=BBBBBBBBBB u=-9.0 pen=1.292
+  [SEPO refresh] game=kuhn step=89 cumKL=0.738
+  [10:44:12] rollout opp=nash-approx (1/3)
+    [10:44:48] r01 llm=PBBPBPPFBPBB opp=BBBBPPBBBBBB u=0.0 pen=1.333
+    [10:45:00] r02 llm=PBBPPPBBBB opp=BBBPPBBBBB u=-12.0 pen=1.333
+    [10:45:13] r03 llm=PBBPBBPBBPB opp=BBBBBBBPFBB u=2.0 pen=1.333
+    [10:45:26] r04 llm=BPBBPPPBB opp=PPBBPPBBB u=-4.0 pen=1.333
+  [10:45:43] rollout opp=tight-passive (2/3)
+    [10:46:18] r01 llm=PPPBPBPB opp=PPPFBBBB u=-4.0 pen=0.840
+    [10:46:31] r02 llm=PBBBBPBB opp=PFPFPPBB u=3.0 pen=0.840
+    [10:46:43] r03 llm=BBBBBBPBC opp=BBPFBBBBB u=-4.0 pen=0.840
+    [10:46:54] r04 llm=PBPBPBPB opp=BBPFBBBB u=-5.0 pen=0.840
+  [10:47:09] rollout opp=loose-aggressive (3/3)
+    [10:47:33] r01 llm=PBBBPPBBBC opp=BPFPPBBBBB u=-2.0 pen=0.000
+    [10:47:45] r02 llm=PBBBPBCPBC opp=PFBBBBBBBB u=-6.0 pen=0.000
+    [10:47:58] r03 llm=PFBBBPBPBB opp=BPFBBBPPBB u=-1.0 pen=0.000
+    [10:48:11] r04 llm=PBPBBPBBPBB opp=BBBBBBPFBPF u=-7.0 pen=0.000
+  [SEPO refresh] game=kuhn step=90 cumKL=0.363
+  [10:48:31] rollout opp=nash-approx (1/3)
+    [10:49:05] r01 llm=PFPBPPBPB opp=BPPPPBBBB u=-6.0 pen=0.300
+    [10:49:20] r02 llm=PCPPBBPBBPBB opp=BPPBPFBBBBPF u=5.0 pen=0.300
+    [10:49:35] r03 llm=PBBPBFPBBPB opp=BBBBBBBPFPF u=-8.0 pen=0.300
+    [10:49:46] r04 llm=BBPBBPBB opp=PFBBPPBB u=9.0 pen=0.300
+  [10:50:02] rollout opp=tight-passive (2/3)
+    [10:50:41] r01 llm=BCPBBBPB opp=BBPFPFPF u=0.0 pen=3.218
+    [10:50:52] r02 llm=PFBFPBBB opp=BBBBPFBB u=-1.0 pen=3.218
+    [10:51:05] r03 llm=BBPBBPPB opp=PFPFPPPF u=8.0 pen=3.218
+    [10:51:17] r04 llm=BPPBBBBBB opp=PPBPFPFBB u=-1.0 pen=3.218
+  [10:51:33] rollout opp=loose-aggressive (3/3)
+    [10:52:03] r01 llm=PBBPBBPBBPBB opp=BBBBBBBBBBBB u=-16.0 pen=0.818
+    [10:52:15] r02 llm=BBPBBBBPP opp=BBBBBBBPP u=4.0 pen=0.818
+    [10:52:27] r03 llm=PBBBBPCFBF opp=BBBBBBBBBB u=-14.0 pen=0.818
+    [10:52:40] r04 llm=PFPPBPFBPBB opp=BPPBBBPFBBB u=3.0 pen=0.818
+[10:52:57] Step   90 | loss=0.095180 | u=-0.667 | e=0.848 | c=0.072 | x=0.369 | kl=0.508605 | pg=-0.006541
+  [SEPO refresh] game=kuhn step=91 cumKL=0.509
+  [10:52:57] rollout opp=nash-approx (1/3)
+    [10:53:37] r01 llm=BBBPPBPBB opp=BBPPBPPPF u=-4.0 pen=0.780
+    [10:53:51] r02 llm=BPPBBPCBPCB opp=PPBBBBPFBBB u=5.0 pen=0.780
+    [10:54:02] r03 llm=PBPBBBPBB opp=BBBBPFBBB u=-6.0 pen=0.780
+    [10:54:17] r04 llm=PBPBBBBPBB opp=BPPPFBBBPF u=0.0 pen=0.780
+  [10:54:35] rollout opp=tight-passive (2/3)
+    [10:55:12] r01 llm=PBBBBBBPBB opp=BBBBBBBBPF u=-10.0 pen=0.000
+    [10:55:26] r02 llm=PBBPBBPPP opp=BPFBBPPPP u=-4.0 pen=0.000
+    [10:55:39] r03 llm=PBPBBBBBB opp=BBBPFPFPF u=2.0 pen=0.000
+    [10:55:53] r04 llm=BBBBPBPBP opp=PFPFPFBPP u=2.0 pen=0.000
+  [10:56:10] rollout opp=loose-aggressive (3/3)
+    [10:56:33] r01 llm=PBPBBBBBB opp=BPPBBBBPF u=0.0 pen=0.000
+    [10:56:45] r02 llm=PBPBPBBPBC opp=BBBBBBBBBB u=-10.0 pen=0.000
+    [10:56:57] r03 llm=BBPBCBBPBC opp=BBBBBBBBBB u=-13.0 pen=0.000
+    [10:57:12] r04 llm=BBPBBPBPBB opp=PFBPFBPPBB u=0.0 pen=0.000
+  [10:57:29] rollout opp=nash-approx (1/3)
+    [10:57:44] r01 llm=PBBBBPBPFP opp=BPFPFPFBPP u=3.0 pen=0.260
+    [10:57:57] r02 llm=BBBBPBBBB opp=BBPFBPFPF u=2.0 pen=0.260
+    [10:58:08] r03 llm=PBBBBBBPFP opp=BBBBBBBBPP u=-12.0 pen=0.260
+    [10:58:23] r04 llm=PCPPBBBPBB opp=BPPBPFPPBB u=-6.0 pen=0.260
+  [10:58:40] rollout opp=tight-passive (2/3)
+    [10:58:54] r01 llm=PCPBBPBBBB opp=BPPPFBPFPF u=-1.0 pen=0.260
+    [10:59:08] r02 llm=PBBBBPBBBB opp=BPFBBBPFPF u=-4.0 pen=0.260
+    [10:59:20] r03 llm=BBPCBBBBB opp=BBBPFBBBB u=-7.0 pen=0.260
+    [10:59:33] r04 llm=BBBBBBPBP opp=PFBBPFBPP u=0.0 pen=0.260
+  [10:59:51] rollout opp=loose-aggressive (3/3)
+    [11:00:02] r01 llm=BBBBBBPFB opp=BBBBBBBBB u=-5.0 pen=0.260
+    [11:00:13] r02 llm=BBBCBBPB opp=BBBBBBBB u=-7.0 pen=0.260
+    [11:00:27] r03 llm=PFBPBBBBPBP opp=BBBBBBBBBPP u=-9.0 pen=0.260
+    [11:00:39] r04 llm=BPPBBBCPBP opp=PPBBBBBBPP u=1.0 pen=0.260
+  [SEPO refresh] game=kuhn step=93 cumKL=0.844
+  [11:00:56] rollout opp=nash-approx (1/3)
+    [11:01:32] r01 llm=PBPBBPPBP opp=PFBBPPBPP u=-2.0 pen=0.000
+    [11:01:42] r02 llm=BBPBPCPB opp=PCBBBBBB u=6.0 pen=0.000
+    [11:01:56] r03 llm=BBBBPBBPCB opp=PFPCBPFBBB u=1.0 pen=0.000
+    [11:02:09] r04 llm=PBBBPBPPB opp=BBPCBPPBB u=-4.0 pen=0.000
+  [11:02:25] rollout opp=tight-passive (2/3)
+    [11:03:02] r01 llm=BBPBBBPFB opp=BBBBPFBBB u=-8.0 pen=1.200
+    [11:03:13] r02 llm=PBPBBBBB opp=BBPFBBPF u=-1.0 pen=1.200
+    [11:03:26] r03 llm=PPBBBPPCP opp=PPPFPPBPP u=1.0 pen=1.200
+    [11:03:39] r04 llm=PBBPCCPBBP opp=BBBBBBPFPP u=-6.0 pen=1.200
+  [11:03:54] rollout opp=loose-aggressive (3/3)
+    [11:04:16] r01 llm=BBPBPBBB opp=BBBBPFPF u=0.0 pen=2.333
+    [11:04:28] r02 llm=BFPBBBBPBB opp=BBBBBBBBBB u=-7.0 pen=2.333
+    [11:04:42] r03 llm=PBBPBBPBBBP opp=BBBBBBBPFPP u=-3.0 pen=2.333
+    [11:04:54] r04 llm=BPBPPBFBC opp=PPPPBBBBB u=1.0 pen=2.333
+  [11:05:09] rollout opp=nash-approx (1/3)
+    [11:05:20] r01 llm=BBBFBBBB opp=PFBBBBPF u=1.0 pen=1.178
+    [11:05:32] r02 llm=PBBBPBBPB opp=BBBBBBBBB u=-8.0 pen=1.178
+    [11:05:45] r03 llm=PPBBBBBB opp=PPPCBBPF u=2.0 pen=1.178
+    [11:05:58] r04 llm=BBPBBBBBB opp=BBBPFBBPC u=4.0 pen=1.178
+  [11:06:14] rollout opp=tight-passive (2/3)
+    [11:06:27] r01 llm=BPBBBBPB opp=PPPFPFPF u=6.0 pen=1.178
+    [11:06:41] r02 llm=BBPBBPBBBP opp=PFBPFBPFPP u=2.0 pen=1.178
+    [11:06:54] r03 llm=PBPBPPBBP opp=BBBPPPFPP u=-2.0 pen=1.178
+    [11:07:08] r04 llm=PBBPBBBPBB opp=BBBPFPFBBB u=-6.0 pen=1.178
+  [11:07:24] rollout opp=loose-aggressive (3/3)
+    [11:07:37] r01 llm=BBPBCPBBPC opp=BBBBBBBBBB u=-10.0 pen=1.178
+    [11:07:48] r02 llm=BBBBBCPBB opp=PFBBBBBBB u=-2.0 pen=1.178
+    [11:08:02] r03 llm=PBBPBFBBPB opp=BBBBBBBBPF u=-9.0 pen=1.178
+    [11:08:14] r04 llm=BBPPBBPBF opp=PFPPBBBBB u=0.0 pen=1.178
+  [SEPO refresh] game=kuhn step=95 cumKL=0.780
+  [11:08:32] rollout opp=nash-approx (1/3)
+    [11:09:08] r01 llm=BBBPPCPBP opp=BBPPBPPPP u=-3.0 pen=0.000
+    [11:09:19] r02 llm=PBBCBPPF opp=PCBBPPBB u=7.0 pen=0.000
+    [11:09:31] r03 llm=PBBBBPBB opp=BBBBPPPF u=1.0 pen=0.000
+    [11:09:46] r04 llm=BPPCPPCBPBB opp=PPBPPBPFBPF u=1.0 pen=0.000
+  [11:10:01] rollout opp=tight-passive (2/3)
+    [11:10:37] r01 llm=PBPBPBPP opp=BBPFPFPP u=1.0 pen=1.909
+    [11:10:51] r02 llm=BBPBPBBBP opp=PFBPPPFPP u=1.0 pen=1.909
+    [11:11:03] r03 llm=BBBCBBPF opp=PFBBPFBB u=3.0 pen=1.909
+    [11:11:16] r04 llm=BPBBPBPB opp=PPPFBBPF u=3.0 pen=1.909
+  [11:11:31] rollout opp=loose-aggressive (3/3)
+    [11:11:56] r01 llm=BPBBBBPB opp=PPBBBBBB u=4.0 pen=1.909
+    [11:12:06] r02 llm=PBBBBCBB opp=BBBBBBBB u=-7.0 pen=1.909
+    [11:12:20] r03 llm=PBPPCFPBPBB opp=BPPBBBBPPBB u=-2.0 pen=1.909
+    [11:12:31] r04 llm=PBCBFPBFPF opp=BBBBBBBBBB u=-3.0 pen=1.909
+[11:12:47] Step   95 | loss=0.122254 | u=0.097 | e=0.848 | c=0.000 | x=0.278 | kl=0.539249 | pg=0.014404
+  [SEPO refresh] game=kuhn step=96 cumKL=0.539
+  [11:12:47] rollout opp=nash-approx (1/3)
+    [11:13:24] r01 llm=BBPBPBBBP opp=BBBPPPFPP u=-3.0 pen=0.000
+    [11:13:38] r02 llm=BBPBBBPPCP opp=PFBPFPPBPP u=-1.0 pen=0.000
+    [11:13:51] r03 llm=PBBBBBBPB opp=BBBPFPFBB u=-1.0 pen=0.000
+    [11:14:02] r04 llm=BBPBBPBBB opp=BBBBBPCBB u=-3.0 pen=0.000
+  [11:14:20] rollout opp=tight-passive (2/3)
+    [11:14:59] r01 llm=BBBBBBBB opp=PFBBPFPF u=2.0 pen=0.218
+    [11:15:12] r02 llm=BBBBPBPPB opp=PFPFBPPBB u=0.0 pen=0.218
+    [11:15:26] r03 llm=PCBBBBBBB opp=BPFPFPFBB u=-1.0 pen=0.218
+    [11:15:40] r04 llm=BBPBBBBPBP opp=PFBPFBBBPP u=-3.0 pen=0.218
+  [11:15:56] rollout opp=loose-aggressive (3/3)
+    [11:16:22] r01 llm=PFBPBPBPPBB opp=BBBBBBPPBBB u=-9.0 pen=0.218
+    [11:16:33] r02 llm=BBBBPBBB opp=BBBBBBBB u=-1.0 pen=0.218
+    [11:16:46] r03 llm=PBPFBPBCPBF opp=BBBBBBBBBBB u=-11.0 pen=0.218
+    [11:16:59] r04 llm=PCBPBBPFBBB opp=BPFBBBBBBBB u=-5.0 pen=0.218
+  [11:17:14] rollout opp=nash-approx (1/3)
+    [11:17:30] r01 llm=PBBBBBBPBB opp=BPFPFPCBPC u=2.0 pen=0.145
+    [11:17:44] r02 llm=PBBBBBFPBB opp=BBBPCBBBPF u=-1.0 pen=0.145
+    [11:17:56] r03 llm=PBPPBBPBB opp=BPPPFPPBB u=6.0 pen=0.145
+    [11:18:08] r04 llm=PFBPFPCBPB opp=BBBBBBPFBB u=-7.0 pen=0.145
+  [11:18:25] rollout opp=tight-passive (2/3)
+    [11:18:39] r01 llm=BPPBPBBPBB opp=PPPFBBBBPF u=-4.0 pen=0.145
+    [11:18:52] r02 llm=PBBPBBBP opp=BBPPPFPP u=1.0 pen=0.145
+    [11:19:04] r03 llm=PBFBBBBBB opp=BBBBBBBPF u=-3.0 pen=0.145
+    [11:19:18] r04 llm=PBBBBPPB opp=PFPFPPPF u=4.0 pen=0.145
+  [11:19:33] rollout opp=loose-aggressive (3/3)
+    [11:19:45] r01 llm=BPBBPBPBB opp=PPBBBBBBB u=1.0 pen=0.145
+    [11:19:56] r02 llm=PBBFBBPBB opp=BBBBPFBBB u=-1.0 pen=0.145
+    [11:20:10] r03 llm=PBPPBBPCBBB opp=BPPBBBBPFBB u=-7.0 pen=0.145
+    [11:20:21] r04 llm=BFBBPFPCP opp=BBBBBBBPP u=3.0 pen=0.145
+  [SEPO refresh] game=kuhn step=98 cumKL=0.878
+  [11:20:39] rollout opp=nash-approx (1/3)
+    [11:21:15] r01 llm=PBPBPBBPB opp=BBBBBPFBB u=-4.0 pen=1.636
+    [11:21:28] r02 llm=BPBBPBFBB opp=PPBBBBBPF u=-2.0 pen=1.636
+    [11:21:41] r03 llm=BFBBBBPBB opp=BBBBPFBBB u=2.0 pen=1.636
+    [11:21:55] r04 llm=PBBBBPBBPBP opp=BBBPFBBBBPP u=-5.0 pen=1.636
+  [11:22:13] rollout opp=tight-passive (2/3)
+    [11:22:53] r01 llm=PPBBBCPBF opp=PPPFBBBBB u=0.0 pen=1.255
+    [11:23:07] r02 llm=PFBBBPBPBB opp=BPFBBBPPPF u=0.0 pen=1.255
+    [11:23:20] r03 llm=PBBBPBBPP opp=PFBBBPFPP u=-4.0 pen=1.255
+    [11:23:33] r04 llm=PBBBBPBBPP opp=BPFPFBBBPP u=-3.0 pen=1.255
+  [11:23:51] rollout opp=loose-aggressive (3/3)
+    [11:24:17] r01 llm=PBBBBPBCPBB opp=BPFBBBBBBBB u=-5.0 pen=0.000
+    [11:24:29] r02 llm=BBBBBBBF opp=BBBBPFBB u=2.0 pen=0.000
+    [11:24:41] r03 llm=BBPBBBBPBB opp=BBBPFBBBBB u=-2.0 pen=0.000
+    [11:24:56] r04 llm=BBPBBBBPBP opp=PFBBBBBBPP u=-7.0 pen=0.000
+  [11:25:11] rollout opp=nash-approx (1/3)
+    [11:25:24] r01 llm=BPBBBBPB opp=PPPFPFPF u=6.0 pen=0.964
+    [11:25:38] r02 llm=BBPBPBPCP opp=PFPFPFBPP u=3.0 pen=0.964
+    [11:25:52] r03 llm=PBBPBBPBBB opp=BPFBPFBBPF u=0.0 pen=0.964
+    [11:26:05] r04 llm=PBPPBBPBBPB opp=BPPBPFBBBBB u=-7.0 pen=0.964
+  [11:26:20] rollout opp=tight-passive (2/3)
+    [11:26:32] r01 llm=BBPBBPFBB opp=PFBBBBBBB u=-5.0 pen=0.964
+    [11:26:44] r02 llm=BFBBBBBB opp=BBPFPFBB u=3.0 pen=0.964
+    [11:26:56] r03 llm=BBBPPBPBB opp=PFPPBBBBB u=-1.0 pen=0.964
+    [11:27:09] r04 llm=BBPBPBPPB opp=PFBBBPPBB u=-7.0 pen=0.964
+  [11:27:24] rollout opp=loose-aggressive (3/3)
+    [11:27:36] r01 llm=PBBPPBBBP opp=BBPPBBBPP u=4.0 pen=0.964
+    [11:27:48] r02 llm=BBBBBPPB opp=BBBBPPPF u=-1.0 pen=0.964
+    [11:27:58] r03 llm=PCBBPBBPP opp=BBBBBBBPP u=4.0 pen=0.964
+    [11:28:10] r04 llm=BBPBPBBB opp=BBBBPFBB u=1.0 pen=0.964
+
+Done. Final model: grpo_gemma4_kuhn/final

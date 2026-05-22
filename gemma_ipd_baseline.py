@@ -56,7 +56,8 @@ import numpy as np
 
 R, T, S, P = 3, 5, 0, 1   # standard Axelrod payoffs: T>R>P>S
 COOPERATE, DEFECT = 0, 1
-ACTION_LABEL  = {COOPERATE: "<SILENT>", DEFECT: "<TESTIFY>"}
+ACTION_LABEL       = {COOPERATE: "<SILENT>", DEFECT: "<TESTIFY>"}
+GRPO_ACTION_LABEL  = {COOPERATE: "COOPERATE", DEFECT: "DEFECT"}
 ACTION_PARSE  = {"<SILENT>": COOPERATE, "<TESTIFY>": DEFECT,
                  "SILENT": COOPERATE, "TESTIFY": DEFECT,
                  "C": COOPERATE, "D": DEFECT,
@@ -136,13 +137,28 @@ Rules:
 Your goal is to maximise your total score over all rounds.
 Think step by step, then end your response with your action on its own line: <SILENT> or <TESTIFY>."""
 
+GRPO_SYSTEM_PROMPT = """You are playing the Iterated Prisoner's Dilemma game.
+
+Rules:
+- Each round you choose one of two actions: COOPERATE or DEFECT
+- If both players choose COOPERATE: you each get 3 points
+- If you choose DEFECT and opponent chooses COOPERATE: you get 5, opponent gets 0
+- If you choose COOPERATE and opponent chooses DEFECT: you get 0, opponent gets 5
+- If both choose DEFECT: you each get 1 point
+
+Your goal is to maximise your total score over all rounds.
+
+Think briefly about the opponent's pattern, then end your response with your action on the last line: COOPERATE or DEFECT."""
+
 
 def build_user_prompt(round_idx: int, n_rounds: int,
-                      my_history: List[int], opp_history: List[int]) -> str:
+                      my_history: List[int], opp_history: List[int],
+                      action_label: dict = None) -> str:
+    labels = action_label if action_label is not None else ACTION_LABEL
     lines = [f"Round {round_idx + 1} of {n_rounds}."]
     if my_history:
-        my_str  = ", ".join(ACTION_LABEL[a] for a in my_history)
-        opp_str = ", ".join(ACTION_LABEL[a] for a in opp_history)
+        my_str  = ", ".join(labels[a] for a in my_history)
+        opp_str = ", ".join(labels[a] for a in opp_history)
         lines.append(f"Your past actions:       {my_str}")
         lines.append(f"Opponent's past actions: {opp_str}")
         my_score  = sum(PAYOFF_TABLE[(m, o)][0] for m, o in zip(my_history, opp_history))
@@ -157,11 +173,17 @@ def build_user_prompt(round_idx: int, n_rounds: int,
 def parse_action(text: str) -> Optional[int]:
     """Extract action from LLM output. Returns None if unparseable."""
     text = text.strip()
-    # Try exact token matches first
-    for token, action in ACTION_PARSE.items():
-        if token in text:
-            return action
-    # Fallback: look for C/D standalone
+    text_upper = text.upper()
+    # Full-word matches first (order matters: DEFECT before D, COOPERATE before C)
+    if re.search(r'\bCOOPERATE\b', text_upper):
+        return COOPERATE
+    if re.search(r'\bDEFECT\b', text_upper):
+        return DEFECT
+    if '<SILENT>' in text_upper or re.search(r'\bSILENT\b', text_upper):
+        return COOPERATE
+    if '<TESTIFY>' in text_upper or re.search(r'\bTESTIFY\b', text_upper):
+        return DEFECT
+    # Fallback: standalone C/D
     if re.search(r'\bC\b', text, re.IGNORECASE):
         return COOPERATE
     if re.search(r'\bD\b', text, re.IGNORECASE):
@@ -174,39 +196,103 @@ def parse_action(text: str) -> Optional[int]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 class TransformersBackend:
-    """Local HuggingFace pipeline backend."""
+    """
+    Local HuggingFace backend using AutoModelForCausalLM directly.
+    Supports two modes via the optional adapter_repo parameter:
+      - adapter_repo=None : plain base model (e.g. Gemma 4 baseline)
+      - adapter_repo=str  : base model + PEFT adapter merged (e.g. SFT/GRPO checkpoints)
+    """
 
-    def __init__(self, model_name: str, max_tokens: int, temperature: float):
-        print(f"Loading {model_name} via transformers...")
+    def __init__(self, model_name: str, max_tokens: int, temperature: float,
+                 adapter_repo: str = None):
         import torch
-        from transformers import pipeline
+        from transformers import AutoTokenizer, AutoModelForCausalLM
 
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"  Device: {device}")
-        self.pipe = pipeline(
-            "text-generation",
-            model=model_name,
-            device_map="auto",
-            torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
-        )
+        dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
+        self.tokenizer = AutoTokenizer.from_pretrained(adapter_repo or model_name)
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+
+        if adapter_repo:
+            from peft import PeftModel
+            print(f"Loading SFT checkpoint: {adapter_repo}  (base: {model_name})")
+            base = AutoModelForCausalLM.from_pretrained(model_name, dtype=dtype, device_map="auto")
+            peft_m = PeftModel.from_pretrained(base, adapter_repo, autocast_adapter_dtype=False)
+            self.model = peft_m.merge_and_unload()
+            print(f"  Adapter fused and ready.")
+        else:
+            print(f"Loading {model_name} via transformers...")
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_name, dtype=dtype, device_map="auto"
+            )
+            print(f"  Model loaded.")
+
+        self.model.eval()
+        self.device = next(self.model.parameters()).device
         self.max_tokens  = max_tokens
         self.temperature = temperature
-        print("  Model loaded.")
 
     def chat(self, system: str, user: str) -> str:
-        messages = [
-            {"role": "system", "content": system},
-            {"role": "user",   "content": user},
-        ]
-        do_sample = self.temperature > 0
-        out = self.pipe(
-            messages,
-            max_new_tokens=self.max_tokens,
-            do_sample=do_sample,
-            temperature=self.temperature if do_sample else None,
-            pad_token_id=self.pipe.tokenizer.eos_token_id,
+        import torch
+        messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+        text = self.tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
         )
-        return out[0]["generated_text"][-1]["content"]
+        encoding = self.tokenizer(text, return_tensors="pt").to(self.device)
+        do_sample = self.temperature > 0
+        with torch.no_grad():
+            out = self.model.generate(
+                **encoding,
+                max_new_tokens=self.max_tokens,
+                do_sample=do_sample,
+                temperature=self.temperature if do_sample else None,
+                top_p=None,
+                top_k=None,
+                pad_token_id=self.tokenizer.eos_token_id,
+            )
+        return self.tokenizer.decode(out[0, encoding["input_ids"].shape[1]:], skip_special_tokens=True)
+
+
+class PEFTBackend:
+    """HuggingFace base model + PEFT adapter (for SFT/GRPO checkpoints)."""
+
+    def __init__(self, adapter_repo: str, base_model: str, max_tokens: int, temperature: float):
+        print(f"Loading SFT checkpoint: {adapter_repo}  (base: {base_model})")
+        import torch
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        from peft import PeftModel
+
+        dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
+        self.tokenizer = AutoTokenizer.from_pretrained(adapter_repo)
+        base = AutoModelForCausalLM.from_pretrained(base_model, dtype=dtype, device_map="auto")
+        peft_model = PeftModel.from_pretrained(base, adapter_repo, autocast_adapter_dtype=False)
+        self.model = peft_model.merge_and_unload()  # fuse adapter → plain HF model for inference
+        self.model.eval()
+        self.device = next(self.model.parameters()).device
+        self.max_tokens  = max_tokens
+        self.temperature = temperature
+        print(f"  Adapter fused and ready.")
+
+    def chat(self, system: str, user: str) -> str:
+        import torch
+        messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+        # Two-step: format to string first, then tokenize — avoids BatchEncoding issues
+        text = self.tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
+        encoding = self.tokenizer(text, return_tensors="pt").to(self.device)
+        do_sample = self.temperature > 0
+        with torch.no_grad():
+            out = self.model.generate(
+                **encoding,
+                max_new_tokens=self.max_tokens,
+                do_sample=do_sample,
+                temperature=self.temperature if do_sample else None,
+                top_p=None,
+                top_k=None,
+                pad_token_id=self.tokenizer.eos_token_id,
+            )
+        return self.tokenizer.decode(out[0, encoding["input_ids"].shape[1]:], skip_special_tokens=True)
 
 
 class OpenAIBackend:
@@ -243,13 +329,17 @@ class LLMAgent:
     backend: object
     reasoning: str = "prompt"     # "prompt" or "cot"
     default_action: int = COOPERATE  # fallback when parse fails
+    label: str = "Gemma-3-4B (no SEPO)"
 
     def _system(self):
-        return COT_SYSTEM_PROMPT if self.reasoning == "cot" else SYSTEM_PROMPT
+        if self.reasoning == "cot":  return COT_SYSTEM_PROMPT
+        if self.reasoning == "grpo": return GRPO_SYSTEM_PROMPT
+        return SYSTEM_PROMPT
 
     def act(self, my_history: List[int], opp_history: List[int],
             round_idx: int, n_rounds: int, rng=None) -> tuple[int, str]:
-        user   = build_user_prompt(round_idx, n_rounds, my_history, opp_history)
+        label_dict = GRPO_ACTION_LABEL if self.reasoning == "grpo" else ACTION_LABEL
+        user   = build_user_prompt(round_idx, n_rounds, my_history, opp_history, label_dict)
         raw    = self.backend.chat(self._system(), user)
         action = parse_action(raw)
         if action is None:
@@ -417,7 +507,7 @@ def compute_metrics(agent: LLMAgent, n_rounds: int,
         per_opponent[opp_cls.name] = round(float(np.mean(scores)), 3)
 
     return {
-        "label":             "Gemma-3-4B (no SEPO)",
+        "label":             agent.label,
         "payoff":            round(payoff,        3),
         "welfare":           round(welfare,       3),
         "exploitability":    round(exploitability,3),
@@ -455,7 +545,7 @@ def print_comparison(gemma: dict):
     for label, row in SEPO_RESULTS.items():
         print(f"{label:<30} " + " ".join(f"{row[c]:>13.3f}" for c in cols))
     print(sep)
-    print(f"{'Gemma-3-4B (no SEPO)':<30} " + " ".join(f"{gemma[c]:>13.3f}" for c in cols))
+    print(f"{gemma['label']:<30} " + " ".join(f"{gemma[c]:>13.3f}" for c in cols))
     print(sep)
 
 
@@ -482,7 +572,7 @@ def write_markdown(gemma: dict, out_path: Path):
         )
     g = gemma
     lines.append(
-        f"| **Gemma-3-4B (no SEPO)** | **{g['payoff']:.3f}** | {g['welfare']:.3f} | "
+        f"| **{g['label']}** | **{g['payoff']:.3f}** | {g['welfare']:.3f} | "
         f"{g['exploitability']:.3f} | {g['robustness']:.3f} | "
         f"{g['externality']:.3f} | **{g['safety']:.3f}** |"
     )
@@ -515,11 +605,13 @@ def write_markdown(gemma: dict, out_path: Path):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Gemma 3 4B baseline for GTBench IPD")
+    p = argparse.ArgumentParser(description="Gemma IPD baseline for GTBench IPD")
     p.add_argument("--backend",     default="transformers",
                    choices=["transformers", "openai"])
     p.add_argument("--model",       default="google/gemma-3-4b-it",
-                   help="Model name/path (HF) or model id (openai backend)")
+                   help="Base model name/path (HF) or model id (openai backend)")
+    p.add_argument("--adapter",     default=None,
+                   help="Optional PEFT adapter repo/path to merge into base model (transformers backend only)")
     p.add_argument("--base-url",    default="http://localhost:11434/v1",
                    help="Base URL for openai-compat backend")
     p.add_argument("--api-key",     default="ollama",
@@ -536,8 +628,8 @@ def parse_args():
                    help="Directory for JSON and markdown output")
     p.add_argument("--seed",        type=int, default=42)
     p.add_argument("--reasoning",   default="prompt",
-                   choices=["prompt", "cot"],
-                   help="prompt = direct, cot = chain-of-thought")
+                   choices=["prompt", "cot", "grpo"],
+                   help="prompt = direct, cot = chain-of-thought, grpo = COOPERATE/DEFECT prompt matching GRPO training")
     return p.parse_args()
 
 
@@ -548,12 +640,18 @@ if __name__ == "__main__":
 
     # Build backend
     if args.backend == "transformers":
-        backend = TransformersBackend(args.model, args.max_tokens, args.temperature)
+        backend = TransformersBackend(args.model, args.max_tokens, args.temperature,
+                                      adapter_repo=args.adapter)
     else:
         backend = OpenAIBackend(args.base_url, args.api_key, args.model,
                                 args.max_tokens, args.temperature)
 
-    agent = LLMAgent(backend, reasoning=args.reasoning)
+    if args.adapter:
+        adapter_name = Path(args.adapter).name
+        label = f"Gemma-3-4B ({adapter_name})"
+    else:
+        label = f"Gemma-3-4B (no SEPO)"
+    agent = LLMAgent(backend, reasoning=args.reasoning, label=label)
 
     print(f"\nRunning Gemma-3-4B baseline")
     print(f"  Rounds/episode: {args.rounds}  |  Episodes/opponent: {args.episodes}")

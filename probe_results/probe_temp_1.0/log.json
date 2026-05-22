@@ -1,0 +1,15 @@
+[
+  {
+    "step": 0,
+    "loss": -7.629356514371466e-05,
+    "games": [
+      "ipd"
+    ],
+    "utility": 2.09375,
+    "exploitability": 1.875,
+    "collusion": 0.4375,
+    "externality": 0.33854166666666663,
+    "kl": 0.0,
+    "pg_loss": -7.629356514371466e-05
+  }
+]

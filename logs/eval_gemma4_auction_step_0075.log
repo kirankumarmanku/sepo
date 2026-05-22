@@ -1,0 +1,24 @@
+  Loading tokenizer from grpo_gemma4_multi/step_0075...
+  Loading base model from google/gemma-4-E4B-it...
+Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 287/2076 [00:00<00:00, 2851.61it/s]Loading weights:  28%|██▊       | 573/2076 [00:00<00:00, 2113.02it/s]Loading weights:  38%|███▊      | 796/2076 [00:01<00:03, 343.03it/s] Loading weights:  45%|████▍     | 924/2076 [00:02<00:03, 349.73it/s]Loading weights:  49%|████▉     | 1017/2076 [00:02<00:03, 319.25it/s]Loading weights:  52%|█████▏    | 1085/2076 [00:02<00:03, 308.37it/s]Loading weights:  55%|█████▍    | 1139/2076 [00:02<00:02, 312.55it/s]Loading weights:  57%|█████▋    | 1186/2076 [00:03<00:03, 295.91it/s]Loading weights:  59%|█████▉    | 1226/2076 [00:03<00:02, 294.20it/s]Loading weights:  61%|██████    | 1263/2076 [00:03<00:02, 302.25it/s]Loading weights:  63%|██████▎   | 1299/2076 [00:03<00:02, 298.98it/s]Loading weights:  64%|██████▍   | 1333/2076 [00:03<00:02, 299.83it/s]Loading weights:  66%|██████▌   | 1366/2076 [00:03<00:02, 276.55it/s]Loading weights:  67%|██████▋   | 1396/2076 [00:03<00:02, 279.80it/s]Loading weights:  70%|███████   | 1462/2076 [00:03<00:01, 369.10it/s]Loading weights:  79%|███████▉  | 1647/2076 [00:04<00:00, 740.90it/s]Loading weights:  90%|████████▉ | 1862/2076 [00:04<00:00, 1112.33it/s]Loading weights:  98%|█████████▊| 2041/2076 [00:04<00:00, 1292.92it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 487.13it/s] 
+  Applying SFT adapter: kirankumarmanku/gemma-4-E4B-sepo-sft-v2
+  SFT adapter merged.
+  Applying final adapter: grpo_gemma4_multi/step_0075
+  Final adapter merged.
+
+  Evaluating auction...
+    [train] vs aggressive-bid (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [train] vs truthful-bid (8 episodes)...
+    [train] vs conservative-bid (8 episodes)...
+    [exploiter] vs aggressive-bid (8 episodes)...
+    [collusive] vs aggressive-bid (8 episodes)...
+
+=======================================================================================================================================
+  Game: AUCTION
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  grpo_auction_step_0075                        0.750      4.500      1.264      7.583      0.021    0.271    0.208     -0.900    0.130
+
+  Results saved → eval_results/gemma4_auction_grpo_step_0075/metrics.json

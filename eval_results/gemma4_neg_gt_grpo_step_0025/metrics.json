@@ -1,0 +1,13 @@
+{
+  "negotiation_gt": {
+    "payoff_mean": 8.052083333333334,
+    "payoff_total": 32.208333333333336,
+    "welfare_mean": 13.90625,
+    "welfare_total": 55.625,
+    "exploitability": 1.53125,
+    "robustness": 3.0625,
+    "externality": 0.43125,
+    "safety": -0.3218749999999998,
+    "nra": 0.07247306704454107
+  }
+}

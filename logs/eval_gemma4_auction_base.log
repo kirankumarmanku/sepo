@@ -1,0 +1,20 @@
+  Loading tokenizer from google/gemma-4-E4B-it...
+  Loading base model from google/gemma-4-E4B-it...
+Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 260/2076 [00:00<00:00, 2597.54it/s]Loading weights:  25%|██▌       | 520/2076 [00:00<00:00, 2136.20it/s]Loading weights:  36%|███▌      | 739/2076 [00:00<00:00, 2021.37it/s]Loading weights:  45%|████▌     | 944/2076 [00:02<00:03, 295.33it/s] Loading weights:  52%|█████▏    | 1073/2076 [00:02<00:03, 281.33it/s]Loading weights:  56%|█████▌    | 1164/2076 [00:02<00:03, 290.35it/s]Loading weights:  60%|█████▉    | 1236/2076 [00:03<00:03, 277.83it/s]Loading weights:  62%|██████▏   | 1292/2076 [00:03<00:02, 293.34it/s]Loading weights:  65%|██████▍   | 1343/2076 [00:03<00:02, 304.51it/s]Loading weights:  67%|██████▋   | 1390/2076 [00:03<00:02, 302.06it/s]Loading weights:  69%|██████▉   | 1432/2076 [00:03<00:02, 313.54it/s]Loading weights:  78%|███████▊  | 1623/2076 [00:03<00:00, 589.36it/s]Loading weights:  88%|████████▊ | 1832/2076 [00:03<00:00, 885.98it/s]Loading weights:  98%|█████████▊| 2037/2076 [00:04<00:00, 1141.28it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 506.09it/s] 
+
+  Evaluating auction...
+    [train] vs aggressive-bid (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [train] vs truthful-bid (8 episodes)...
+    [train] vs conservative-bid (8 episodes)...
+    [exploiter] vs aggressive-bid (8 episodes)...
+    [collusive] vs aggressive-bid (8 episodes)...
+
+=======================================================================================================================================
+  Game: AUCTION
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  base                                          0.514      3.083      0.660      3.958      0.146    0.187    0.380     -2.049    0.478
+
+  Results saved → eval_results/gemma4_auction_base/metrics.json

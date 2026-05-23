@@ -1,0 +1,15 @@
+  Loading tokenizer from grpo_qwen_neg_gt/final...
+  Loading base model from Qwen/Qwen3.5-4B...
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 6472.69it/s]
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   0%|          | 1/426 [00:00<00:55,  7.63it/s]Loading weights:   7%|▋         | 28/426 [00:00<00:02, 138.40it/s]Loading weights:  11%|█         | 46/426 [00:00<00:02, 152.48it/s]Loading weights:  18%|█▊        | 76/426 [00:00<00:01, 203.12it/s]Loading weights:  23%|██▎       | 97/426 [00:00<00:01, 200.05it/s]Loading weights:  28%|██▊       | 119/426 [00:00<00:01, 200.64it/s]Loading weights:  34%|███▍      | 146/426 [00:00<00:01, 214.71it/s]Loading weights:  39%|███▉      | 168/426 [00:00<00:01, 213.17it/s]Loading weights:  45%|████▍     | 190/426 [00:00<00:01, 213.43it/s]Loading weights:  50%|████▉     | 212/426 [00:01<00:01, 203.07it/s]Loading weights:  56%|█████▌    | 238/426 [00:01<00:00, 216.20it/s]Loading weights:  61%|██████    | 260/426 [00:01<00:00, 199.51it/s]Loading weights:  68%|██████▊   | 288/426 [00:01<00:00, 218.40it/s]Loading weights:  73%|███████▎  | 311/426 [00:01<00:00, 200.20it/s]Loading weights:  78%|███████▊  | 333/426 [00:01<00:00, 205.00it/s]Loading weights:  84%|████████▍ | 358/426 [00:01<00:00, 216.52it/s]Loading weights:  90%|████████▉ | 383/426 [00:01<00:00, 219.14it/s]Loading weights:  95%|█████████▌| 406/426 [00:01<00:00, 221.58it/s]Loading weights: 100%|██████████| 426/426 [00:02<00:00, 201.62it/s]
+  Applying SFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-neg-gtbench-sft
+  SFT adapter merged.
+  Applying final adapter: grpo_qwen_neg_gt/final
+  Final adapter merged.
+
+  Evaluating negotiation_gt...
+    [train] vs fair-neg (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [train] vs tft-neg (8 episodes)...
+    [train] vs concede-neg (8 episodes)...
+    [exploiter] vs greedy-neg (8 episodes)...

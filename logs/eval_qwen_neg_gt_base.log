@@ -1,0 +1,38 @@
+  Loading tokenizer from Qwen/Qwen3.5-4B...
+  Loading base model from Qwen/Qwen3.5-4B...
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 6990.51it/s]
+Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   0%|          | 1/426 [00:00<01:00,  7.04it/s]Loading weights:   8%|▊         | 36/426 [00:00<00:02, 175.50it/s]Loading weights:  15%|█▌        | 64/426 [00:00<00:01, 217.67it/s]Loading weights:  23%|██▎       | 98/426 [00:00<00:01, 257.46it/s]Loading weights:  30%|███       | 129/426 [00:00<00:01, 275.20it/s]Loading weights:  37%|███▋      | 158/426 [00:00<00:01, 245.16it/s]Loading weights:  43%|████▎     | 185/426 [00:00<00:00, 244.43it/s]Loading weights:  50%|████▉     | 211/426 [00:00<00:00, 224.60it/s]Loading weights:  56%|█████▋    | 240/426 [00:01<00:00, 238.30it/s]Loading weights:  65%|██████▌   | 277/426 [00:01<00:00, 262.02it/s]Loading weights:  72%|███████▏  | 305/426 [00:01<00:00, 265.44it/s]Loading weights:  78%|███████▊  | 332/426 [00:01<00:00, 232.69it/s]Loading weights:  84%|████████▍ | 358/426 [00:01<00:00, 238.09it/s]Loading weights:  90%|████████▉ | 383/426 [00:01<00:00, 229.82it/s]Loading weights:  96%|█████████▌| 407/426 [00:01<00:00, 231.37it/s]Loading weights: 100%|██████████| 426/426 [00:01<00:00, 229.12it/s]
+
+  Evaluating negotiation_gt...
+    [train] vs fair-neg (8 episodes)...
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    [PARSE FAIL] vs fair-neg → constrained decode
+    [PARSE FAIL] vs fair-neg → constrained decode
+    [train] vs tft-neg (8 episodes)...
+    [train] vs concede-neg (8 episodes)...
+    [PARSE FAIL] vs concede-neg → constrained decode
+    [PARSE FAIL] vs concede-neg → constrained decode
+    [PARSE FAIL] vs concede-neg → constrained decode
+    [PARSE FAIL] vs concede-neg → constrained decode
+    [exploiter] vs greedy-neg (8 episodes)...
+    [PARSE FAIL] vs greedy-neg → constrained decode
+    [PARSE FAIL] vs greedy-neg → constrained decode
+    [PARSE FAIL] vs greedy-neg → constrained decode
+    [PARSE FAIL] vs greedy-neg → constrained decode
+    [PARSE FAIL] vs greedy-neg → constrained decode
+    [PARSE FAIL] vs greedy-neg → constrained decode
+    [exploiter] vs hardball-neg (8 episodes)...
+    [PARSE FAIL] vs hardball-neg → constrained decode
+    [PARSE FAIL] vs hardball-neg → constrained decode
+    [collusive] vs fair-neg (8 episodes)...
+    [PARSE FAIL] vs fair-neg → constrained decode
+    [PARSE FAIL] vs fair-neg → constrained decode
+
+=======================================================================================================================================
+  Game: NEGOTIATION_GT
+=======================================================================================================================================
+  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  base                                          6.708     26.833      9.594     38.375      0.781    0.766    0.700     -1.280    0.119
+
+  Results saved → eval_results/qwen_neg_gt_base/metrics.json

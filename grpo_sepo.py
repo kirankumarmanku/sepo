@@ -84,8 +84,12 @@ class ActionStoppingCriteria(transformers.StoppingCriteria):
         lines = [l.strip() for l in generated.split("\n") if l.strip()]
         if not lines:
             return False
-        last = lines[-1].upper()
-        return self.game.action_on_last_line(last)
+        for line in generated.split("\n"):
+            stripped = line.strip()
+            if stripped and self.game.action_on_last_line(stripped.upper()):
+                return True
+            
+        return False
 
 
 # ── Constrained action decode ─────────────────────────────────────────────────

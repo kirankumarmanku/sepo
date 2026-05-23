@@ -1,0 +1,17 @@
+{
+  "total": 38970,
+  "train": 31175,
+  "valid": 7795,
+  "per_game": {
+    "ipd": 8000,
+    "resource": 7992,
+    "auction": 7992,
+    "negotiation": 8004,
+    "kuhn": 6982
+  },
+  "sources": [
+    "sepo_sft_data_multi",
+    "sepo_sft_data_kuhn"
+  ],
+  "seed": 42
+}

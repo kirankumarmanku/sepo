@@ -1,8 +1,39 @@
-# Created by venv; see https://docs.python.org/3/library/venv.html
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Virtual environments
 bin/
 include/
 lib/
 venv/
 .venv/
 env/
-__pycache__/
+pyvenv.cfg
+
+# Training outputs (checkpoints, logs, results)
+outputs/
+logs/
+eval_results/
+probe_results/
+
+# Run-specific output directories
+sft_gemma3_v2/
+sft_gemma4_*/
+sft_multi_*/
+sft_qwen_*/
+grpo_gemma4_*/
+grpo_qwen_*/
+results/
+results_gemma4/
+sepo_sft_data/
+sepo_sft_neg_gtbench/
+
+# Data files (regenerated)
+*.jsonl
+
+# Misc
+.DS_Store
+*.bak

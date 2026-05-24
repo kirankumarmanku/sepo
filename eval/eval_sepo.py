@@ -32,14 +32,11 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from games import Episode
 from games.auction import AuctionGame
 from games.ipd import IPDGame
+from games.kuhn import KuhnPokerGame
 from games.negotiation import NegotiationGame
-from games.kuhn import KuhnPokerGame
-from grpo_sepo import forced_action_decode
-
 from games.negotiation_gtbench import NegotiationGTBenchGame
-from games.kuhn import KuhnPokerGame
 from games.resource import ResourceGame
-from grpo_sepo import forced_action_decode
+from train.grpo import forced_action_decode
 
 GAME_REGISTRY = {
     "ipd": IPDGame(n_rounds=8),

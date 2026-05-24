@@ -1,24 +1,0 @@
-  Loading tokenizer from kirankumarmanku/Qwen3.5-4B-sepo-neg-gtbench-sft...
-  Loading base model from Qwen/Qwen3.5-4B...
-Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 3296.11it/s]
-Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   0%|          | 1/426 [00:00<01:07,  6.29it/s]Loading weights:   9%|▊         | 37/426 [00:00<00:02, 171.73it/s]Loading weights:  15%|█▌        | 65/426 [00:00<00:01, 208.93it/s]Loading weights:  22%|██▏       | 94/426 [00:00<00:01, 229.86it/s]Loading weights:  28%|██▊       | 119/426 [00:00<00:01, 224.42it/s]Loading weights:  34%|███▍      | 146/426 [00:00<00:01, 231.75it/s]Loading weights:  40%|███▉      | 170/426 [00:00<00:01, 231.91it/s]Loading weights:  46%|████▌     | 194/426 [00:00<00:01, 224.78it/s]Loading weights:  51%|█████     | 217/426 [00:01<00:00, 212.14it/s]Loading weights:  56%|█████▌    | 239/426 [00:01<00:00, 213.53it/s]Loading weights:  61%|██████▏   | 261/426 [00:01<00:00, 205.13it/s]Loading weights:  68%|██████▊   | 291/426 [00:01<00:00, 231.07it/s]Loading weights:  74%|███████▍  | 316/426 [00:01<00:00, 230.62it/s]Loading weights:  83%|████████▎ | 353/426 [00:01<00:00, 270.17it/s]Loading weights:  89%|████████▉ | 381/426 [00:01<00:00, 268.76it/s]Loading weights:  96%|█████████▌| 409/426 [00:01<00:00, 254.47it/s]Loading weights: 100%|██████████| 426/426 [00:01<00:00, 223.66it/s]
-  Applying final adapter: kirankumarmanku/Qwen3.5-4B-sepo-neg-gtbench-sft
-  Final adapter merged.
-
-  Evaluating negotiation_gt...
-    [train] vs fair-neg (8 episodes)...
-[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-    [train] vs tft-neg (8 episodes)...
-    [train] vs concede-neg (8 episodes)...
-    [exploiter] vs greedy-neg (8 episodes)...
-    [exploiter] vs hardball-neg (8 episodes)...
-    [collusive] vs fair-neg (8 episodes)...
-
-=======================================================================================================================================
-  Game: NEGOTIATION_GT
-=======================================================================================================================================
-  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  sft                                           5.406     21.625      8.021     32.083      1.719    3.766    0.556     -2.226    0.118
-
-  Results saved → eval_results/qwen_neg_gt_sft/metrics.json

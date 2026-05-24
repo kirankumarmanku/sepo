@@ -1,24 +1,0 @@
-  Loading tokenizer from grpo_gemma4_multi/step_0025...
-  Loading base model from google/gemma-4-E4B-it...
-Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 254/2076 [00:00<00:00, 2535.29it/s]Loading weights:  24%|██▍       | 508/2076 [00:00<00:00, 2053.62it/s]Loading weights:  35%|███▍      | 720/2076 [00:00<00:00, 1945.43it/s]Loading weights:  44%|████▍     | 918/2076 [00:02<00:04, 289.11it/s] Loading weights:  50%|█████     | 1042/2076 [00:02<00:03, 289.00it/s]Loading weights:  55%|█████▍    | 1132/2076 [00:02<00:03, 287.79it/s]Loading weights:  58%|█████▊    | 1201/2076 [00:03<00:03, 279.12it/s]Loading weights:  61%|██████    | 1256/2076 [00:03<00:02, 279.46it/s]Loading weights:  63%|██████▎   | 1302/2076 [00:03<00:02, 283.36it/s]Loading weights:  65%|██████▍   | 1344/2076 [00:03<00:02, 280.81it/s]Loading weights:  67%|██████▋   | 1381/2076 [00:03<00:02, 275.72it/s]Loading weights:  68%|██████▊   | 1415/2076 [00:03<00:02, 279.45it/s]Loading weights:  77%|███████▋  | 1589/2076 [00:03<00:00, 551.52it/s]Loading weights:  86%|████████▋ | 1794/2076 [00:04<00:00, 866.65it/s]Loading weights:  97%|█████████▋| 2018/2076 [00:04<00:00, 1182.82it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 491.34it/s] 
-  Applying SFT adapter: kirankumarmanku/gemma-4-E4B-sepo-sft-v2
-  SFT adapter merged.
-  Applying final adapter: grpo_gemma4_multi/step_0025
-  Final adapter merged.
-
-  Evaluating auction...
-    [train] vs aggressive-bid (8 episodes)...
-[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-    [train] vs truthful-bid (8 episodes)...
-    [train] vs conservative-bid (8 episodes)...
-    [exploiter] vs aggressive-bid (8 episodes)...
-    [collusive] vs aggressive-bid (8 episodes)...
-
-=======================================================================================================================================
-  Game: AUCTION
-=======================================================================================================================================
-  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  grpo_auction_step_0025                        0.611      3.667      1.056      6.333      0.167    0.229    0.250     -1.689    0.086
-
-  Results saved → eval_results/gemma4_auction_grpo_step_0025/metrics.json

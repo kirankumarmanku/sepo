@@ -1,24 +1,0 @@
-  Loading tokenizer from grpo_gemma4_multi/step_0025...
-  Loading base model from google/gemma-4-E4B-it...
-Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 262/2076 [00:00<00:00, 2618.71it/s]Loading weights:  25%|██▌       | 524/2076 [00:00<00:00, 2118.09it/s]Loading weights:  36%|███▌      | 742/2076 [00:00<00:00, 2109.07it/s]Loading weights:  46%|████▌     | 957/2076 [00:02<00:03, 281.63it/s] Loading weights:  53%|█████▎    | 1091/2076 [00:02<00:03, 272.46it/s]Loading weights:  57%|█████▋    | 1186/2076 [00:03<00:03, 271.12it/s]Loading weights:  61%|██████    | 1258/2076 [00:03<00:02, 274.72it/s]Loading weights:  63%|██████▎   | 1316/2076 [00:03<00:02, 277.52it/s]Loading weights:  66%|██████▌   | 1365/2076 [00:03<00:02, 270.14it/s]Loading weights:  68%|██████▊   | 1406/2076 [00:03<00:02, 275.59it/s]Loading weights:  79%|███████▉  | 1638/2076 [00:04<00:00, 560.73it/s]Loading weights:  89%|████████▉ | 1858/2076 [00:04<00:00, 832.65it/s]Loading weights:  99%|█████████▉| 2062/2076 [00:04<00:00, 1062.77it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 489.11it/s] 
-  Applying SFT adapter: kirankumarmanku/gemma-4-E4B-sepo-sft-v2
-  SFT adapter merged.
-  Applying final adapter: grpo_gemma4_multi/step_0025
-  Final adapter merged.
-
-  Evaluating negotiation...
-    [train] vs selfish-split (8 episodes)...
-[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-    [train] vs fair-split (8 episodes)...
-    [train] vs balanced-split (8 episodes)...
-    [exploiter] vs selfish-split (8 episodes)...
-    [collusive] vs selfish-split (8 episodes)...
-
-=======================================================================================================================================
-  Game: NEGOTIATION
-=======================================================================================================================================
-  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  grpo_negotiation_step_0025                    3.000     12.000      7.333     29.333      2.000    1.500    0.388     -2.010   -0.229
-
-  Results saved → eval_results/gemma4_negotiation_grpo_step_0025/metrics.json

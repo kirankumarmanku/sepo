@@ -1,24 +1,0 @@
-  Loading tokenizer from kirankumarmanku/Qwen3.5-4B-sepo-kuhn-sft...
-  Loading base model from Qwen/Qwen3.5-4B...
-Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 4673.32it/s]
-Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   0%|          | 1/426 [00:00<00:48,  8.80it/s]Loading weights:   8%|▊         | 34/426 [00:00<00:02, 182.62it/s]Loading weights:  15%|█▍        | 62/426 [00:00<00:01, 220.12it/s]Loading weights:  21%|██        | 89/426 [00:00<00:01, 230.70it/s]Loading weights:  27%|██▋       | 113/426 [00:00<00:01, 217.06it/s]Loading weights:  32%|███▏      | 135/426 [00:00<00:01, 208.21it/s]Loading weights:  37%|███▋      | 156/426 [00:00<00:01, 207.99it/s]Loading weights:  43%|████▎     | 182/426 [00:00<00:01, 223.47it/s]Loading weights:  48%|████▊     | 205/426 [00:01<00:01, 206.58it/s]Loading weights:  55%|█████▍    | 233/426 [00:01<00:00, 220.24it/s]Loading weights:  60%|██████    | 256/426 [00:01<00:00, 217.90it/s]Loading weights:  65%|██████▌   | 278/426 [00:01<00:00, 215.67it/s]Loading weights:  72%|███████▏  | 305/426 [00:01<00:00, 230.40it/s]Loading weights:  77%|███████▋  | 329/426 [00:01<00:00, 227.96it/s]Loading weights:  83%|████████▎ | 352/426 [00:01<00:00, 136.27it/s]Loading weights:  87%|████████▋ | 371/426 [00:01<00:00, 146.30it/s]Loading weights:  93%|█████████▎| 398/426 [00:02<00:00, 169.64it/s]Loading weights:  98%|█████████▊| 419/426 [00:02<00:00, 175.88it/s]Loading weights: 100%|██████████| 426/426 [00:02<00:00, 192.31it/s]
-  Applying final adapter: kirankumarmanku/Qwen3.5-4B-sepo-kuhn-sft
-  Final adapter merged.
-
-  Evaluating kuhn...
-    [train] vs nash-approx (8 episodes)...
-[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-    [train] vs tight-passive (8 episodes)...
-    [train] vs loose-aggressive (8 episodes)...
-    [exploiter] vs max-exploiter (8 episodes)...
-    [PARSE FAIL] vs max-exploiter → constrained decode
-    [collusive] vs loose-aggressive (8 episodes)...
-
-=======================================================================================================================================
-  Game: KUHN
-=======================================================================================================================================
-  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  sft_kuhn                                     -0.113     -1.357      0.000      0.000      0.347   -0.174    0.046     -3.142    0.000
-
-  Results saved → eval_results/kuhn_sft/metrics.json

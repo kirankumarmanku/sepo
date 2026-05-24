@@ -1,25 +1,0 @@
-  Loading tokenizer from grpo_gemma4_multi/final...
-  Loading base model from google/gemma-4-E4B-it...
-Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 270/2076 [00:00<00:00, 2698.99it/s]Loading weights:  26%|██▌       | 540/2076 [00:00<00:00, 2222.56it/s]Loading weights:  37%|███▋      | 768/2076 [00:01<00:03, 344.02it/s] Loading weights:  43%|████▎     | 899/2076 [00:02<00:03, 341.02it/s]Loading weights:  48%|████▊     | 992/2076 [00:02<00:03, 332.57it/s]Loading weights:  51%|█████     | 1062/2076 [00:02<00:03, 315.52it/s]Loading weights:  54%|█████▍    | 1117/2076 [00:02<00:03, 309.32it/s]Loading weights:  56%|█████▌    | 1164/2076 [00:02<00:02, 317.89it/s]Loading weights:  58%|█████▊    | 1208/2076 [00:03<00:02, 308.15it/s]Loading weights:  60%|██████    | 1247/2076 [00:03<00:02, 312.01it/s]Loading weights:  62%|██████▏   | 1284/2076 [00:03<00:02, 305.07it/s]Loading weights:  63%|██████▎   | 1318/2076 [00:03<00:02, 309.50it/s]Loading weights:  65%|██████▌   | 1352/2076 [00:03<00:02, 287.22it/s]Loading weights:  67%|██████▋   | 1385/2076 [00:03<00:02, 295.06it/s]Loading weights:  68%|██████▊   | 1416/2076 [00:03<00:02, 294.49it/s]Loading weights:  77%|███████▋  | 1603/2076 [00:03<00:00, 688.85it/s]Loading weights:  88%|████████▊ | 1829/2076 [00:04<00:00, 1100.31it/s]Loading weights:  98%|█████████▊| 2037/2076 [00:04<00:00, 1367.63it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 496.12it/s] 
-  Applying SFT adapter: kirankumarmanku/gemma-4-E4B-sepo-sft-v2
-  SFT adapter merged.
-  Applying final adapter: grpo_gemma4_multi/final
-  Final adapter merged.
-
-  Evaluating ipd...
-    [train] vs always-defect (8 episodes)...
-[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-    [train] vs tit-for-tat (8 episodes)...
-    [train] vs generous-tit-for-tat (8 episodes)...
-    [train] vs mixed-0.50 (8 episodes)...
-    [exploiter] vs always-defect (8 episodes)...
-    [collusive] vs always-defect (8 episodes)...
-
-=======================================================================================================================================
-  Game: IPD
-=======================================================================================================================================
-  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  grpo_ipd_final                                2.406     19.250      4.578     36.625      0.625    0.875    0.310     -0.139    0.033
-
-  Results saved → eval_results/gemma4_ipd_grpo_final/metrics.json

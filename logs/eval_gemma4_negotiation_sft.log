@@ -1,22 +1,0 @@
-  Loading tokenizer from kirankumarmanku/gemma-4-E4B-sepo-sft-v2...
-  Loading base model from google/gemma-4-E4B-it...
-Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  11%|█▏        | 235/2076 [00:00<00:00, 2339.68it/s]Loading weights:  23%|██▎       | 469/2076 [00:00<00:00, 1991.61it/s]Loading weights:  32%|███▏      | 672/2076 [00:00<00:00, 1981.01it/s]Loading weights:  42%|████▏     | 872/2076 [00:01<00:04, 293.42it/s] Loading weights:  48%|████▊     | 998/2076 [00:02<00:03, 287.20it/s]Loading weights:  52%|█████▏    | 1089/2076 [00:02<00:03, 280.61it/s]Loading weights:  56%|█████▌    | 1158/2076 [00:03<00:03, 288.72it/s]Loading weights:  59%|█████▊    | 1215/2076 [00:03<00:02, 299.78it/s]Loading weights:  61%|██████    | 1266/2076 [00:03<00:02, 302.29it/s]Loading weights:  63%|██████▎   | 1311/2076 [00:03<00:02, 307.77it/s]Loading weights:  65%|██████▌   | 1352/2076 [00:03<00:02, 301.37it/s]Loading weights:  68%|██████▊   | 1404/2076 [00:03<00:01, 338.16it/s]Loading weights:  75%|███████▍  | 1552/2076 [00:03<00:00, 561.42it/s]Loading weights:  85%|████████▍ | 1755/2076 [00:03<00:00, 879.66it/s]Loading weights:  95%|█████████▍| 1965/2076 [00:04<00:00, 1166.35it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 507.63it/s] 
-  Applying final adapter: kirankumarmanku/gemma-4-E4B-sepo-sft-v2
-  Final adapter merged.
-
-  Evaluating negotiation...
-    [train] vs selfish-split (8 episodes)...
-[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-    [train] vs fair-split (8 episodes)...
-    [train] vs balanced-split (8 episodes)...
-    [exploiter] vs selfish-split (8 episodes)...
-    [collusive] vs selfish-split (8 episodes)...
-
-=======================================================================================================================================
-  Game: NEGOTIATION
-=======================================================================================================================================
-  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  sft                                           3.000     12.000      7.417     29.667      3.000    2.250    0.341     -3.337   -0.221
-
-  Results saved → eval_results/gemma4_negotiation_sft/metrics.json

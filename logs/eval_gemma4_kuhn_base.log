@@ -1,20 +1,0 @@
-  Loading tokenizer from google/gemma-4-E4B-it...
-  Loading base model from google/gemma-4-E4B-it...
-Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 251/2076 [00:00<00:00, 2453.32it/s]Loading weights:  24%|██▍       | 497/2076 [00:00<00:00, 2058.10it/s]Loading weights:  34%|███▍      | 707/2076 [00:00<00:00, 1841.94it/s]Loading weights:  43%|████▎     | 895/2076 [00:02<00:04, 274.83it/s] Loading weights:  49%|████▉     | 1013/2076 [00:02<00:03, 276.54it/s]Loading weights:  53%|█████▎    | 1099/2076 [00:02<00:03, 268.58it/s]Loading weights:  56%|█████▌    | 1164/2076 [00:03<00:03, 284.11it/s]Loading weights:  59%|█████▉    | 1221/2076 [00:03<00:03, 277.01it/s]Loading weights:  61%|██████    | 1268/2076 [00:03<00:02, 271.56it/s]Loading weights:  63%|██████▎   | 1308/2076 [00:03<00:02, 272.89it/s]Loading weights:  65%|██████▍   | 1344/2076 [00:03<00:02, 282.25it/s]Loading weights:  66%|██████▋   | 1380/2076 [00:03<00:02, 278.05it/s]Loading weights:  68%|██████▊   | 1413/2076 [00:03<00:02, 285.27it/s]Loading weights:  77%|███████▋  | 1590/2076 [00:04<00:00, 595.66it/s]Loading weights:  87%|████████▋ | 1803/2076 [00:04<00:00, 947.51it/s]Loading weights:  96%|█████████▋| 2000/2076 [00:04<00:00, 1200.01it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 477.56it/s] 
-
-  Evaluating kuhn...
-    [train] vs nash-approx (8 episodes)...
-[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-    [train] vs tight-passive (8 episodes)...
-    [train] vs loose-aggressive (8 episodes)...
-    [exploiter] vs max-exploiter (8 episodes)...
-    [collusive] vs loose-aggressive (8 episodes)...
-
-=======================================================================================================================================
-  Game: KUHN
-=======================================================================================================================================
-  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  base                                         -0.256     -3.077      0.000      0.000      0.211   -0.106    0.183     -1.398    0.000
-
-  Results saved → eval_results/gemma4_kuhn_base/metrics.json

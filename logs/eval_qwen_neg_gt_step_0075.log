@@ -1,26 +1,0 @@
-  Loading tokenizer from grpo_qwen_neg_gt/step_0075...
-  Loading base model from Qwen/Qwen3.5-4B...
-Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 6584.46it/s]
-Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   0%|          | 1/426 [00:00<01:00,  6.98it/s]Loading weights:   7%|▋         | 28/426 [00:00<00:02, 137.01it/s]Loading weights:  11%|█         | 46/426 [00:00<00:02, 150.50it/s]Loading weights:  18%|█▊        | 75/426 [00:00<00:01, 197.11it/s]Loading weights:  23%|██▎       | 96/426 [00:00<00:01, 187.59it/s]Loading weights:  28%|██▊       | 119/426 [00:00<00:01, 192.94it/s]Loading weights:  33%|███▎      | 141/426 [00:00<00:01, 199.98it/s]Loading weights:  38%|███▊      | 162/426 [00:00<00:01, 200.69it/s]Loading weights:  43%|████▎     | 185/426 [00:00<00:01, 208.82it/s]Loading weights:  49%|████▊     | 207/426 [00:01<00:01, 191.66it/s]Loading weights:  55%|█████▍    | 233/426 [00:01<00:00, 204.11it/s]Loading weights:  60%|█████▉    | 254/426 [00:01<00:00, 205.50it/s]Loading weights:  65%|██████▌   | 278/426 [00:01<00:00, 214.70it/s]Loading weights:  72%|███████▏  | 305/426 [00:01<00:00, 228.50it/s]Loading weights:  77%|███████▋  | 330/426 [00:01<00:00, 220.69it/s]Loading weights:  84%|████████▍ | 358/426 [00:01<00:00, 233.51it/s]Loading weights:  90%|█████████ | 384/426 [00:01<00:00, 237.06it/s]Loading weights:  97%|█████████▋| 412/426 [00:01<00:00, 244.67it/s]Loading weights: 100%|██████████| 426/426 [00:02<00:00, 207.33it/s]
-  Applying SFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-neg-gtbench-sft
-  SFT adapter merged.
-  Applying final adapter: grpo_qwen_neg_gt/step_0075
-  Final adapter merged.
-
-  Evaluating negotiation_gt...
-    [train] vs fair-neg (8 episodes)...
-[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-    [train] vs tft-neg (8 episodes)...
-    [train] vs concede-neg (8 episodes)...
-    [exploiter] vs greedy-neg (8 episodes)...
-    [exploiter] vs hardball-neg (8 episodes)...
-    [collusive] vs fair-neg (8 episodes)...
-
-=======================================================================================================================================
-  Game: NEGOTIATION_GT
-=======================================================================================================================================
-  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  grpo_step_0075                                6.312     25.250     10.000     40.000      1.828    1.516    0.600     -2.062   -0.107
-
-  Results saved → eval_results/qwen_neg_gt_grpo_step_0075/metrics.json

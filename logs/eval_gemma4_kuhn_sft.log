@@ -1,22 +1,0 @@
-  Loading tokenizer from kirankumarmanku/gemma-4-E4B-sepo-kuhn-sft...
-  Loading base model from google/gemma-4-E4B-it...
-Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  13%|█▎        | 268/2076 [00:00<00:00, 2630.49it/s]Loading weights:  26%|██▌       | 532/2076 [00:00<00:00, 2199.83it/s]Loading weights:  36%|███▋      | 757/2076 [00:01<00:03, 356.15it/s] Loading weights:  43%|████▎     | 887/2076 [00:01<00:03, 361.96it/s]Loading weights:  47%|████▋     | 981/2076 [00:02<00:03, 345.02it/s]Loading weights:  51%|█████     | 1052/2076 [00:02<00:03, 324.24it/s]Loading weights:  53%|█████▎    | 1108/2076 [00:02<00:02, 328.56it/s]Loading weights:  56%|█████▌    | 1157/2076 [00:02<00:02, 328.46it/s]Loading weights:  58%|█████▊    | 1201/2076 [00:03<00:02, 315.66it/s]Loading weights:  60%|█████▉    | 1240/2076 [00:03<00:02, 313.64it/s]Loading weights:  61%|██████▏   | 1276/2076 [00:03<00:02, 317.91it/s]Loading weights:  63%|██████▎   | 1312/2076 [00:03<00:02, 304.88it/s]Loading weights:  65%|██████▍   | 1348/2076 [00:03<00:02, 313.51it/s]Loading weights:  67%|██████▋   | 1382/2076 [00:03<00:02, 305.69it/s]Loading weights:  68%|██████▊   | 1414/2076 [00:03<00:02, 308.78it/s]Loading weights:  77%|███████▋  | 1594/2076 [00:03<00:00, 688.04it/s]Loading weights:  87%|████████▋ | 1814/2076 [00:03<00:00, 1089.42it/s]Loading weights:  98%|█████████▊| 2029/2076 [00:04<00:00, 1381.36it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 513.26it/s] 
-  Applying final adapter: kirankumarmanku/gemma-4-E4B-sepo-kuhn-sft
-  Final adapter merged.
-
-  Evaluating kuhn...
-    [train] vs nash-approx (8 episodes)...
-[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-    [train] vs tight-passive (8 episodes)...
-    [train] vs loose-aggressive (8 episodes)...
-    [exploiter] vs max-exploiter (8 episodes)...
-    [collusive] vs loose-aggressive (8 episodes)...
-
-=======================================================================================================================================
-  Game: KUHN
-=======================================================================================================================================
-  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  sft_kuhn                                      0.000      0.002      0.000      0.000      0.000    0.162    0.000     -0.931    0.000
-
-  Results saved → eval_results/gemma4_kuhn_sft/metrics.json

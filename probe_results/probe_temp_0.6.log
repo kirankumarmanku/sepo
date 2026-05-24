@@ -1,38 +1,0 @@
-Device: cuda
-Game: ipd  rounds=8
-Detected PEFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-sft-v2  (base: Qwen/Qwen3.5-4B)
-  Loading base: Qwen/Qwen3.5-4B
-Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files: 100%|██████████| 2/2 [00:00<00:00, 6842.26it/s]
-Loading weights:   0%|          | 0/426 [00:00<?, ?it/s]Loading weights:   7%|▋         | 28/426 [00:00<00:01, 257.18it/s]Loading weights:  13%|█▎        | 54/426 [00:00<00:01, 233.26it/s]Loading weights:  19%|█▊        | 79/426 [00:00<00:01, 239.41it/s]Loading weights:  24%|██▍       | 104/426 [00:00<00:02, 108.49it/s]Loading weights:  31%|███       | 132/426 [00:00<00:02, 140.41it/s]Loading weights:  36%|███▌      | 153/426 [00:00<00:01, 149.17it/s]Loading weights:  43%|████▎     | 185/426 [00:01<00:01, 183.06it/s]Loading weights:  49%|████▉     | 208/426 [00:01<00:01, 185.74it/s]Loading weights:  55%|█████▌    | 235/426 [00:01<00:00, 206.37it/s]Loading weights:  61%|██████    | 259/426 [00:01<00:00, 198.97it/s]Loading weights:  68%|██████▊   | 291/426 [00:01<00:00, 224.68it/s]Loading weights:  74%|███████▍  | 315/426 [00:01<00:00, 219.43it/s]Loading weights:  81%|████████  | 344/426 [00:01<00:00, 234.20it/s]Loading weights:  87%|████████▋ | 369/426 [00:01<00:00, 213.42it/s]Loading weights:  93%|█████████▎| 397/426 [00:02<00:00, 224.13it/s]Loading weights:  99%|█████████▉| 421/426 [00:02<00:00, 213.24it/s]Loading weights: 100%|██████████| 426/426 [00:02<00:00, 195.29it/s]
-  Applying SFT adapter: kirankumarmanku/Qwen3.5-4B-sepo-sft-v2
-trainable params: 1,835,008 || all params: 4,207,586,304 || trainable%: 0.0436
-LoRA mode: using base model (adapters disabled) as reference — no second copy loaded.
-
-Starting GRPO training — 1 steps (from step 0)
-SEPO weights: ipd:λe=2.4  λc=2.4  λx=2.4
-SEPO refresh: every 5 steps OR when cumulative KL > 0.5
-
-  [19:53:35] rollout opp=always-defect (1/4)
-    [19:53:50] r01 llm=DCCCDCCC opp=DDDDDDDD u=2.0 pen=11.500
-    [19:53:56] r02 llm=CCDDDDDD opp=DDDDDDDD u=6.0 pen=11.500
-    [19:54:02] r03 llm=CDDDDCDC opp=DDDDDDDD u=5.0 pen=11.500
-    [19:54:08] r04 llm=CCCDDDCD opp=DDDDDDDD u=4.0 pen=11.500
-[transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
-  [19:54:28] rollout opp=tit-for-tat (2/4)
-    [19:54:45] r01 llm=CDDDDDDD opp=CCDDDDDD u=14.0 pen=6.300
-    [19:54:50] r02 llm=CDCDCCCD opp=CCDCDCCC u=24.0 pen=6.300
-    [19:54:55] r03 llm=DCDCDCCC opp=CDCDCDCC u=21.0 pen=6.300
-    [19:55:01] r04 llm=CDDDCCCC opp=CCDDDCCC u=19.0 pen=6.300
-  [19:55:13] rollout opp=generous-tit-for-tat (3/4)
-    [19:55:51] r01 llm=CCDCCDCC opp=CCCDCCDC u=22.0 pen=8.325
-    [19:56:18] r02 llm=CCCDCCCC opp=CCCCDCCC u=23.0 pen=8.325
-    [19:56:44] r03 llm=CDDDDCDC opp=CCDDCDCD u=20.0 pen=8.325
-    [19:56:49] r04 llm=CDDDCCCC opp=CCDDCCCC u=22.0 pen=8.325
-  [19:57:01] rollout opp=mixed-0.50 (4/4)
-    [19:57:17] r01 llm=DCCCCCDD opp=CCDCCDCC u=24.0 pen=8.650
-    [19:57:24] r02 llm=CDCCDCCD opp=DDCCCCDC u=20.0 pen=8.650
-    [19:57:54] r03 llm=CCCDCCDC opp=CCDCCCDD u=18.0 pen=8.650
-    [19:58:00] r04 llm=DDCDCCCC opp=DDDCCCDC u=16.0 pen=8.650
-[19:58:12] Step    0 | loss=-0.000008 | u=1.938 | e=2.969 | c=0.344 | x=0.310 | kl=0.000000 | pg=-0.000008
-
-Done. Final model: probe_temp_0.6/final

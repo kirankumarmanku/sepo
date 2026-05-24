@@ -1,25 +1,0 @@
-  Loading tokenizer from grpo_gemma4_neg_gtbench/step_0075...
-  Loading base model from google/gemma-4-E4B-it...
-Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:   7%|▋         | 153/2076 [00:00<00:01, 1520.29it/s]Loading weights:  15%|█▍        | 306/2076 [00:00<00:01, 1312.96it/s]Loading weights:  21%|██▏       | 442/2076 [00:00<00:01, 1311.63it/s]Loading weights:  28%|██▊       | 575/2076 [00:00<00:01, 1267.67it/s]Loading weights:  34%|███▍      | 703/2076 [00:00<00:01, 1219.37it/s]Loading weights:  40%|███▉      | 826/2076 [00:03<00:09, 138.28it/s] Loading weights:  44%|████▍     | 909/2076 [00:03<00:08, 144.92it/s]Loading weights:  47%|████▋     | 971/2076 [00:04<00:07, 145.90it/s]Loading weights:  49%|████▉     | 1018/2076 [00:04<00:07, 144.31it/s]Loading weights:  51%|█████     | 1055/2076 [00:04<00:07, 144.52it/s]Loading weights:  52%|█████▏    | 1085/2076 [00:04<00:06, 142.23it/s]Loading weights:  53%|█████▎    | 1110/2076 [00:04<00:06, 151.77it/s]Loading weights:  55%|█████▍    | 1135/2076 [00:05<00:06, 155.77it/s]Loading weights:  56%|█████▌    | 1160/2076 [00:05<00:05, 161.11it/s]Loading weights:  57%|█████▋    | 1182/2076 [00:05<00:06, 141.89it/s]Loading weights:  58%|█████▊    | 1200/2076 [00:05<00:06, 143.81it/s]Loading weights:  59%|█████▊    | 1219/2076 [00:05<00:05, 152.19it/s]Loading weights:  60%|█████▉    | 1237/2076 [00:05<00:06, 137.02it/s]Loading weights:  60%|██████    | 1253/2076 [00:06<00:06, 128.73it/s]Loading weights:  61%|██████▏   | 1273/2076 [00:06<00:05, 142.65it/s]Loading weights:  62%|██████▏   | 1289/2076 [00:06<00:05, 142.26it/s]Loading weights:  63%|██████▎   | 1305/2076 [00:06<00:05, 141.77it/s]Loading weights:  64%|██████▎   | 1320/2076 [00:06<00:06, 112.71it/s]Loading weights:  64%|██████▍   | 1336/2076 [00:06<00:06, 120.37it/s]Loading weights:  65%|██████▌   | 1358/2076 [00:06<00:05, 141.44it/s]Loading weights:  66%|██████▌   | 1374/2076 [00:06<00:04, 142.57it/s]Loading weights:  67%|██████▋   | 1390/2076 [00:07<00:05, 128.99it/s]Loading weights:  68%|██████▊   | 1405/2076 [00:07<00:05, 132.14it/s]Loading weights:  69%|██████▉   | 1432/2076 [00:07<00:03, 165.99it/s]Loading weights:  77%|███████▋  | 1608/2076 [00:07<00:00, 588.88it/s]Loading weights:  86%|████████▌ | 1785/2076 [00:07<00:00, 911.48it/s]Loading weights:  94%|█████████▍| 1955/2076 [00:07<00:00, 1130.78it/s]Loading weights: 100%|██████████| 2076/2076 [00:07<00:00, 1144.45it/s]Loading weights: 100%|██████████| 2076/2076 [00:07<00:00, 271.52it/s] 
-  Applying SFT adapter: kirankumarmanku/gemma-4-E4B-sepo-neg-gtbench-sft
-  SFT adapter merged.
-  Applying final adapter: grpo_gemma4_neg_gtbench/step_0075
-  Final adapter merged.
-
-  Evaluating negotiation_gt...
-    [train] vs fair-neg (8 episodes)...
-[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-    [train] vs tft-neg (8 episodes)...
-    [train] vs concede-neg (8 episodes)...
-    [exploiter] vs greedy-neg (8 episodes)...
-    [exploiter] vs hardball-neg (8 episodes)...
-    [collusive] vs fair-neg (8 episodes)...
-
-=======================================================================================================================================
-  Game: NEGOTIATION_GT
-=======================================================================================================================================
-  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  grpo_step_0075                               10.927     43.708     17.188     68.750      0.141    3.938    0.412      2.187    0.170
-
-  Results saved → eval_results/gemma4_neg_gt_grpo_step_0075/metrics.json

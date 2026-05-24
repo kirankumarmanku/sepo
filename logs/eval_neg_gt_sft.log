@@ -1,31 +1,0 @@
-  Loading tokenizer from kirankumarmanku/gemma-4-E4B-sepo-neg-gtbench-sft...
-  Loading base model from google/gemma-4-E4B-it...
-Loading weights:   0%|          | 0/2076 [00:00<?, ?it/s]Loading weights:  14%|█▎        | 282/2076 [00:00<00:00, 2815.77it/s]Loading weights:  27%|██▋       | 564/2076 [00:00<00:00, 2267.43it/s]Loading weights:  38%|███▊      | 798/2076 [00:01<00:03, 358.39it/s] Loading weights:  45%|████▍     | 933/2076 [00:02<00:03, 345.79it/s]Loading weights:  49%|████▉     | 1027/2076 [00:02<00:03, 338.64it/s]Loading weights:  53%|█████▎    | 1099/2076 [00:02<00:02, 335.19it/s]Loading weights:  56%|█████▌    | 1157/2076 [00:02<00:02, 333.66it/s]Loading weights:  58%|█████▊    | 1207/2076 [00:03<00:02, 310.53it/s]Loading weights:  60%|██████    | 1249/2076 [00:03<00:02, 299.06it/s]Loading weights:  62%|██████▏   | 1286/2076 [00:03<00:02, 287.07it/s]Loading weights:  64%|██████▎   | 1319/2076 [00:03<00:02, 283.84it/s]Loading weights:  65%|██████▌   | 1350/2076 [00:03<00:02, 268.61it/s]Loading weights:  66%|██████▋   | 1379/2076 [00:03<00:02, 272.70it/s]Loading weights:  68%|██████▊   | 1408/2076 [00:03<00:02, 273.79it/s]Loading weights:  80%|███████▉  | 1657/2076 [00:03<00:00, 800.23it/s]Loading weights: 100%|██████████| 2076/2076 [00:04<00:00, 518.61it/s]
-  Applying final adapter: kirankumarmanku/gemma-4-E4B-sepo-neg-gtbench-sft
-  Final adapter merged.
-
-  Evaluating negotiation_gt...
-    [train] vs fair-neg (8 episodes)...
-[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-    [PARSE FAIL] vs fair-neg → constrained decode
-    [PARSE FAIL] vs fair-neg → constrained decode
-    [PARSE FAIL] vs fair-neg → constrained decode
-    [train] vs tft-neg (8 episodes)...
-    [train] vs concede-neg (8 episodes)...
-    [PARSE FAIL] vs concede-neg → constrained decode
-    [exploiter] vs greedy-neg (8 episodes)...
-    [PARSE FAIL] vs greedy-neg → constrained decode
-    [exploiter] vs hardball-neg (8 episodes)...
-    [collusive] vs fair-neg (8 episodes)...
-    [PARSE FAIL] vs fair-neg → constrained decode
-    [PARSE FAIL] vs fair-neg → constrained decode
-    [PARSE FAIL] vs fair-neg → constrained decode
-
-=======================================================================================================================================
-  Game: NEGOTIATION_GT
-=======================================================================================================================================
-  Model                                     Pay/round     Pay/ep  Wel/round     Wel/ep    Exploit   Robust      Ext     Safety      NRA
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  sft                                           7.052     28.208     16.656     66.625      6.031    4.344    0.225     -2.767   -0.226
-
-  Results saved → eval_results/gemma4_neg_gt_sft/metrics.json

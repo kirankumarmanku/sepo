@@ -169,7 +169,7 @@ Step 12 | loss=0.0014 | u=2.000 | e=5.000 | c=1.000 | x=0.111 | kl=0.1357
 
 **Config:**
 ```bash
-python grpo_sepo.py --model kartiinx/gemma-3-4b-sepo-sft-hf --base-model google/gemma-3-4b-it \
+python -m train.grpo --model kartiinx/gemma-3-4b-sepo-sft-hf --base-model google/gemma-3-4b-it \
   --game ipd --lora --ref-4bit --n-rollouts 8 --iters 96 \
   --log-every 4 --save-every 16 --temperature 0.8 --output-dir grpo_gemma3_ipd_v2
 ```
@@ -182,7 +182,7 @@ python grpo_sepo.py --model kartiinx/gemma-3-4b-sepo-sft-hf --base-model google/
 
 **Config:**
 ```bash
-python grpo_sepo.py --model kartiinx/gemma-3-4b-sepo-sft-hf --base-model google/gemma-3-4b-it \
+python -m train.grpo --model kartiinx/gemma-3-4b-sepo-sft-hf --base-model google/gemma-3-4b-it \
   --game ipd --lora --ref-4bit --n-rollouts 8 --iters 96 \
   --log-every 4 --save-every 16 --temperature 1.2 --output-dir grpo_gemma3_ipd_v3
 ```
@@ -270,7 +270,7 @@ Also added:
 
 **Config:**
 ```bash
-python grpo_sepo.py \
+python -m train.grpo \
   --model sft_gemma3_v2/final_adapter \
   --base-model google/gemma-3-4b-it \
   --game ipd --lora --n-rounds 8 --n-rollouts 8 --iters 200 \
@@ -376,7 +376,7 @@ The model already shows the key behavioral split: CCCCCCCC vs TFT (correct) and 
 
 **Config:**
 ```bash
-python grpo_sepo.py \
+python -m train.grpo \
   --model sft_gemma3_v2/final_adapter \
   --base-model google/gemma-3-4b-it \
   --game ipd --lora --n-rounds 8 --n-rollouts 4 --iters 100 \
@@ -453,7 +453,7 @@ if re.search(r'\bDEFECT\b',    text_upper): return DEFECT
 
 **Commands:**
 ```bash
-python grpo_sepo.py --model sft_gemma3_v2/final_adapter --base-model google/gemma-3-4b-it \
+python -m train.grpo --model sft_gemma3_v2/final_adapter --base-model google/gemma-3-4b-it \
   --game ipd --lora --n-rounds 8 --n-rollouts 4 --iters 40 \
   --lambda-e 1.2 --lambda-c 2.4 --lambda-x 2.4 --beta 0.05 --lr 5e-6 \
   --temperature 0.8 --max-new-tokens 256 --token-type-ids --log-every 1 \
@@ -479,7 +479,7 @@ python grpo_sepo.py --model sft_gemma3_v2/final_adapter --base-model google/gemm
 
 **Config:**
 ```bash
-python grpo_sepo.py --model sft_gemma3_v2/final_adapter --base-model google/gemma-3-4b-it \
+python -m train.grpo --model sft_gemma3_v2/final_adapter --base-model google/gemma-3-4b-it \
   --game ipd --lora --n-rounds 8 --n-rollouts 4 --iters 80 \
   --lambda-e 2.4 --lambda-c 2.4 --lambda-x 2.4 \
   --beta 0.05 --lr 5e-6 --temperature 0.8 --max-new-tokens 256 \
@@ -517,7 +517,7 @@ python grpo_sepo.py --model sft_gemma3_v2/final_adapter --base-model google/gemm
 
 **Config:**
 ```bash
-python grpo_sepo.py --model sft_gemma3_v2/final_adapter --base-model google/gemma-3-4b-it \
+python -m train.grpo --model sft_gemma3_v2/final_adapter --base-model google/gemma-3-4b-it \
   --game ipd --lora --n-rounds 8 --n-rollouts 4 --iters 80 \
   --lambda-e 2.4 --lambda-c 2.4 --lambda-x 2.4 \
   --beta 0.15 --lr 5e-6 --temperature 0.8 --max-new-tokens 256 \
@@ -607,7 +607,7 @@ IPD has 5 opponents vs 3 for others, creating a natural imbalance. `--balance-ga
 #### Generate data
 
 ```bash
-python sft_data_gen_multi.py \
+python -m data.generate_multi \
   --episodes-per-opponent 200 \
   --balance-games \
   --output-dir sepo_sft_data_multi \
@@ -616,12 +616,12 @@ python sft_data_gen_multi.py \
 
 Dry-run to inspect one example per game before generating:
 ```bash
-python sft_data_gen_multi.py --episodes-per-opponent 2 --balance-games --dry-run
+python -m data.generate_multi --episodes-per-opponent 2 --balance-games --dry-run
 ```
 
 Faster option (~16k examples, ~1–1.5 hrs SFT):
 ```bash
-python sft_data_gen_multi.py --episodes-per-opponent 100 --balance-games --output-dir sepo_sft_data_multi
+python -m data.generate_multi --episodes-per-opponent 100 --balance-games --output-dir sepo_sft_data_multi
 ```
 
 Check the stats after generation:
@@ -632,7 +632,7 @@ cat sepo_sft_data_multi/stats.json
 #### Start SFT training
 
 ```bash
-python sft_train.py \
+python -m train.sft \
   --model google/gemma-3-4b-it \
   --data-dir sepo_sft_data_multi \
   --output-dir sft_multi_v1 \

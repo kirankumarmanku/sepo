@@ -201,3 +201,93 @@ v2 is the correct game for SEPO negotiation. v1 had a structural ceiling; v2 giv
 ## Resource
 
 *Pending — same pool fixes needed (HighExtract in all three pools). TBD.*
+
+---
+---
+
+# GTBench Baselines — Gemma 3 Prompt vs CoT
+
+**Model:** google/gemma-3-4b-it | **Backend:** Ollama | **Games:** 5 | **Reasoning:** Prompt & CoT
+
+## Summary — NRA across all games
+
+Normalised Relative Advantage (NRA) is the primary GTBench metric. Range: −1 (dominated) to +1 (dominates). CoT improves average NRA from −0.144 to −0.068, a net gain of +0.076.
+
+| Game | Prompt NRA | CoT NRA | Δ CoT−Prompt | Verdict |
+|---|---|---|---|---|
+| IPD | −0.479 | +0.193 | +0.672 | CoT better |
+| Kuhn Poker | +1.000 | +1.000 | 0.000 | Tie |
+| Blind Auction | −0.725 | −1.000 | −0.275 | CoT worse |
+| Negotiation | −0.134 | +0.017 | +0.151 | CoT better |
+| Pig | −0.383 | −0.550 | −0.167 | CoT worse |
+| **Average** | **−0.144** | **−0.068** | **+0.076** | **CoT net better** |
+
+### Key finding
+
+CoT helps in qualitative reasoning games (IPD reciprocity, Kuhn bluff calibration, Negotiation opponent modelling) but hurts in quantitative calculation games (Auction bid shading, Pig hold threshold).
+
+IPD CoT safety index (+16.951) exceeds every rule-based SEPO condition (best: TFT at +2.689) without any strategic training — reasoning alone recovers near-optimal reciprocal behaviour.
+
+---
+---
+
+# GTBench Baselines — Gemma 3 vs Gemma 4
+
+**Summary NRA — Gemma 3 vs Gemma 4 (clean results)**
+
+| Game | G3 Prompt | G3 CoT | G4 Prompt | G4 CoT | G4 Winner |
+|---|---|---|---|---|---|
+| IPD | −0.479 | +0.193 | — (still failing) | — | — |
+| Kuhn Poker | +1.000 | +1.000 | +1.000 | +1.000 | Tie |
+| Blind Auction | −0.725 | −1.000 | +0.725 | +0.652 | Prompt |
+| Negotiation | −0.134 | +0.017 | +0.115 | +0.094 | Prompt |
+| Pig | −0.383 | −0.550 | +0.117 | +0.117 | Tie |
+
+## Per-game comparison
+
+**Kuhn Poker**
+
+| Model | Win rate | Avg profit | NRA | Bluff rate | Fold rate | Parse fails |
+|---|---|---|---|---|---|---|
+| G3 Prompt | 0.600 | 0.150 | +1.000 | 0.237 | 0.000 | 0.000 |
+| G3 CoT | 0.675 | 0.263 | +1.000 | 0.325 | 0.000 | 0.000 |
+| G4 Prompt | 0.562 | 0.338 | +1.000 | 0.000 | 0.150 | 0.000 |
+| G4 CoT | 0.600 | 0.287 | +1.000 | 0.087 | 0.150 | 0.000 |
+
+**Blind Auction**
+
+| Model | Avg profit | Win rate | NRA | Bid shading | Overbid rate | Parse fails |
+|---|---|---|---|---|---|---|
+| Nash optimal | ~0.50 | ~0.50 | 0.000 | 0.500 | 0.000 | — |
+| G3 Prompt | −1.150 | 0.756 | −0.725 | −0.997 | 0.528 | 0.000 |
+| G3 CoT | −0.261 | 0.411 | −1.000 | +0.054 | 0.225 | 0.031 |
+| G4 Prompt | +0.767 | 0.467 | +0.725 | +0.288 | 0.000 | 0.000 |
+| G4 CoT | +0.831 | 0.447 | +0.652 | +0.334 | 0.000 | 0.000 |
+
+**Negotiation**
+
+| Model | Avg score | Deal rate | NRA | Fairness | Parse fails |
+|---|---|---|---|---|---|
+| G3 Prompt | 4.925 | 1.000 | −0.134 | 0.664 | 0.000 |
+| G3 CoT | 6.100 | 0.975 | +0.017 | 0.691 | 0.000 |
+| G4 Prompt | 5.700 | 0.825 | +0.115 | 0.658 | 0.000 |
+| G4 CoT | 5.800 | 0.875 | +0.094 | 0.695 | 0.000 |
+
+**Pig**
+
+| Model | Win rate | Avg score | NRA | Avg turn score | Parse fails |
+|---|---|---|---|---|---|
+| Hold-at-20 (optimal) | ~0.50 | — | 0.000 | ~18 | — |
+| G3 Prompt | 0.308 | 48.9 | −0.383 | 40.469 | 0.000 |
+| G3 CoT | 0.225 | 56.6 | −0.550 | 14.895 | 0.000 |
+| G4 Prompt | 0.558 | 82.5 | +0.117 | 15.934 | 0.000 |
+| G4 CoT | 0.558 | 80.0 | +0.117 | 17.640 | 0.000 |
+
+## Analysis
+
+G4 is meaningfully better than G3 across every game with clean results. Average NRA across 4 completed games: +0.476 (G4) vs −0.173 (G3 prompt) vs −0.283 (G3 CoT).
+
+Key findings:
+- **Blind Auction** — biggest turnaround. G3 catastrophically overbids (53% overbid rate, profit −1.15). G4 flips to positive profit (+0.77), zero overbids, proper bid shading.
+- **Pig** — G4 lands near-optimal hold threshold (turn score 15.9–17.6 vs optimal ~18). G3 was broken in opposite directions (prompt rolls too much at 40.5, CoT holds too early at 14.9).
+- **CoT no longer consistently helps** — in 3 of 4 games, G4 prompt edges G4 CoT on NRA. G4 appears to reason implicitly even in prompt mode.

@@ -111,6 +111,8 @@ We evaluate SEPO across four multi-agent games, each testing a distinct safety d
 
 **Datasets**: `sepo_sft_data_multi` (IPD + Auction + Negotiation), `sepo_sft_data_kuhn` (Kuhn Poker), `sepo_sft_neg_gtbench` (Negotiation GT).
 
+**Size**: ~32,000 examples in `sepo_sft_data_multi` (25,590 train / 6,398 valid, ~8,000 per game). Kuhn and Negotiation GT datasets are ~8,000 examples each.
+
 **Generation**: Rule-based SEPO-optimal strategy traces. Each example contains a full game episode played by a strategy sampled from the SEPO-optimal distribution, with chain-of-thought reasoning ending in the action token.
 
 **Strategy weights per game** (reflecting SEPO-optimal policy distribution):

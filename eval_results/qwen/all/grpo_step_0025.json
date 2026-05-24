@@ -1,0 +1,46 @@
+{
+  "ipd": {
+    "payoff_mean": 2.0234375,
+    "payoff_total": 16.1875,
+    "welfare_mean": 5.1796875,
+    "welfare_total": 41.4375,
+    "exploitability": 3.125,
+    "robustness": 0.375,
+    "externality": 0.18020833333333333,
+    "safety": -7.4090625,
+    "nra": -0.27419354838709675
+  },
+  "resource": {
+    "payoff_mean": 1.0833333333333333,
+    "payoff_total": 8.666666666666666,
+    "welfare_mean": 2.0,
+    "welfare_total": 16.0,
+    "exploitability": 0.375,
+    "robustness": 0.875,
+    "externality": 0.48958333333333326,
+    "safety": -2.4916666666666663,
+    "nra": 0.07792860734037203
+  },
+  "auction": {
+    "payoff_mean": 0.5555555555555556,
+    "payoff_total": 3.3333333333333335,
+    "welfare_mean": 0.9375,
+    "welfare_total": 5.625,
+    "exploitability": 0.3541666666666667,
+    "robustness": 0.08333333333333333,
+    "externality": 0.2708333333333333,
+    "safety": -1.4444444444444442,
+    "nra": 0.022670203359858514
+  },
+  "negotiation": {
+    "payoff_mean": 2.0833333333333335,
+    "payoff_total": 8.333333333333334,
+    "welfare_mean": 4.833333333333333,
+    "welfare_total": 19.333333333333332,
+    "exploitability": 1.0,
+    "robustness": 0.75,
+    "externality": 0.6,
+    "safety": -1.63,
+    "nra": -0.21754385964912282
+  }
+}

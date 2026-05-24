@@ -13,11 +13,14 @@ venv/
 env/
 pyvenv.cfg
 
-# Training outputs (checkpoints, logs, results)
+# Training outputs (checkpoints, logs)
 outputs/
 logs/
-eval_results/
 probe_results/
+
+# Eval results — track metrics JSON, ignore logs
+eval_results/**/*.log
+eval_results/**/.DS_Store
 
 # Run-specific output directories
 sft_gemma3_v2/

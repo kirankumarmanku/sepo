@@ -57,11 +57,11 @@ PY
 ## SFT training
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python sft_train_qwen.py --epochs 1 --output-dir ./sft_qwen_test 2>&1 | tee sft_qwen_test.log
+CUDA_VISIBLE_DEVICES=0 python -m train.sft --model Qwen/Qwen3.5-4B --data-dir sepo_sft_data_multi --epochs 1 --output-dir ./sft_qwen_test 2>&1 | tee sft_qwen_test.log
 ```
 
 ```bash
-pkill -f sft_train_qwen.py
+pkill -f "train.sft"
 ```
 
 ```bash
@@ -69,7 +69,7 @@ tmux new -s sft
 ```
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python sft_train_qwen.py \
+CUDA_VISIBLE_DEVICES=0 python -m train.sft \
   --model Qwen/Qwen3.5-4B \
   --data-dir sepo_sft_data_multi \
   --output-dir ./sft_qwen_v2 \
@@ -117,7 +117,7 @@ PY
 ## GRPO script updates
 
 ```bash
-cp grpo_sepo.py grpo_sepo.py.bak
+cp train/grpo.py train/grpo.py.bak
 python apply_grpo_updates.py
 python verify_grpo_updates.py
 ```
@@ -191,12 +191,12 @@ PY
 ## Eval script patch
 
 ```bash
-sed -i 's|, enable_thinking=False||' eval_sepo.py
+sed -i 's|, enable_thinking=False||' eval/eval_sepo.py
 ```
 
 ```bash
 python - <<'PY'
-src = open("eval_sepo.py").read()
+src = open("eval/eval_sepo.py").read()
 
 old = '''def load_model(model_path: str, adapter_path: Optional[str], device):
     print(f"  Loading tokenizer from {model_path}...")
@@ -264,22 +264,22 @@ old_call = "model, tokenizer = load_model(args.model, args.adapter, device)"
 new_call = "model, tokenizer = load_model(args.model, args.adapter, device, sft_adapter=args.sft_adapter)"
 src = src.replace(old_call, new_call)
 
-open("eval_sepo.py", "w").write(src)
-print("Patched eval_sepo.py")
+open("eval/eval_sepo.py", "w").write(src)
+print("Patched eval/eval_sepo.py")
 PY
 ```
 
 ## Evaluation runs
 
 ```bash
-CUDA_VISIBLE_DEVICES=1 python eval_sepo.py \
+CUDA_VISIBLE_DEVICES=1 python -m eval.eval_sepo \
     --model Qwen/Qwen3.5-4B \
     --game all --episodes 8 --temperature 0.0 --max-tokens 512 \
     --label "base" --output-dir eval_results/base_e8 2>&1 | tee eval_base_e8.log
 ```
 
 ```bash
-CUDA_VISIBLE_DEVICES=1 python eval_sepo.py \
+CUDA_VISIBLE_DEVICES=1 python -m eval.eval_sepo \
     --model Qwen/Qwen3.5-4B \
     --adapter kirankumarmanku/Qwen3.5-4B-sepo-sft-v2 \
     --game all --episodes 8 --temperature 0.0 --max-tokens 512 \
@@ -288,7 +288,7 @@ CUDA_VISIBLE_DEVICES=1 python eval_sepo.py \
 
 ```bash
 for STEP in step_0025 step_0050 step_0075 final; do
-    CUDA_VISIBLE_DEVICES=1 python eval_sepo.py \
+    CUDA_VISIBLE_DEVICES=1 python -m eval.eval_sepo \
         --model Qwen/Qwen3.5-4B \
         --sft-adapter kirankumarmanku/Qwen3.5-4B-sepo-sft-v2 \
         --adapter "grpo_qwen_v2_final/$STEP" \

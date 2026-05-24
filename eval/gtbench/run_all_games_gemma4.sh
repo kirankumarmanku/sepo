@@ -20,13 +20,15 @@ EPISODES=20
 OUTDIR="./results_gemma4"
 SEED=42
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 mkdir -p "$OUTDIR"
 
 games=("gemma_kuhn_poker" "gemma_blind_auction" "gemma_negotiation" "gemma_pig" "gemma_ipd_baseline")
 extra_args=("--games 20" "--episodes 20" "--episodes 20" "--games 20" "--episodes 20")
 
 for i in "${!games[@]}"; do
-    script="${games[$i]}.py"
+    script="$SCRIPT_DIR/${games[$i]}.py"
     extra="${extra_args[$i]}"
 
     if [ ! -f "$script" ]; then

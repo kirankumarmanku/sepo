@@ -150,7 +150,7 @@ python -c "from huggingface_hub import whoami; print(whoami()['name'])"
 Pre-generated data is in `sepo_sft_data_v2/`. To regenerate:
 
 ```bash
-python sft_data_gen.py \
+python -m data.generate_ipd \
   --episodes-per-opponent 200 \
   --output-dir sepo_sft_data_v2
 ```
@@ -167,7 +167,7 @@ cat sepo_sft_data_v2/stats.json
 ```bash
 tmux new -s sft
 
-python sft_train.py \
+python -m train.sft \
   --model google/gemma-3-4b-it \
   --data-dir sepo_sft_data_v2 \
   --output-dir sft_gemma3_v2 \
@@ -176,7 +176,7 @@ python sft_train.py \
 
 **To also push the adapter to HuggingFace Hub:**
 ```bash
-python sft_train.py \
+python -m train.sft \
   --model google/gemma-3-4b-it \
   --data-dir sepo_sft_data_v2 \
   --output-dir sft_gemma3_v2 \
@@ -198,7 +198,7 @@ python sft_train.py \
 ```bash
 tmux new -s grpo
 
-python grpo_sepo.py \
+python -m train.grpo \
   --model sft_gemma3_v2/final_adapter \
   --base-model google/gemma-3-4b-it \
   --game ipd \
@@ -236,7 +236,7 @@ python grpo_sepo.py \
 ### Quick 5-step smoke test
 
 ```bash
-python grpo_sepo.py \
+python -m train.grpo \
   --model sft_gemma3_v2/final_adapter \
   --base-model google/gemma-3-4b-it \
   --game ipd --lora \
@@ -261,7 +261,7 @@ Run eval on a saved checkpoint while training is running in another tmux window:
 ```bash
 tmux new -s eval
 
-python gemma_ipd_baseline.py \
+python eval/gtbench/gemma_ipd_baseline.py \
   --backend transformers \
   --model google/gemma-3-4b-it \
   --adapter grpo_output/step_0100 \

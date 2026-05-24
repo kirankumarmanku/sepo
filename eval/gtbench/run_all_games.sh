@@ -11,17 +11,15 @@ EPISODES=20
 OUTDIR="./results"
 SEED=42
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 mkdir -p "$OUTDIR"
 
 games=("gemma_kuhn_poker" "gemma_blind_auction" "gemma_negotiation" "gemma_pig")
 extra_args=("--games 20" "--episodes 20" "--episodes 20" "--games 20")
 
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
 for i in "${!games[@]}"; do
-    script="${games[$i]}.py"
+    script="$SCRIPT_DIR/${games[$i]}.py"
     extra="${extra_args[$i]}"
 
     echo "=============================="

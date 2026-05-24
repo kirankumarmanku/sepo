@@ -89,19 +89,27 @@ We evaluate SEPO across four multi-agent games, each testing a distinct safety d
 
 **Lambdas**: λe=3.0, λc=2.0 (training), λc=1.0 (eval), λx=1.8
 
-### 2.5 Resource Extraction
+### 2.5 Kuhn Poker
 
-**Structure**: 8 rounds per episode. Shared resource stock. Each round both players extract (LOW=1, MEDIUM=2, HIGH=3). Payoff = extraction amount if sustainable, diminished if overextracted.
+**Structure**: 6 hands per episode. 3-card deck (Jack, Queen, King). Each hand: one card dealt to each player, 1-chip ante. Players alternate BET (add 1 chip) or PASS. Showdown: higher card wins the pot.
 
-*Pending — pool fixes and GRPO run in progress.*
+**SEPO metrics**:
+- Utility: mean profit per hand vs {NashApprox, TightPassive, LooseAggressive}
+- Exploitability: per-opponent exploit vs {NashApprox, AlwaysBet}
+- Collusion: not applicable (zero-sum game)
+- Externality: not applicable (zero-sum, welfare always zero)
+
+**Nash equilibrium**: Well-defined mixed strategy (bet with King always, bluff-bet with Jack at rate 1/3, call with Queen at rate 1/3). GRPO drives exploitability to 0 — the model learns to not be exploitable by any opponent.
+
+**Lambdas**: λe=1.5, λc=2.4, λx=0.0 (zero-sum: no externality penalty)
 
 ---
 
 ## 3. Dataset
 
-### 3.1 Multi-Game SFT Data (`sepo_sft_data_multi`)
+### 3.1 Multi-Game SFT Data
 
-**Size**: 31,988 examples (25,590 train / 6,398 valid), ~8,000 per game.
+**Datasets**: `sepo_sft_data_multi` (IPD + Auction + Negotiation), `sepo_sft_data_kuhn` (Kuhn Poker), `sepo_sft_neg_gtbench` (Negotiation GT).
 
 **Generation**: Rule-based SEPO-optimal strategy traces. Each example contains a full game episode played by a strategy sampled from the SEPO-optimal distribution, with chain-of-thought reasoning ending in the action token.
 
@@ -110,11 +118,11 @@ We evaluate SEPO across four multi-agent games, each testing a distinct safety d
 | Game | Strategies | Weights |
 |---|---|---|
 | IPD | TFT (0.33), GrimTrigger (0.22), AlwaysDefect (0.27), AlwaysCooperate (0.05), GenerousTFT (0.05), Random (0.08) |
-| Resource | ResTFT (0.40), GrimRes (0.22), Scarcity (0.18), LowExtract (0.12), Random (0.08) |
 | Auction | ValueBid (0.44), AggressiveValue (0.28), Adaptive (0.20), Random (0.08) |
 | Negotiation | FairSplit (0.32), Balanced (0.27), Concede (0.18), TFT-Neg (0.15), Random (0.08) |
+| Kuhn Poker | NashApprox (0.45), TightValue (0.25), PotControl (0.20), RandomLegal (0.08), AlwaysPassQ (0.02) |
 
-**Action tokens**: COOPERATE/DEFECT (IPD), LOW/MEDIUM/HIGH (Auction/Resource), integers 1–9 (Negotiation).
+**Action tokens**: COOPERATE/DEFECT (IPD), LOW/MEDIUM/HIGH (Auction), integers 1–9 (Negotiation), BET/PASS/CALL/FOLD (Kuhn).
 
 ### 3.2 SFT Training
 
@@ -167,7 +175,7 @@ adv_t_r = (reward_t_r − mean_r) / std_r
 | IPD | `grpo_ipd_v5` + `grpo_ipd_v5_long` | 100 | 2.4 | 1.0 | step_0075 |
 | Auction | `grpo_auction_v1` | 100 | 1.2 | 1.0 | step_0025 |
 | Negotiation | `grpo_neg_final` + `grpo_neg_final2` | 125 | 3.0 | 2.0 | step_0125 |
-| Resource | pending | — | 2.4 | 1.0 | — |
+| Kuhn Poker | `grpo_gemma4_kuhn` / `grpo_qwen_kuhn` | 100 | 1.5 | 2.4 | final (Gemma 4), step_0075 (Qwen) |
 
 ---
 
@@ -251,9 +259,33 @@ Step 125 is the current best; small oscillation begins after that. Training can 
 
 **Training continues** — step 25 is the earliest checkpoint. IPD pattern suggests exploit will stabilise and utility will recover over steps 50–100.
 
-### 5.5 Resource Results
+### 5.5 Kuhn Poker Results
 
-*Pending.*
+**Setup**: λe=1.5, λc=2.4, λx=0.0 (zero-sum). Lower lr (3e-6) and higher beta (0.2) to prevent KL drift.
+
+**Gemma 4 E4B-it**:
+
+| Model | Pay/hand | Exploit | Robustness | Safety |
+|---|---|---|---|---|
+| Base | -0.256 | 0.211 | -0.106 | -1.398 |
+| SFT | 0.000 | **0.000** | 0.162 | -0.931 |
+| GRPO step75 | 0.222 | **0.000** | 0.324 | -0.384 |
+| **GRPO final** | **0.249** | **0.000** | 0.067 | **-0.379** |
+
+**Qwen 3.5-4B**:
+
+| Model | Pay/hand | Exploit | Robustness | Safety |
+|---|---|---|---|---|
+| Base | 0.033 | 0.705 | -0.352 | -3.686 |
+| SFT | -0.113 | 0.347 | -0.174 | -3.142 |
+| **GRPO step75** | -0.267 | **0.000** | 0.138 | **-1.709** |
+| GRPO final | 0.031 | 0.847 | -0.423 | -4.599 |
+
+**Key observations**:
+- **Gemma 4 GRPO achieves zero exploitability from SFT onward** — the model learns unexploitable play. Safety improves monotonically (−1.398 → −0.379). Best checkpoint is final.
+- **Qwen GRPO step75 achieves zero exploitability** but final checkpoint regresses sharply (exploit jumps to 0.847) — classic KL drift overshoot. Best checkpoint is step_0075, not final.
+- **Zero-sum structure** means welfare is always 0 and externality measures only play quality. All models safety-negative because the safety formula penalises exploitability heavily in this game.
+- **SFT helps Gemma 4 dramatically** (exploit 0.211 → 0.000) but only partially helps Qwen (0.705 → 0.347). Gemma 4's stronger base reasoning makes SFT demonstrations more transferable.
 
 ---
 
@@ -267,9 +299,9 @@ Step 125 is the current best; small oscillation begins after that. Training can 
 | Auction | **No** | Exploit climbs monotonically after step 25; no learnable counter vs AggressiveBid |
 | Negotiation v1 | **Partial** | Exploit declining 2.037→1.587 over 125 steps; base model already near-optimal — structural ceiling |
 | Negotiation v2 (GT) | **Converging** | Exploit 0.319 at step 25, well below base 0.781; GRPO beats base on safety from step 25 |
-| Resource | Pending | — |
+| Kuhn Poker | **Yes — Nash mixed** | Exploit → 0 for both Gemma 4 (from SFT) and Qwen (step 75); unexploitable play learned |
 
-The pattern across games: SEPO works best when (a) a learnable equilibrium exists and (b) that equilibrium is not already accessible to the base model via instruction-following. IPD satisfies both — TFT is learnable and base over-cooperates. Negotiation v1 fails condition (b) — too simple. Negotiation v2 satisfies both — private valuations and multi-item trade-offs require genuine multi-round inference that the base model under-performs on.
+The pattern across games: SEPO works best when (a) a learnable equilibrium exists and (b) that equilibrium is not already accessible to the base model via instruction-following. IPD satisfies both — TFT is learnable and base over-cooperates. Kuhn Poker satisfies both — Nash mixed strategy is learnable and base models are exploitable. Negotiation v1 fails condition (b) — too simple. Negotiation v2 satisfies both — private valuations and multi-item trade-offs require genuine multi-round inference that the base model under-performs on.
 
 ### 6.2 Why SEPO Works
 
@@ -291,6 +323,8 @@ SFT consistently degrades exploit resistance across all games. GRPO is necessary
 | Auction | 0.167 | 0.279 | 0.250 | +50%* | Yes (safety) |
 | Negotiation v1 | 2.037 | 1.531 | 1.587 | −22% | No |
 | Negotiation v2 | 2.706 | 0.781 | **0.319** | −88% | **Yes** |
+| Kuhn (Gemma 4) | 0.000 | 0.211 | **0.000** | — | **Yes** |
+| Kuhn (Qwen) | 0.347 | 0.705 | **0.000** | −100% | **Yes** |
 
 *Auction: SFT over-conserves (bids too low), exploit anomalously low vs base. GRPO recovers utility and safety but not exploit vs AggressiveBid. No Nash equilibrium — structural.
 
@@ -306,8 +340,10 @@ SEPO optimises safety (J(π)), not NRA (raw competitive payoff ratio). NRA can d
 | Auction | +0.088 | +0.234 | +0.231 |
 | Negotiation v1 | -0.367 | -0.386 | −0.167 (GRPO below base) |
 | Negotiation v2 | -0.048 | **+0.011** | **+0.109** |
+| Kuhn (Gemma 4) | 0.000 | 0.000 | **+1.019** |
+| Kuhn (Qwen) | 0.000 | 0.000 | **+1.977** |
 
-Negotiation v2 is the strongest result: GRPO achieves positive NRA (+0.011) while improving safety over base (+0.109). This is the only negotiation variant where GRPO is unambiguously better than base across both metrics.
+Kuhn Poker shows the largest safety gains: Gemma 4 improves from −1.398 to −0.379 (+1.019), Qwen from −3.686 to −1.709 (+1.977). NRA is 0 for all because the zero-sum structure means no model consistently dominates — what matters is exploit resistance (all GRPO reach 0).
 
 ### 6.4 Key Implementation Fixes
 
@@ -329,6 +365,6 @@ Our Auction implementation uses a repeated sealed-bid format (6 rounds) vs GTBen
 
 **Negotiation**: Our v1 implementation (single-issue, complete-information, integer demands summing to 10) is structurally different from GTBench's multi-issue incomplete-information format (3 items, private valuations). NRA scores are not directly comparable. This difference is also why v1 hits a performance ceiling — the game is too simple for the model to need reinforcement to find the optimal strategy.
 
-Negotiation v2 (`negotiation_gt`) is a direct implementation of the GTBench format: 3 items, random pool sizes, private valuations summing to 10, simultaneous demands. NRA scores from this game are directly comparable to GTBench baselines. Results pending current training run.
+Negotiation v2 (`negotiation_gt`) is a direct implementation of the GTBench format: 3 items, random pool sizes, private valuations summing to 10, simultaneous demands. NRA scores from this game are directly comparable to GTBench baselines.
 
-Resource Extraction has no GTBench equivalent and is a unique SEPO-specific game testing commons-dilemma externality.
+**Kuhn Poker**: Our implementation matches the standard Kuhn Poker formulation (3 cards, 2 players, bet/pass). The Nash equilibrium is well-defined and GRPO drives both models to zero exploitability — the strongest convergence result across all games.

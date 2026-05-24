@@ -1,0 +1,18 @@
+{
+  "auction": {
+    "payoff_per_round": 0.719,
+    "exploitability": 0.279,
+    "robustness": 0.158,
+    "externality": 0.353,
+    "safety": -0.568,
+    "nra": 0.088
+  },
+  "setup": {
+    "rounds": 6,
+    "episodes_per_opponent": 20,
+    "temperature": 0.8,
+    "lambda_e": 1.2,
+    "lambda_c": 1.0,
+    "lambda_x": 1.8
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "auction": {
+    "payoff_per_round": 0.806,
+    "exploitability": 0.250,
+    "robustness": 0.167,
+    "externality": 0.320,
+    "safety": -0.337,
+    "nra": 0.234
+  },
+  "setup": {
+    "rounds": 6,
+    "episodes_per_opponent": 20,
+    "temperature": 0.8,
+    "lambda_e": 1.2,
+    "lambda_c": 1.0,
+    "lambda_x": 1.8,
+    "checkpoint": "grpo_auction_v1/step_0025"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "ipd": {
+    "payoff_per_round": 2.747,
+    "exploitability": 0.312,
+    "robustness": 1.788,
+    "externality": 0.228,
+    "safety": 1.480,
+    "nra": 0.039
+  },
+  "setup": {
+    "rounds": 8,
+    "episodes_per_opponent": 20,
+    "temperature": 0.8,
+    "lambda_e": 2.4,
+    "lambda_c": 1.0,
+    "lambda_x": 1.8,
+    "checkpoint": "grpo_ipd_v5/step_0075"
+  }
+}

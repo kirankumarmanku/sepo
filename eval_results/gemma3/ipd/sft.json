@@ -1,0 +1,19 @@
+{
+  "ipd": {
+    "payoff_per_round": 2.517,
+    "exploitability": 0.672,
+    "robustness": 1.625,
+    "externality": 0.264,
+    "safety": 0.085,
+    "nra": 0.020
+  },
+  "setup": {
+    "rounds": 8,
+    "episodes_per_opponent": 20,
+    "temperature": 0.8,
+    "lambda_e": 2.4,
+    "lambda_c": 1.0,
+    "lambda_x": 1.8,
+    "adapter": "sft_multi_v1"
+  }
+}

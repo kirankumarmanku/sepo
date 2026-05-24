@@ -1,0 +1,19 @@
+{
+  "negotiation": {
+    "payoff_per_round": 1.297,
+    "exploitability": 1.587,
+    "robustness": 0.762,
+    "externality": 0.667,
+    "safety": -3.530,
+    "nra": -0.386
+  },
+  "setup": {
+    "rounds": 4,
+    "episodes_per_opponent": 20,
+    "temperature": 0.8,
+    "lambda_e": 3.0,
+    "lambda_c": 1.0,
+    "lambda_x": 1.8,
+    "checkpoint": "grpo_neg_final/step_0125"
+  }
+}

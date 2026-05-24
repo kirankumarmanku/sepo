@@ -1,0 +1,18 @@
+{
+  "negotiation_gt": {
+    "payoff_per_round": 5.192,
+    "exploitability": 0.781,
+    "robustness": 1.275,
+    "externality": 0.642,
+    "safety": -0.627,
+    "nra": -0.048
+  },
+  "setup": {
+    "rounds": 4,
+    "episodes_per_opponent": 20,
+    "temperature": 0.8,
+    "lambda_e": 3.0,
+    "lambda_c": 1.0,
+    "lambda_x": 1.8
+  }
+}

@@ -185,6 +185,9 @@ adv_t_r = (reward_t_r − mean_r) / std_r
 
 All evals use 20 episodes per opponent, temperature=0.8, max_tokens=256. SEPO checkpoints evaluated with base model as `--model` (unfused), which empirically gives better results than fused-SFT base (SFT over-cooperates, SEPO corrects from a less biased starting point).
 
+![Safety Score by Game](../graphs/gemma3_safety_by_game.png)
+*Figure 1: Safety score across all games for Gemma 3 (Base vs SFT vs SEPO). SEPO improves safety over SFT in every game and over Base in IPD, Auction, and Negotiation GT.*
+
 ### 5.1 IPD Results
 
 **Setup**: λe=2.4, λc=1.0, λx=1.8. Exploiters: AlwaysDefect + AlternatingDefect.
@@ -263,6 +266,9 @@ Step 125 is the current best; small oscillation begins after that. Training can 
 
 ### 5.5 Kuhn Poker Results
 
+![Gemma 4 Kuhn Progression](../graphs/gemma4_kuhn_progression.png)
+*Figure 2: Gemma 4 Kuhn Poker — safety improves monotonically while exploitability drops to 0 from SFT onward.*
+
 **Setup**: λe=1.5, λc=2.4, λx=0.0 (zero-sum). Lower lr (3e-6) and higher beta (0.2) to prevent KL drift.
 
 **Gemma 4 E4B-it**:
@@ -293,6 +299,9 @@ Step 125 is the current best; small oscillation begins after that. Training can 
 
 ## 6. Analysis
 
+![Exploit Convergence](../graphs/exploit_convergence.png)
+*Figure 3: Exploitability over training steps across all runs. Gemma 4 Kuhn and Neg GT converge fastest; Qwen Multi and Gemma 4 Multi show stable low-exploit plateaus.*
+
 ### 6.1 Equilibrium and Convergence
 
 | Game | Equilibrium | Behaviour |
@@ -305,6 +314,9 @@ Step 125 is the current best; small oscillation begins after that. Training can 
 
 The pattern across games: SEPO works best when (a) a learnable equilibrium exists and (b) that equilibrium is not already accessible to the base model via instruction-following. IPD satisfies both — TFT is learnable and base over-cooperates. Kuhn Poker satisfies both — Nash mixed strategy is learnable and base models are exploitable. Negotiation v1 fails condition (b) — too simple. Negotiation v2 satisfies both — private valuations and multi-item trade-offs require genuine multi-round inference that the base model under-performs on.
 
+![Multi-Metric Radar](../graphs/radar_base_vs_sepo.png)
+*Figure 4: Multi-metric radar profiles (Base vs SEPO) across three games. SEPO expands the "safe" region (exploit resistance + safety) without collapsing utility.*
+
 ### 6.2 Why SEPO Works
 
 SEPO's effectiveness rests on three mechanisms working together:
@@ -316,6 +328,9 @@ SEPO's effectiveness rests on three mechanisms working together:
 **3. Correcting SFT over-cooperation**: SFT teaches the model to cooperate because SEPO-optimal demonstrations are drawn from cooperative strategies. This increases exploitability vs adversarial opponents. SEPO's exploit penalty directly penalises this over-cooperation, pulling the policy toward strategies that maintain utility while resisting exploitation. This SFT → SEPO correction is the primary source of improvement in IPD and Auction.
 
 ### 6.3 SFT Degradation Pattern
+
+![SFT Degradation Waterfall](../graphs/sft_degradation_waterfall.png)
+*Figure 5: The SFT degradation → SEPO correction pattern. SFT increases exploitability (red arrows), SEPO reduces it back below base (green arrows). Most dramatic in Negotiation GT (2.7× → 0.3×).*
 
 SFT consistently degrades exploit resistance across all games. SEPO is necessary to correct this regression.
 
@@ -333,6 +348,12 @@ SFT consistently degrades exploit resistance across all games. SEPO is necessary
 SFT degradation is worst in Negotiation v2 (2.706 vs 0.781 base, 3.5× increase) — the multi-item format amplifies over-accommodation. SEPO's correction is also largest here (−88% from SFT exploit).
 
 ### 6.4 Safety vs NRA Trade-off
+
+![Safety Improvement Heatmap](../graphs/safety_improvement_heatmap.png)
+*Figure 6: Safety improvement (SEPO − Base) across all model × game combinations. Green = SEPO improves safety; red = SEPO below base. Gemma 4 Neg GT (+2.50) and Qwen Kuhn (+1.98) show the largest gains.*
+
+![Exploit Slope Chart](../graphs/exploit_slope_chart.png)
+*Figure 7: Exploitability reduction Base → SEPO for each model. Green lines = improvement, red = regression. SEPO reduces exploitability in nearly all conditions.*
 
 SEPO optimises safety (J(π)), not NRA (raw competitive payoff ratio). NRA can decrease as safety improves — the model trades some competitive advantage for exploit resistance and reduced collusion. This is the intended trade-off.
 

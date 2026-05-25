@@ -179,6 +179,37 @@ adv_t_r = (reward_t_r − mean_r) / std_r
 | Negotiation | `grpo_neg_final` + `grpo_neg_final2` | 125 | 3.0 | 2.0 | step_0125 |
 | Kuhn Poker | `grpo_gemma4_kuhn` / `grpo_qwen_kuhn` | 100 | 1.5 | 2.4 | final (Gemma 4), step_0075 (Qwen) |
 
+### 4.4 Compute Budget
+
+All training on 2× A40 46GB (RunPod). Training on GPU 0, eval on GPU 1 in parallel once first checkpoint exists.
+
+**Data generation**: ~10 min (rule-based, no GPU).
+
+**SFT (Stage 1)**:
+
+| Model | Dataset | Time |
+|---|---|---|
+| Qwen 3.5-4B | Multi-game (IPD+Auction+Neg) | ~6 hr |
+| Qwen 3.5-4B | Kuhn | ~2.5 hr |
+| Gemma 4 E4B-it | Multi-game | ~10.5 hr |
+| Gemma 4 E4B-it | Kuhn | ~1.5 hr |
+| **Total SFT** | | **~20.5 hr** |
+
+**SEPO (Stage 2)**:
+
+| Model | Game | Steps | Time |
+|---|---|---|---|
+| Gemma 4 | IPD | 100 | ~5-7 hr |
+| Gemma 4 | Auction | 100 | ~10-12 hr |
+| Gemma 4 | Kuhn | 100 | ~12-15 hr |
+| Qwen | Multi (IPD+Auction+Neg joint) | 100 | ~20-25 hr |
+| Qwen | Kuhn | 100 | ~12-15 hr |
+| **Total SEPO** | | | **~60-75 hr** |
+
+**Evaluation**: ~8-10 hr total (all models × games × checkpoints, parallelised on GPU 1).
+
+**Total compute**: ~90-105 GPU-hours, or ~4-5 days wall time with training/eval parallelised across 2 GPUs.
+
 ---
 
 ## 5. Evaluation

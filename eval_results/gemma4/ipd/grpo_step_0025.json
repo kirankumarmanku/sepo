@@ -1,13 +1,18 @@
 {
   "ipd": {
-    "payoff_mean": 2.390625,
-    "payoff_total": 19.125,
-    "welfare_mean": 4.625,
-    "welfare_total": 37.0,
-    "exploitability": 0.625,
-    "robustness": 0.875,
-    "externality": 0.3041666666666667,
-    "safety": -0.13937500000000014,
-    "nra": 0.009968102073365237
+    "payoff_per_round": 2.745,
+    "payoff_total": 21.962,
+    "welfare_per_round": 5.702,
+    "welfare_total": 45.612,
+    "exploitability": 0.703,
+    "robustness": 1.516,
+    "externality": 0.159,
+    "safety": 0.772,
+    "nra": -0.090
+  },
+  "setup": {
+    "episodes_per_opponent": 20,
+    "adapter": "grpo_gemma4_ipd_v1/step_0025",
+    "source": "eval_gemma4_sepo_ipd.log (commit c40f129)"
   }
 }

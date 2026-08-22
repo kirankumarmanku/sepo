@@ -338,7 +338,6 @@ def grpo_step(
     seed_offset: int,
     max_new_tokens: int = 512,
     use_token_type_ids: bool = False,
-    cached_sepo_penalty: float = None,
 ):
     """
     One GRPO step — per-round advantage normalisation.
@@ -347,7 +346,10 @@ def grpo_step(
     Advantage is computed PER ROUND across rollouts, not per episode.
 
     reward_t_r = payoff_t_r - SEPO_penalty_r
-    where SEPO_penalty_r = λe·e + λc·c + λx·x  (episode-level, shared across rounds)
+    where SEPO_penalty_r = λe·e + λc·c + λx·x, computed from fresh exploit and
+    collusive episodes run for EVERY rollout (per-rollout penalty; shared across
+    rounds within that rollout). A penalty shared across rollouts is a group
+    constant and cancels in advantage normalisation — zero exploit gradient.
 
     Normalising per round means even 1 defect out of 16 rollouts at round t
     produces a non-zero advantage signal for that decision.
@@ -367,57 +369,6 @@ def grpo_step(
             flush=True,
         )
 
-        # Shared aux episodes for SEPO — run ONCE per opponent group, not per rollout.
-        # Aux episodes for SEPO metrics — skipped when a cached penalty is provided
-        # (caller refreshes the cache every sepo_eval_every steps).
-        # When not cached: run once per opponent group, reusing train ep if possible.
-        from dataclasses import replace as _replace
-
-        exploit_names = {o.name for o in game.exploiter_pool}
-        collusive_names = {o.name for o in game.collusive_pool}
-        _seed_aux = seed_offset + g_idx * 1000 + 999
-
-        if cached_sepo_penalty is None:
-            if train_opp.name in exploit_names:
-                shared_exploit_eps = None
-            else:
-                shared_exploit_eps = []
-                for opp in game.exploiter_pool:
-                    ep, _ = run_episode(
-                        model,
-                        tokenizer,
-                        game,
-                        opp,
-                        "exploiter",
-                        seed=_seed_aux,
-                        device=device,
-                        temperature=temperature,
-                        max_new_tokens=max_new_tokens,
-                        use_token_type_ids=use_token_type_ids,
-                    )
-                    shared_exploit_eps.append(ep)
-
-            if train_opp.name in collusive_names:
-                shared_collusive_eps = None
-            else:
-                shared_collusive_eps = []
-                for opp in game.collusive_pool:
-                    ep, _ = run_episode(
-                        model,
-                        tokenizer,
-                        game,
-                        opp,
-                        "collusive",
-                        seed=_seed_aux + 1,
-                        device=device,
-                        temperature=temperature,
-                        max_new_tokens=max_new_tokens,
-                        use_token_type_ids=use_token_type_ids,
-                    )
-                    shared_collusive_eps.append(ep)
-
-        first_train_ep = None
-
         for r_idx in range(n_rollouts):
             seed_base = seed_offset + g_idx * 1000 + r_idx * 100
 
@@ -433,45 +384,61 @@ def grpo_step(
                 max_new_tokens=max_new_tokens,
                 use_token_type_ids=use_token_type_ids,
             )
-            if first_train_ep is None:
-                first_train_ep = ep_train
+            # Run fresh exploit + collusive episodes per rollout so sepo_penalty
+            # varies across rollouts and contributes to the advantage signal.
+            # With a shared constant penalty, normalization cancels it out entirely.
+            exploit_eps_r = []
+            for i_opp, opp in enumerate(game.exploiter_pool):
+                ep_exp, _ = run_episode(
+                    model,
+                    tokenizer,
+                    game,
+                    opp,
+                    "exploiter",
+                    seed=seed_base + 500 + i_opp,
+                    device=device,
+                    temperature=temperature,
+                    max_new_tokens=max_new_tokens,
+                    use_token_type_ids=use_token_type_ids,
+                )
+                exploit_eps_r.append(ep_exp)
 
-            if cached_sepo_penalty is not None:
-                sepo_penalty = cached_sepo_penalty
-                metrics = {
-                    "exploitability": 0.0,
-                    "collusion": 0.0,
-                    "externality": 0.0,
-                    "utility": float(sum(ep_train.payoffs)) / game.n_steps,
-                }
-            else:
-                # Use first_train_ep as fixed reference so SEPO penalty is
-                # constant across rollouts — penalty variance was creating
-                # false advantage signal unrelated to action differences.
-                aux = [first_train_ep]
-                aux += (
-                    shared_exploit_eps
-                    if shared_exploit_eps is not None
-                    else [_replace(first_train_ep, pool="exploiter")]
+            collusive_eps_r = []
+            for i_opp, opp in enumerate(game.collusive_pool):
+                ep_col, _ = run_episode(
+                    model,
+                    tokenizer,
+                    game,
+                    opp,
+                    "collusive",
+                    seed=seed_base + 600 + i_opp,
+                    device=device,
+                    temperature=temperature,
+                    max_new_tokens=max_new_tokens,
+                    use_token_type_ids=use_token_type_ids,
                 )
-                aux += (
-                    shared_collusive_eps
-                    if shared_collusive_eps is not None
-                    else [_replace(first_train_ep, pool="collusive")]
-                )
-                _, metrics = sepo_reward(aux, game, lambda_e, lambda_c, lambda_x)
-                sepo_penalty = (
-                    lambda_e * metrics["exploitability"]
-                    + lambda_c * metrics["collusion"]
-                    + lambda_x * metrics["externality"]
-                )
+                collusive_eps_r.append(ep_col)
+
+            aux = [ep_train] + exploit_eps_r + collusive_eps_r
+            _, metrics = sepo_reward(aux, game, lambda_e, lambda_c, lambda_x)
+            sepo_penalty = (
+                lambda_e * metrics["exploitability"]
+                + lambda_c * metrics["collusion"]
+                + lambda_x * metrics["externality"]
+            )
             episodes.append(
                 (ep_train, inp_ids, gen_ids, old_lps, sepo_penalty, metrics)
             )
             actions_str = "".join(game.action_label(a) for a in ep_train.actions)
             opp_str = "".join(game.action_label(a) for a in ep_train.opp_actions)
+            exp_str = "".join(
+                game.action_label(a) for ep in exploit_eps_r for a in ep.actions
+            )
+            col_str = "".join(
+                game.action_label(a) for ep in collusive_eps_r for a in ep.actions
+            )
             print(
-                f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx + 1:02d} llm={actions_str} opp={opp_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}",
+                f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx + 1:02d} llm={actions_str} opp={opp_str} exp={exp_str} col={col_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}",
                 flush=True,
             )
 
@@ -655,10 +622,6 @@ def train(args):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     log = []
-    # Per-game SEPO cache and KL tracker (works for single-game too)
-    sepo_caches = {g.name: None for g in games}
-    kl_since_refresh = {g.name: 0.0 for g in games}
-
     # Build per-game λe dict — falls back to global --lambda-e for unspecified games
     lambda_e_per_game = {}
     if args.lambda_e_override:
@@ -671,10 +634,7 @@ def train(args):
     le_str = "  ".join(
         f"{g.name}:λe={lambda_e_per_game.get(g.name, args.lambda_e)}" for g in games
     )
-    print(f"SEPO weights: {le_str}  λc={args.lambda_c}  λx={args.lambda_x}")
-    print(
-        f"SEPO refresh: every {args.sepo_eval_every} steps OR when cumulative KL > {args.sepo_kl_threshold}\n"
-    )
+    print(f"SEPO weights: {le_str}  λc={args.lambda_c}  λx={args.lambda_x}\n")
 
     for _i in range(args.iters):
         step = start_step + _i
@@ -683,18 +643,6 @@ def train(args):
         step_losses, step_metrics_list = [], []
 
         for game in games:
-            refresh = (
-                sepo_caches[game.name] is None
-                or step % args.sepo_eval_every == 0
-                or kl_since_refresh[game.name] > args.sepo_kl_threshold
-            )
-            if refresh and step > 0:
-                print(
-                    f"  [SEPO refresh] game={game.name} step={step} cumKL={kl_since_refresh[game.name]:.3f}",
-                    flush=True,
-                )
-                kl_since_refresh[game.name] = 0.0
-
             loss, metrics = grpo_step(
                 model=model,
                 ref_model=ref_model,
@@ -711,17 +659,7 @@ def train(args):
                 seed_offset=step * 10000 + abs(hash(game.name)) % 10000,
                 max_new_tokens=args.max_new_tokens,
                 use_token_type_ids=args.token_type_ids,
-                cached_sepo_penalty=None if refresh else sepo_caches[game.name],
             )
-            if metrics:
-                if refresh:
-                    sepo_caches[game.name] = (
-                        args.lambda_e * metrics.get("exploitability", 0.0)
-                        + args.lambda_c * metrics.get("collusion", 0.0)
-                        + args.lambda_x * metrics.get("externality", 0.0)
-                    )
-                kl_since_refresh[game.name] += metrics.get("kl", 0.0)
-
             if loss is not None:
                 step_losses.append(loss)
                 step_metrics_list.append(metrics)
@@ -865,19 +803,6 @@ def main():
     )
     p.add_argument("--log-every", type=int, default=10)
     p.add_argument("--save-every", type=int, default=100)
-    p.add_argument(
-        "--sepo-eval-every",
-        type=int,
-        default=5,
-        help="Recompute SEPO aux episodes every N steps (default 5)",
-    )
-    p.add_argument(
-        "--sepo-kl-threshold",
-        type=float,
-        default=0.5,
-        help="Also refresh SEPO when cumulative KL since last refresh exceeds this (default 0.5)",
-    )
-
     p.add_argument(
         "--show-gen",
         action="store_true",

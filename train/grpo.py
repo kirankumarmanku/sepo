@@ -7,10 +7,10 @@ SEPO objective:
   J(π) = u(π) - λe·e(π) - λc·c(π) - λx·x(π)
 
 GRPO algorithm (per step):
-  1. Sample episodes from diverse opponent pools
-  2. Generate G rollouts per episode using the policy model
-  3. Compute SEPO reward for each rollout
-  4. Advantage = (r - mean(r)) / std(r)  within group
+  1. Every (pool, opponent) pair — train, exploiter, collusive — is a group
+  2. Generate n rollouts per group using the policy model
+  3. Each rollout's reward is its own contribution to J (see grpo_step)
+  4. Advantage = (r - mean(r)) / std(r)  within group, per round
   5. Loss = -mean(A · log π(a|s)) + β · KL(π || π_ref)
   6. Gradient update
 
@@ -299,27 +299,6 @@ def recompute_log_probs(
     return log_probs
 
 
-# ── SEPO reward ────────────────────────────────────────────────────────────────
-
-
-def sepo_reward(
-    episodes: List[Episode],
-    game: Game,
-    lambda_e: float,
-    lambda_c: float,
-    lambda_x: float,
-) -> float:
-    metrics = game.sepo_metrics(episodes)
-    scale = 3.0 / game.max_payoff  # normalise utility/exploit to common IPD scale
-    r = (
-        metrics["utility"] * scale
-        - lambda_e * metrics["exploitability"] * scale
-        - lambda_c * metrics["collusion"]
-        - lambda_x * metrics["externality"]
-    )
-    return r, metrics
-
-
 # ── GRPO training step ────────────────────────────────────────────────────────
 
 
@@ -341,113 +320,94 @@ def grpo_step(
     use_token_type_ids: bool = False,
 ):
     """
-    One GRPO step — per-round advantage normalisation.
+    One GRPO step — per-round advantage normalisation, per-pool credit.
 
-    Group = one train-pool opponent × n_rollouts episodes.
-    Advantage is computed PER ROUND across rollouts, not per episode.
+    The SEPO objective is a sum of pool expectations,
 
-    reward_t_r = payoff_t_r - SEPO_penalty_r
-    where SEPO_penalty_r = λe·e + λc·c + λx·x, computed from fresh exploit and
-    collusive episodes run for EVERY rollout (per-rollout penalty; shared across
-    rounds within that rollout). A penalty shared across rollouts is a group
-    constant and cancels in advantage normalisation — zero exploit gradient.
+        J = s·u[train] − λe·s·e[exploiter] − λc·c[collusive] − λx·x[train+exploiter]
 
-    Normalising per round means even 1 defect out of 16 rollouts at round t
-    produces a non-zero advantage signal for that decision.
+    so its gradient is the policy gradient of each term through that term's
+    OWN episodes. Every (pool, opponent) pair is therefore a rollout group of
+    n_rollouts episodes, and each episode's reward is its own contribution to J:
+
+        reward_{t,r} = s·payoff_{t,r}·[pool == train] − P_r
+        P_r          = λe·s·e_r + λc·c_r + λx·x_r        (from episode r alone)
+
+    Advantage is normalised PER ROUND across the rollouts of a group, so a
+    single divergent action at one round of one rollout still produces signal
+    even when episode-level outcomes coincide (near-deterministic SFT prior).
+
+    Earlier versions computed P_r from separate exploiter/collusive episodes
+    and credited it to the train episode's actions. Given the policy, those
+    samples are independent, so E[P_r · ∇log π(a_train)] = E[P_r]·0: the
+    penalty contributed no expected gradient, only variance (and when shared
+    across the group it cancelled exactly in normalisation). Crediting each
+    penalty to the actions that produced it is what makes λe, λc, λx matter.
     """
+    groups = (
+        [("train", o) for o in game.train_pool]
+        + [("exploiter", o) for o in game.exploiter_pool]
+        + [("collusive", o) for o in game.collusive_pool]
+    )
+    scale = 3.0 / game.max_payoff  # anchor payoff terms to the IPD scale (Eq. 2)
+
     # Pre-count terms so each backward() call is correctly normalised.
     # Only one computation graph lives in memory at a time instead of n_total.
-    n_total = len(game.train_pool) * n_rollouts * game.n_steps
+    n_total = len(groups) * n_rollouts * game.n_steps
     pg_loss_accum = 0.0
     kl_accum = 0.0
-    step_metrics = []
+    all_episodes: List[Episode] = []
 
-    for g_idx, train_opp in enumerate(game.train_pool):
-        # Collect n_rollouts episodes for this opponent
-        episodes = []  # (ep, inp_ids, gen_ids, old_lps, sepo_penalty, metrics)
+    for g_idx, (pool, opp) in enumerate(groups):
+        episodes = []  # (ep, inp_ids, gen_ids, old_lps, penalty)
         print(
-            f"  [{datetime.now().strftime('%H:%M:%S')}] rollout opp={train_opp.name} ({g_idx + 1}/{len(game.train_pool)})",
+            f"  [{datetime.now().strftime('%H:%M:%S')}] rollout [{pool}] opp={opp.name} ({g_idx + 1}/{len(groups)})",
             flush=True,
         )
 
         for r_idx in range(n_rollouts):
             seed_base = seed_offset + g_idx * 1000 + r_idx * 100
-
-            ep_train, (inp_ids, gen_ids, old_lps) = run_episode(
+            ep, (inp_ids, gen_ids, old_lps) = run_episode(
                 model,
                 tokenizer,
                 game,
-                train_opp,
-                "train",
+                opp,
+                pool,
                 seed=seed_base,
                 device=device,
                 temperature=temperature,
                 max_new_tokens=max_new_tokens,
                 use_token_type_ids=use_token_type_ids,
             )
-            # Run fresh exploit + collusive episodes per rollout so sepo_penalty
-            # varies across rollouts and contributes to the advantage signal.
-            # With a shared constant penalty, normalization cancels it out entirely.
-            exploit_eps_r = []
-            for i_opp, opp in enumerate(game.exploiter_pool):
-                ep_exp, _ = run_episode(
-                    model,
-                    tokenizer,
-                    game,
-                    opp,
-                    "exploiter",
-                    seed=seed_base + 500 + i_opp,
-                    device=device,
-                    temperature=temperature,
-                    max_new_tokens=max_new_tokens,
-                    use_token_type_ids=use_token_type_ids,
-                )
-                exploit_eps_r.append(ep_exp)
+            # This episode's own SEPO penalty. sepo_metrics on a single episode
+            # yields only the terms its pool contributes to (exploit for an
+            # exploiter episode, collusion for a collusive one, externality for
+            # train/exploiter), so P_r is exactly episode r's share of J.
+            m = game.sepo_metrics([ep])
+            penalty = (
+                lambda_e * scale * m["exploitability"]
+                + lambda_c * m["collusion"]
+                + lambda_x * m["externality"]
+            )
+            episodes.append((ep, inp_ids, gen_ids, old_lps, penalty))
+            all_episodes.append(ep)
 
-            collusive_eps_r = []
-            for i_opp, opp in enumerate(game.collusive_pool):
-                ep_col, _ = run_episode(
-                    model,
-                    tokenizer,
-                    game,
-                    opp,
-                    "collusive",
-                    seed=seed_base + 600 + i_opp,
-                    device=device,
-                    temperature=temperature,
-                    max_new_tokens=max_new_tokens,
-                    use_token_type_ids=use_token_type_ids,
-                )
-                collusive_eps_r.append(ep_col)
-
-            aux = [ep_train] + exploit_eps_r + collusive_eps_r
-            _, metrics = sepo_reward(aux, game, lambda_e, lambda_c, lambda_x)
-            sepo_penalty = (
-                lambda_e * metrics["exploitability"]
-                + lambda_c * metrics["collusion"]
-                + lambda_x * metrics["externality"]
-            )
-            episodes.append(
-                (ep_train, inp_ids, gen_ids, old_lps, sepo_penalty, metrics)
-            )
-            actions_str = "".join(game.action_label(a) for a in ep_train.actions)
-            opp_str = "".join(game.action_label(a) for a in ep_train.opp_actions)
-            exp_str = "".join(
-                game.action_label(a) for ep in exploit_eps_r for a in ep.actions
-            )
-            col_str = "".join(
-                game.action_label(a) for ep in collusive_eps_r for a in ep.actions
-            )
+            actions_str = "".join(game.action_label(a) for a in ep.actions)
+            opp_str = "".join(game.action_label(a) for a in ep.opp_actions)
             print(
-                f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx + 1:02d} llm={actions_str} opp={opp_str} exp={exp_str} col={col_str} u={sum(ep_train.payoffs):.1f} pen={sepo_penalty:.3f}",
+                f"    [{datetime.now().strftime('%H:%M:%S')}] r{r_idx + 1:02d} llm={actions_str} opp={opp_str} u={sum(ep.payoffs):.1f} pen={penalty:.3f}",
                 flush=True,
             )
 
-        # Per-round advantage: normalise across rollouts at each round t
-        n_steps = min(len(ep.payoffs) for ep, _, _, _, _, _ in episodes)
+        # Per-round advantage: normalise across rollouts at each round t.
+        # Use min length — Kuhn Poker episodes vary (early folds shorten episodes).
+        n_steps = min(len(ep.payoffs) for ep, _, _, _, _ in episodes)
         for t in range(n_steps):
             round_rewards = np.array(
-                [ep.payoffs[t] - sepo_pen for ep, _, _, _, sepo_pen, _ in episodes],
+                [
+                    (scale * ep.payoffs[t] if pool == "train" else 0.0) - pen
+                    for ep, _, _, _, pen in episodes
+                ],
                 dtype=np.float32,
             )
             adv = (
@@ -456,7 +416,7 @@ def grpo_step(
                 else np.zeros_like(round_rewards)
             )
 
-            for r_idx, (_, inp_ids, gen_ids, old_lps, _, _) in enumerate(episodes):
+            for r_idx, (_, inp_ids, gen_ids, old_lps, _) in enumerate(episodes):
                 A = float(adv[r_idx])
                 new_lps = recompute_log_probs(
                     model, [inp_ids[t]], [gen_ids[t]], use_token_type_ids
@@ -483,18 +443,16 @@ def grpo_step(
                     # Backward immediately — one graph at a time, no accumulation
                     ((pg + beta * kl) / n_total).backward()
 
-        step_metrics.append(episodes[-1][-1])
-
-    if not step_metrics:
+    if not all_episodes:
         return None, {}
 
     avg_pg = pg_loss_accum / n_total
     avg_kl = kl_accum / n_total
     loss_val = avg_pg + beta * avg_kl
 
-    avg_metrics = {
-        k: float(np.mean([m[k] for m in step_metrics])) for k in step_metrics[0]
-    }
+    # Step metrics over every episode of the step — the same pool-wise
+    # estimator the evaluator uses, so u/e/c/x in the log are real values.
+    avg_metrics = dict(game.sepo_metrics(all_episodes))
     avg_metrics["kl"] = avg_kl
     avg_metrics["pg_loss"] = avg_pg
 

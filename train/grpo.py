@@ -34,6 +34,7 @@ import argparse
 import json
 import math
 import time
+import zlib
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -507,6 +508,12 @@ def train(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}")
 
+    # Seed both RNG paths: numpy (opponent behaviour, via per-episode seeds
+    # derived from seed_offset below) and torch (generation sampling).
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    print(f"Seed: {args.seed}")
+
     if args.game == "all":
         games = list(GAME_REGISTRY.values())
         print(f"Game: ALL ({', '.join(g.name for g in games)}) — joint multi-game GRPO")
@@ -656,7 +663,11 @@ def train(args):
                 lambda_x=args.lambda_x,
                 beta=args.beta,
                 clip_eps=args.clip_eps,
-                seed_offset=step * 10000 + abs(hash(game.name)) % 10000,
+                # crc32 (not hash()) so the offset is stable across processes;
+                # the seed stride keeps replicate runs on disjoint seed ranges.
+                seed_offset=args.seed * 10_000_000
+                + step * 10000
+                + zlib.crc32(game.name.encode()) % 10000,
                 max_new_tokens=args.max_new_tokens,
                 use_token_type_ids=args.token_type_ids,
             )
@@ -803,6 +814,12 @@ def main():
     )
     p.add_argument("--log-every", type=int, default=10)
     p.add_argument("--save-every", type=int, default=100)
+    p.add_argument(
+        "--seed",
+        type=int,
+        default=0,
+        help="Replicate seed: seeds torch/numpy and offsets all episode seeds",
+    )
     p.add_argument(
         "--show-gen",
         action="store_true",

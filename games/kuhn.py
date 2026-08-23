@@ -464,3 +464,54 @@ class KuhnPokerGame(Game):
             "collusion":      collusion,
             "externality":    externality,
         }
+
+
+# ── Action-frequency analysis (Nash convergence check) ────────────────────────
+
+def kuhn_action_frequencies(episodes: List[Episode]) -> Dict[str, float]:
+    """
+    Card-conditioned action frequencies from eval episodes, for comparison
+    against the Kuhn Nash family (first mover: bet J with prob a <= 1/3, bet K
+    with 3a, never bet Q first-in; facing a bet: call with Q with prob 1/3,
+    always call K, never call J).
+
+    Reads per-decision records from Episode.metadata["decisions"], each a dict
+    {"card": int, "history": [int], "action": int} captured before game.step.
+    Returns {} if no episode carries decision records.
+
+    bet_rate_X  = P(BET  | card X, not facing a bet)   — for J this is the bluff rate
+    call_rate_X = P(CALL | card X, facing a bet)
+    """
+    open_counts = {CARD_J: [0, 0], CARD_Q: [0, 0], CARD_K: [0, 0]}  # [bets, total]
+    call_counts = {CARD_J: [0, 0], CARD_Q: [0, 0], CARD_K: [0, 0]}  # [calls, total]
+
+    for e in episodes:
+        for d in e.metadata.get("decisions", []):
+            card, history, action = d["card"], d["history"], d["action"]
+            if card not in open_counts:
+                continue
+            if history and history[-1] == BET:  # facing a bet: CALL/FOLD node
+                call_counts[card][1] += 1
+                if action == CALL:
+                    call_counts[card][0] += 1
+            else:  # open/check node: PASS/BET
+                open_counts[card][1] += 1
+                if action == BET:
+                    open_counts[card][0] += 1
+
+    if not any(c[1] for c in list(open_counts.values()) + list(call_counts.values())):
+        return {}
+
+    def _rate(c):
+        return round(c[0] / c[1], 4) if c[1] else None
+
+    return {
+        "kuhn_bet_rate_J":  _rate(open_counts[CARD_J]),
+        "kuhn_bet_rate_Q":  _rate(open_counts[CARD_Q]),
+        "kuhn_bet_rate_K":  _rate(open_counts[CARD_K]),
+        "kuhn_call_rate_J": _rate(call_counts[CARD_J]),
+        "kuhn_call_rate_Q": _rate(call_counts[CARD_Q]),
+        "kuhn_call_rate_K": _rate(call_counts[CARD_K]),
+        "kuhn_n_open_decisions": sum(c[1] for c in open_counts.values()),
+        "kuhn_n_facing_bet_decisions": sum(c[1] for c in call_counts.values()),
+    }

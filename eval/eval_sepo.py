@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import zlib
 from pathlib import Path
 from typing import List, Optional
 
@@ -32,7 +33,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from games import Episode
 from games.auction import AuctionGame
 from games.ipd import IPDGame
-from games.kuhn import KuhnPokerGame
+from games.kuhn import KuhnPokerGame, kuhn_action_frequencies
 from games.negotiation import NegotiationGame
 from games.negotiation_gtbench import NegotiationGTBenchGame
 from games.resource import ResourceGame
@@ -116,6 +117,7 @@ def run_episode(
     rng = np.random.default_rng(seed)
     state = game.reset(opponent, rng)
     actions, opp_actions, payoffs, opp_payoffs = [], [], [], []
+    decisions = []  # per-decision (card, history, action) records — Kuhn only
 
     done = False
     while not done:
@@ -160,6 +162,14 @@ def run_episode(
         if _SHOW_GEN:
             print(f"    [ACTION] {action}", flush=True)
 
+        if "my_card" in state:  # Kuhn: record the decision context pre-step
+            decisions.append(
+                {
+                    "card": state["my_card"],
+                    "history": list(state["history"]),
+                    "action": int(action),
+                }
+            )
         state, pay, opp_pay, done = game.step(action, state, rng)
         actions.append(action)
         opp_actions.append(state["h_opp"][-1])
@@ -173,6 +183,7 @@ def run_episode(
         opp_actions=opp_actions,
         payoffs=payoffs,
         opp_payoffs=opp_payoffs,
+        metadata={"decisions": decisions} if decisions else {},
     )
 
 
@@ -215,7 +226,7 @@ def eval_game(
                     game,
                     opp,
                     pool_name,
-                    seed=ep * 1000 + hash(opp.name) % 1000,
+                    seed=ep * 1000 + zlib.crc32(opp.name.encode()) % 1000,
                     device=device,
                     temperature=temperature,
                     max_new_tokens=max_new_tokens,
@@ -266,7 +277,7 @@ def eval_game(
             nra_vals.append((llm_total - opp_total) / denom)
     nra = float(np.mean(nra_vals)) if nra_vals else 0.0
 
-    return {
+    result = {
         "payoff_mean": metrics["utility"],
         "payoff_total": metrics["utility"] * n,
         "welfare_mean": welfare,
@@ -277,6 +288,23 @@ def eval_game(
         "safety": safety,
         "nra": nra,
     }
+
+    # Kuhn: card-conditioned action frequencies vs the Nash family
+    # (Nash refs: bet J = alpha <= 1/3, bet Q first-in = 0, bet K = 3*alpha;
+    #  call J = 0, call Q = 1/3, call K = 1)
+    if game.name == "kuhn":
+        freqs = kuhn_action_frequencies(all_episodes)
+        if freqs:
+            result.update(freqs)
+            print(
+                "    [kuhn freqs] "
+                f"bet J/Q/K = {freqs['kuhn_bet_rate_J']}/{freqs['kuhn_bet_rate_Q']}/{freqs['kuhn_bet_rate_K']}  "
+                f"call J/Q/K = {freqs['kuhn_call_rate_J']}/{freqs['kuhn_call_rate_Q']}/{freqs['kuhn_call_rate_K']}  "
+                f"(n={freqs['kuhn_n_open_decisions']}+{freqs['kuhn_n_facing_bet_decisions']})",
+                flush=True,
+            )
+
+    return result
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -82,14 +82,23 @@ class ActionStoppingCriteria(transformers.StoppingCriteria):
         )
         if "<think>" in generated and "</think>" not in generated:
             return False
-        # Stop only when the LAST line states an action — stopping on any line
-        # that merely mentions an action word truncates the model mid-reasoning
-        # (e.g. "opponent played DEFECT") and parse_action then reads the
-        # reasoning fragment as the decision.
+        # Stop only when a COMPLETED line (newline-terminated) is exactly a
+        # bare action from the game's vocab. Two failure modes this avoids:
+        # (1) incomplete lines — mid-decode, "No defection" is the current
+        #     last line and stem regexes (\bDEFECTI) read it as DEFECT;
+        # (2) sentences that mention actions — "opponent played DEFECT".
+        # If the model ends with the action and EOS (no trailing newline),
+        # generate() terminates naturally; this criteria is purely an
+        # early-exit optimisation and must never truncate reasoning.
+        complete = generated.endswith("\n")
         lines = [l.strip() for l in generated.split("\n") if l.strip()]
+        if not complete:
+            lines = lines[:-1]  # drop the still-streaming fragment
         if not lines:
             return False
-        return bool(self.game.action_on_last_line(lines[-1].upper()))
+        vocab = {k.upper() for k in (self.game.action_vocab or {})}
+        norm = lines[-1].upper().strip(" .!:*\"'`")
+        return norm in vocab
 
 
 # ── Constrained action decode ─────────────────────────────────────────────────

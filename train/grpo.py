@@ -193,7 +193,7 @@ def run_episode(
             {"role": "user", "content": user_msg},
         ]
         text = tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=False
+            messages, tokenize=False, add_generation_prompt=True
         )
         encoding = tokenizer(text, return_tensors="pt").to(device)
         if use_token_type_ids:

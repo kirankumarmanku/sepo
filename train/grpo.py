@@ -82,15 +82,14 @@ class ActionStoppingCriteria(transformers.StoppingCriteria):
         )
         if "<think>" in generated and "</think>" not in generated:
             return False
+        # Stop only when the LAST line states an action — stopping on any line
+        # that merely mentions an action word truncates the model mid-reasoning
+        # (e.g. "opponent played DEFECT") and parse_action then reads the
+        # reasoning fragment as the decision.
         lines = [l.strip() for l in generated.split("\n") if l.strip()]
         if not lines:
             return False
-        for line in generated.split("\n"):
-            stripped = line.strip()
-            if stripped and self.game.action_on_last_line(stripped.upper()):
-                return True
-            
-        return False
+        return bool(self.game.action_on_last_line(lines[-1].upper()))
 
 
 # ── Constrained action decode ─────────────────────────────────────────────────

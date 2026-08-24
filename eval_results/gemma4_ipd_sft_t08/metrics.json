@@ -1,0 +1,13 @@
+{
+  "ipd": {
+    "payoff_mean": 2.8359375,
+    "payoff_total": 22.6875,
+    "welfare_mean": 5.330078125,
+    "welfare_total": 42.640625,
+    "exploitability": 0.4296875,
+    "robustness": 1.8515625,
+    "externality": 0.23025173611111108,
+    "safety": 1.3355468750000001,
+    "nra": 0.07569902831313977
+  }
+}

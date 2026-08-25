@@ -1,0 +1,21 @@
+{
+  "kuhn": {
+    "payoff_mean": 0.0008680555555555525,
+    "payoff_total": 0.01041666666666663,
+    "welfare_mean": 0.0,
+    "welfare_total": 0.0,
+    "exploitability": 0.0,
+    "robustness": 0.14905753968253965,
+    "externality": 0.045789930555555546,
+    "safety": -0.8984002976190476,
+    "nra": 0.0,
+    "kuhn_bet_rate_J": 0.3107,
+    "kuhn_bet_rate_Q": 0.0096,
+    "kuhn_bet_rate_K": 1.0,
+    "kuhn_call_rate_J": 0.0081,
+    "kuhn_call_rate_Q": 0.0964,
+    "kuhn_call_rate_K": 1.0,
+    "kuhn_n_open_decisions": 333,
+    "kuhn_n_facing_bet_decisions": 237
+  }
+}

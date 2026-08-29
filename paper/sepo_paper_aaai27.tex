@@ -202,39 +202,40 @@ Kuhn Poker     & 1.5 & 2.4 & 0.0 & Yes (mixed) \\
 \caption{Per-game penalty weights and Nash equilibrium status. Kuhn Poker is zero-sum, so no externality penalty applies ($\lambda_x = 0$). Negotiation uses $\lambda_c = 2.0$ at train time and $\lambda_c = 1.0$ at evaluation.}
 \label{tab:lambdas}
 \end{table}
-\paragraph{Metrics.} We report six metrics per condition. \textit{Pay/r}: mean payoff per round against the training pool ($\uparrow$). \textit{Exploit}: mean additional payoff that adversarial opponents earn over the agent ($\downarrow$), clipped at zero and computed per opponent then averaged. \textit{Robust}: mean agent payoff against distribution-shifted opponents ($\uparrow$). \textit{Ext}: domain-specific externality cost ($\downarrow$). \textit{Safety}: $\Jsepo$ evaluated at each game's $\lambda$ values with the cross-game scale $s$ of Eq.~\ref{eq:reward} ($\uparrow$). \textit{NRA} (Normalized Relative Advantage): the GTBench competitive benchmark metric, computed as:
+\paragraph{Metrics.} We report six metrics per condition. \textit{Pay/r}: mean payoff per round against the training pool ($\uparrow$). \textit{Exploit}: mean additional payoff that adversarial opponents earn over the agent ($\downarrow$), clipped at zero and computed per opponent then averaged. \textit{Coll}: collusion rate against the trusting-partner pool ($\downarrow$; e.g., defection rate against AlwaysCooperate in IPD). \textit{Ext}: domain-specific externality cost ($\downarrow$). \textit{Safety}: $\Jsepo$ evaluated at each game's $\lambda$ values with the cross-game scale $s$ of Eq.~\ref{eq:reward} ($\uparrow$). \textit{NRA} (Normalized Relative Advantage): the GTBench competitive benchmark metric, computed as:
 \begin{equation}
 \label{eq:nra}
 \text{NRA} = \frac{1}{|\mathcal{O}|}\sum_{o \in \mathcal{O}} \frac{\sum_e \text{pay}_e^{\mathrm{LLM}} - \sum_e \text{pay}_e^{o}}{\sum_e \text{pay}_e^{\mathrm{LLM}} + \sum_e \text{pay}_e^{o}}
 \end{equation}
-where $\mathcal{O}$ is the set of all opponents and $e$ indexes episodes. NRA $\in [-1, +1]$; positive values indicate the agent outperforms its opponents in aggregate. NRA is directly comparable to \citet{wu2024gtbench} baselines for IPD and Negotiation v2. All evaluations use 20 episodes per opponent at temperature 0.8, max 256 new tokens.
+where $\mathcal{O}$ is the set of all opponents and $e$ indexes episodes. NRA $\in [-1, +1]$; positive values indicate the agent outperforms its opponents in aggregate. NRA is directly comparable to \citet{wu2024gtbench} baselines for IPD and Negotiation v2.
+\paragraph{Stochastic evaluation protocol.} All evaluations sample at temperature 0.8 (the training temperature) with 16 episodes per opponent and max 512 new tokens (matching training, so that models that commit to actions late are not disproportionately routed through the constrained fallback decode; per-condition fallback rates are reported in Appendix~G). We evaluate the sampled policy rather than greedy decoding for two reasons. First, greedy evaluation measures only the mode of the policy: we observed RL runs that substantially moved the sampled action distribution (training-time KL up to 1.5 from the SFT prior) without flipping a single greedy argmax along evaluation trajectories, making greedy metrics blind to the learning being measured. Second, a deterministic policy cannot represent a mixed strategy at all, and the Nash equilibria of Kuhn Poker are strictly mixed; a greedy protocol is structurally unable to exhibit the equilibrium behavior the Kuhn experiments test for. For Kuhn Poker we additionally report card-conditioned action frequencies (bluff and call rates per card) against the analytic Nash benchmark.
+\paragraph{Checkpoint selection.} Checkpoints are saved every 25 steps and all are evaluated; tables report the checkpoint with the best Safety ($\Jsepo$ at the game's training $\lambda$ values), selected by this rule uniformly across all conditions and stated alongside each result. Full per-checkpoint trajectories appear in the tables or Appendix~B, so selection effects are inspectable.
 \paragraph{Baselines.} For each game we report Base (off-the-shelf model, no fine-tuning), SFT (Stage 1 warm-start only, no \sepo{}), and \sepo{} (full pipeline at the best checkpoint). All reported metrics are means over 20 episodes per opponent; standard errors for payoff metrics are typically $< 5\%$ of the mean (reflecting deterministic game mechanics), and standard errors for exploit are in the range 0.02--0.05. Tables omit per-cell variance for clarity.
 \paragraph{Reproducibility.} Code and SFT datasets will be released upon publication under the MIT License. Training requires a single 46\,GB GPU; wall-clock time is ${\sim}1.5$--$10.5$\,h (SFT) and ${\sim}6$--$22$\,h (\sepo{}, 100 steps) depending on game and model. Seeds: 42 (game sampling), 0 (generation). No hyperparameter search; values follow \citet{shao2024deepseekmath} defaults with per-domain KL adjustments (\S\ref{sec:training}).
 \section{Results}
 \label{sec:results}
+All results in this section are produced by the corrected training pipeline (\S\ref{sec:grpo}) and the stochastic evaluation protocol (\S\ref{sec:setup}). Results from the original (defective) pipeline are re-evaluated under the same protocol and reported as the reward-only control arm in \S\ref{sec:mechanism} and Appendix~D.
 \subsection{IPD}
 \begin{table}[t]
 \centering
 \small
-\resizebox{\linewidth}{!}{\begin{tabular}{@{}lccccc@{}}
+\resizebox{\linewidth}{!}{\begin{tabular}{@{}lcccccc@{}}
 \toprule
-\textbf{Model} & \textbf{Pay/r}$\uparrow$ & \textbf{Exploit}$\downarrow$ & \textbf{Ext}$\downarrow$ & \textbf{Safety}$\uparrow$ & \textbf{NRA}$\uparrow$ \\
+\textbf{Model} & \textbf{Pay/r}$\uparrow$ & \textbf{Exploit}$\downarrow$ & \textbf{Coll}$\downarrow$ & \textbf{Ext}$\downarrow$ & \textbf{Safety}$\uparrow$ & \textbf{NRA}$\uparrow$ \\
 \midrule
-\multicolumn{6}{@{}l}{\textit{Gemma 4 E4B-it}} \\
-Base             & 2.741 & 0.703 & 0.155 & +0.761 & -0.091 \\
-SFT              & 2.719 & 0.828 & \textbf{0.153} & +0.455 & -0.105 \\
-\sepo{} (step 25)& \textbf{2.745} & \textbf{0.703} & 0.159 & \textbf{+0.772} & \textbf{-0.090} \\
-\midrule
-\multicolumn{6}{@{}l}{\textit{Qwen 3.5-4B}} \\
-Base             & 1.641 & 5.000 & \textbf{0.146} & -13.109 & -0.372 \\
-SFT              & 1.773 & 3.125 & 0.278 & -7.894 & -0.225 \\
-\sepo{} (final)  & \textbf{2.379} & \textbf{1.250} & 0.261 & \textbf{-1.847} & \textbf{-0.080} \\
+\multicolumn{7}{@{}l}{\textit{Gemma 4 E4B-it}} \\
+Base              & 2.754 & 0.859 & \textbf{0.00} & \textbf{0.159} & +0.405 & -0.096 \\
+SFT               & 2.836 & 0.430 & 0.05 & 0.230 & +1.336 & +0.076 \\
+\sepo{} (s25)     & \textbf{2.830} & \textbf{0.313} & \textbf{0.00} & 0.240 & \textbf{+1.648} & \textbf{+0.084} \\
+\quad s50         & 2.563 & 0.176 & 0.50 & 0.352 & +1.007 & +0.227 \\
+\quad s75         & 2.164 & 0.039 & 0.81 & 0.486 & +0.383 & +0.383 \\
+\quad final       & 2.125 & 0.059 & 0.99 & 0.503 & +0.087 & +0.429 \\
 \bottomrule
 \end{tabular}}
-\caption{IPD results. \textbf{Gemma 4}: SFT degrades exploit resistance ($0.703 \to 0.828$) and safety ($+0.761 \to +0.455$); \sepo{} restores base-level exploit and achieves the best safety ($+0.772$). \textbf{Qwen}: \sepo{} reduces exploit from 5.000 to 1.250 and improves safety by $7\times$ ($-13.109 \to -1.847$), showing strong regularization from the \sepo{} objective.}
+\caption{IPD results (Gemma 4). \sepo{} at step~25 reduces exploit 27\% below SFT (0.430 $\to$ 0.313) at unchanged payoff and zero collusion, giving the best Safety. Later checkpoints show the normalization-driven collapse analyzed in \S\ref{sec:mechanism}: exploit falls toward zero but collusion rises to 0.99 as the policy degenerates toward unconditional defection. We report the full checkpoint trajectory so the trade-off is inspectable.}
 \label{tab:ipd}
 \end{table}
-Table~\ref{tab:ipd} shows IPD results. For Gemma 4, the base model is already moderately exploit-resistant (0.703) and safety-positive; SFT degrades both exploit (0.828) and safety ($+0.761 \to +0.455$), and \sepo{} corrects this regression, returning exploit to the base level while achieving the best payoff and safety ($+0.772$). Gains over base are modest for Gemma 4: the model does not converge toward TFT within the training budget, so \sepo{}'s contribution in this domain is undoing the SFT regression rather than pushing past base. Qwen shows a contrasting pattern: the base model is highly exploitable (5.000) and all conditions are strongly safety-negative, but \sepo{} (final) substantially reduces exploit to 1.250 and improves safety by $7\times$ ($-13.109 \to -1.847$), consistent with convergence toward reciprocal cooperation. SFT also improves over base for Qwen (exploit $5.000 \to 3.125$), suggesting the expert demonstrations partially teach reciprocal behavior even before \sepo{}.
+Table~\ref{tab:ipd} shows IPD results for Gemma~4. SFT improves payoff and halves exploitability relative to base (0.859 $\to$ 0.430); under the stochastic protocol we do not observe an SFT exploit regression on IPD (cf.\ the strong regression on Negotiation v2, \S\ref{sec:negotiation}). \sepo{} at step~25 achieves the best Safety ($+1.648$): exploit drops a further 27\% below SFT at statistically unchanged payoff, with zero collusion against the trusting partner. The later checkpoints document \sepo{}'s characteristic failure mode under continued training: the exploit term keeps pushing defection, the policy generalizes it to all opponents, and collusion climbs from 0.00 to 0.99 while welfare (externality) degrades. \S\ref{sec:mechanism} shows this is a structural property of group-normalized advantages rather than a $\lambda$ mis-calibration, and motivates the Safety-based checkpoint rule.
 \subsection{Auction}
 \begin{table}[t]
 \centering
@@ -244,23 +245,19 @@ Table~\ref{tab:ipd} shows IPD results. For Gemma 4, the base model is already mo
 \textbf{Model} & \textbf{Pay/r}$\uparrow$ & \textbf{Exploit}$\downarrow$ & \textbf{Ext}$\downarrow$ & \textbf{Safety}$\uparrow$ & \textbf{NRA}$\uparrow$ \\
 \midrule
 \multicolumn{6}{@{}l}{\textit{Gemma 4 E4B-it}} \\
-Base             & 0.514 & 0.146 & 0.380 & -2.049 & \textbf{+0.478} \\
-SFT              & 0.646 & \textbf{0.000} & \textbf{0.208} & -1.054 & +0.149 \\
-\sepo{} (s75)    & \textbf{0.750} & 0.021 & \textbf{0.208} & \textbf{-0.900} & +0.130 \\
-\midrule
-\multicolumn{6}{@{}l}{\textit{Qwen 3.5-4B}} \\
-Base             & 0.514 & \textbf{0.042} & 0.490 & -2.861 & \textbf{+0.373} \\
-SFT              & 0.542 & 0.250 & 0.344 & -1.783 & +0.230 \\
-\sepo{} (final)  & \textbf{0.563} & 0.125 & \textbf{0.255} & \textbf{-1.200} & +0.122 \\
+Base             & 0.523 & \textbf{0.208} & 0.398 & \textbf{-1.082} & \textbf{+0.441} \\
+SFT              & 0.747 & \textbf{0.208} & 0.235 & -1.493 & +0.084 \\
+\sepo{} (s75)    & \textbf{0.836} & 0.240 & \textbf{0.212} & -1.474 & +0.097 \\
+\quad final      & 0.880 & 0.354 & 0.192 & -1.580 & +0.089 \\
 \bottomrule
 \end{tabular}}
-\caption{Auction results. \textbf{Gemma 4}: \sepo{} (step~75) achieves the highest payoff (0.750) and best safety ($-0.900$); SFT achieves zero exploit through over-conservative bidding. \textbf{Qwen}: \sepo{} (final) reduces externality and improves safety; base retains lowest exploit (0.042). All conditions are safety-negative: no Nash equilibrium exists against the AggressiveBid exploiter.}
+\caption{Auction results (Gemma 4). \sepo{} raises payoff 18\% over SFT and reduces externality, but no configuration reduces exploit-pool advantage below the base level: against the AggressiveBid adversary, no policy attains lower exploit-pool advantage without sacrificing training-pool payoff, a structural property of the domain rather than a training failure.}
 \label{tab:auction}
 \end{table}
-Table~\ref{tab:auction} shows auction results. For Gemma 4, \sepo{} (step~75) achieves the highest payoff (0.750) and best safety ($-0.900$); SFT achieves zero exploit through over-conservative bidding, but at a payoff cost (0.646) and weaker safety ($-1.054$). For Qwen, \sepo{} (final) achieves best safety ($-1.200$) and lowest externality (0.255); the base model retains the lowest exploit (0.042). All conditions are safety-negative for both models because no Nash equilibrium exists against the AggressiveBid exploiter: the best response requires overbidding, which conflicts with payoff maximization. This is a structural limit of the domain, not a failure of \sepo{}.
+Table~\ref{tab:auction} shows auction results for Gemma~4. \sepo{} steadily improves payoff ($+18\%$ over SFT by step~75, $+68\%$ over base) and allocative efficiency (externality $0.235 \to 0.212$), while exploit-pool advantage stays flat near the base level and degrades at the final checkpoint. Auction is the structural hard case of our suite: the best response to AggressiveBid requires systematic overbidding, which directly conflicts with payoff maximization against the training pool, so no policy attains lower exploit-pool advantage without sacrificing training-pool payoff. \sepo{}'s contribution here is confined to the utility and externality terms of the objective.
 \subsection{Negotiation}
 \label{sec:negotiation}
-We evaluate Qwen and Gemma~4 on negotiation using the variant best matched to each model. Qwen is evaluated on \textbf{Negotiation v1} (single-issue, complete-information); Gemma~4 is evaluated on \textbf{Negotiation v2} (multi-issue, private-valuation, GTBench-style). The reason for the split is empirical: v1 has a structural safety ceiling that Gemma~4's base saturates, while Qwen cannot reliably follow v2's bracketed action format. See Appendix~G for full details.
+We evaluate Gemma~4 on \textbf{Negotiation v2} (multi-issue, private-valuation, GTBench-style), the variant requiring genuine multi-round inference. Qwen negotiation results under the corrected pipeline were beyond our compute budget (Appendix~G reports its original-pipeline numbers for transparency).
 \begin{table}[t]
 \centering
 \small
@@ -271,45 +268,44 @@ We evaluate Qwen and Gemma~4 on negotiation using the variant best matched to ea
  & $\uparrow$ & $\downarrow$ & $\downarrow$ & $\uparrow$ & $\uparrow$ \\
 \midrule
 \multicolumn{6}{@{}l}{\textit{Gemma 4 (v2 GTBench)}} \\
-Base          & 6.04  & \textbf{0.06} & 0.70 & -0.32 & -0.04 \\
-SFT           & 7.05  & 6.03 & \textbf{0.56} & -2.77 & -0.23 \\
-\sepo{} (s75) & \textbf{10.93} & 0.14 & 0.60 & \textbf{+2.19} & \textbf{+0.17} \\
-\midrule
-\multicolumn{6}{@{}l}{\textit{Qwen 3.5-4B (v1)}} \\
-Base            & 1.08 & 1.50 & 0.70 & -4.98 & -0.44 \\
-SFT             & 1.75 & 2.00 & \textbf{0.57} & -3.20 & -0.26 \\
-\sepo{} (final) & \textbf{2.17} & \textbf{0.00} & 0.60 & \textbf{-0.74} & \textbf{-0.19} \\
+Base          & 5.58  & \textbf{0.39} & 0.69 & \textbf{-1.17} & \textbf{+0.13} \\
+SFT           & 5.08  & 6.77 & \textbf{0.25} & -4.02 & -0.36 \\
+\sepo{} (s50) & \textbf{6.77} & 4.09 & 0.29 & -1.77 & -0.20 \\
+\quad final   & 6.10  & 6.48 & 0.18 & -3.45 & -0.24 \\
 \bottomrule
 \end{tabular}
-\caption{Negotiation results. Each model uses its best-suited variant. Gemma~4 v2 achieves the only positive-safety result; Qwen v1 improves safety $6.7\times$ over base.}
+\caption{Negotiation v2 results (Gemma 4). SFT degrades exploit resistance dramatically ($0.39 \to 6.77$, a $17\times$ increase); \sepo{} partially corrects the regression (4.09 at step~50, with payoff $+33\%$ over SFT) but does not recover the base level.}
 \label{tab:negotiation}
 \end{table}
-Table~\ref{tab:negotiation} reports both models on their best-suited variant. For Gemma~4 on v2, this is the domain of largest \sepo{} gains: at step~75, \sepo{} reaches payoff $10.93$ ($+81\%$ over base) and safety $+2.19$ (Table~\ref{tab:negotiation}), the only positive-safety configuration in the entire experiment suite. SFT's exploit regression is severe ($0.06 \to 6.03$, a $96\times$ increase) because the three-item private-valuation format amplifies over-accommodation: the SFT model learns to concede across all items, creating substantial room for exploiters. \sepo{} recovers from this and pushes safety beyond base. For Qwen on v1, \sepo{} (final) achieves zero exploit and safety $-0.74$, a $6.7\times$ improvement over the base model's $-4.98$ (Table~\ref{tab:negotiation}). The SFT regression for Qwen (exploit $1.50 \to 2.00$) is consistent with over-learning cooperative concession, but \sepo{} recovers it and surpasses base. Together these results show that on the variant suited to each model's capabilities, \sepo{} provides meaningful safety gains.
+Table~\ref{tab:negotiation} reports Negotiation v2. This domain shows the paper's clearest SFT exploit regression: fine-tuning on cooperative demonstration traces raises exploit-pool advantage $17\times$ ($0.39 \to 6.77$), because the three-item private-valuation format amplifies over-accommodation---the SFT model concedes across all items, creating room for hardball opponents. \sepo{} partially corrects the regression: at step~50, exploit falls 40\% below SFT while payoff rises 33\%, but it does not return to the base level, and the final checkpoint regresses again. We state this plainly: on this domain \sepo{} mitigates but does not undo the damage SFT does to exploit resistance, and the base model remains the least exploitable configuration.
 \subsection{Kuhn Poker}
+\label{sec:kuhn}
+Exploit-pool advantage does not discriminate between conditions in Kuhn Poker: under the stochastic protocol every configuration, including the untrained base, attains exploit $\approx 0$ against our pool. The informative measurement is the card-conditioned action frequencies against the analytic Nash benchmark. Kuhn's equilibria form a one-parameter family; with value-betting the King with certainty ($\alpha = 1/3$), the first mover bluffs the Jack with probability $1/3$ and never opens the Queen, and facing a bet the player calls with the Queen with probability $1/3$, always calls the King, and never calls the Jack \citep{kuhn1950simplified}.
 \begin{table}[t]
 \centering
 \small
-\resizebox{\linewidth}{!}{\begin{tabular}{@{}llcccc@{}}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccccc@{}}
 \toprule
-\textbf{Model} & \textbf{Ckpt} & \textbf{Pay/hand}$\uparrow$ & \textbf{Exploit}$\downarrow$ & \textbf{Safety}$\uparrow$ \\
+\textbf{Model} & \multicolumn{3}{c}{\textbf{Bet rate}} & \multicolumn{3}{c}{\textbf{Call rate}} \\
+ & J & Q & K & J & Q & K \\
 \midrule
-\multicolumn{5}{@{}l}{\textit{Gemma 4 E4B-it}} \\
-Base            & ---     & -0.256 & 0.211 & -1.398 \\
-SFT             & ---     & 0.000  & \textbf{0.000} & -0.931 \\
-\sepo{}         & s75     & 0.222  & \textbf{0.000} & -0.384 \\
-\sepo{}         & final   & \textbf{0.249}  & \textbf{0.000} & \textbf{-0.379} \\
+\textit{Nash} ($\alpha{=}1/3$) & \textit{0.33} & \textit{0} & \textit{1.0} & \textit{0} & \textit{0.33} & \textit{1.0} \\
 \midrule
-\multicolumn{5}{@{}l}{\textit{Qwen 3.5-4B}} \\
-Base            & ---     & 0.033  & 0.705 & -3.686 \\
-SFT             & ---     & -0.113 & 0.347 & -3.142 \\
-\sepo{}         & s75     & -0.267 & \textbf{0.000} & \textbf{-1.709} \\
-\sepo{}         & final   & 0.031  & 0.847 & -4.599 \\
+\multicolumn{7}{@{}l}{\textit{Gemma 4 E4B-it}} \\
+Base           & 0.00 & 0.89 & 1.00 & 0.01 & 1.00 & 1.00 \\
+SFT            & 0.06 & 0.00 & 1.00 & 0.01 & 0.05 & 1.00 \\
+\sepo{} s25    & 0.23 & 0.01 & 0.98 & 0.00 & 0.09 & 1.00 \\
+\sepo{} s50    & 0.31 & 0.01 & 1.00 & 0.01 & 0.10 & 1.00 \\
+\sepo{} s75    & 0.36 & 0.00 & 1.00 & 0.02 & 0.17 & 1.00 \\
+\sepo{} final  & \textbf{0.37} & \textbf{0.00} & \textbf{1.00} & 0.03 & 0.17 & \textbf{1.00} \\
 \bottomrule
-\end{tabular}}
-\caption{Kuhn Poker results (Pay/hand: mean payoff per hand, analogous to Pay/r in other tables). \textbf{Gemma 4}: exploit reaches zero from SFT onward; safety improves monotonically through \sepo{} training; final checkpoint is best. \textbf{Qwen}: exploit reaches zero at step 75 but the final checkpoint suffers KL drift overshoot (exploit 0.847). SFT alone achieves zero exploit for Gemma 4, suggesting the demonstrations transfer the Nash mixed strategy for this model family; \sepo{} then improves payoff (+0.249 per hand) while maintaining zero exploit.}
+\end{tabular}
+\caption{Kuhn Poker card-conditioned action frequencies (Gemma 4), pooled over all evaluation decisions ($n \approx 330$ open and $\approx 230$ facing-bet decisions per condition). The base model is maximally aggressive (bets Queens 89\%, calls everything); SFT is maximally tight (never bluffs, folds Queens). \sepo{} training moves the bluff rate monotonically onto the Nash value ($0.06 \to 0.23 \to 0.31 \to 0.36 \to 0.37$ against $1/3$) with bet-Q pinned at 0 and bet/call-K at 1. The call-Q rate improves ($0.05 \to 0.17$) but remains below the equilibrium $1/3$: the policy still over-folds Queens facing a bet.}
 \label{tab:kuhn}
 \end{table}
-Table~\ref{tab:kuhn} reports Kuhn Poker results. For Gemma 4, exploit reaches zero from SFT onward and safety improves monotonically through \sepo{} training ($-1.398 \to -0.379$), with final checkpoint best. For Qwen, exploit reaches zero at step 75 but the final checkpoint suffers KL drift overshoot (exploit 0.847, safety $-4.599$); step 75 is best. Notably, Gemma 4 achieves zero exploit from SFT alone, suggesting that for models with sufficient base reasoning, SFT demonstrations transfer the Nash mixed strategy without further RL, and \sepo{}'s role shifts to within-equilibrium payoff optimization.
+Table~\ref{tab:kuhn} reports the frequencies for Gemma~4. The base model plays a maximally aggressive non-equilibrium strategy (betting Queens 89\% of the time and calling every bet with a Queen); SFT overcorrects to maximally tight play (bluff rate 0.06, folding Queens to bets). Under \sepo{}, the bluff rate rises monotonically across checkpoints onto the Nash value---$0.23$, $0.31$, $0.36$, $0.37$ against the analytic $1/3$---while bet-Q stays at zero and King actions stay at probability one. This is direct behavioral evidence of convergence toward the mixed equilibrium, of a kind that greedy evaluation is structurally unable to measure (\S\ref{sec:setup}). The residual gap is the call-Q rate ($0.17$ vs.\ $1/3$): the trained policy still over-folds Queens, i.e., it has learned equilibrium bluffing before equilibrium calling.
+\paragraph{Cross-family check (Qwen 3.5-4B).} Qwen's starting point is qualitatively weaker: its base plays a nearly card-\emph{unconditioned} strategy (bet rates $0.34/0.45/0.29$ for J/Q/K; call-K only $0.06$, a dominated fold) and requires the constrained fallback decode on ${\sim}25\%$ of decisions; its SFT dampens aggression without inducing card-conditioning. Under the corrected pipeline Qwen's \sepo{} run shows no significant frequency movement by step 25; its full trajectory was still training at submission time and is reported in Appendix~B as far as available. We note this as an honest boundary condition: when SFT fails to teach the game's basic structure, \sepo{} must learn representation and equilibrium simultaneously, and 4B-scale results within our step budget are inconclusive.
 \section{Analysis}
 \label{sec:analysis}
 \sepo{} converges to equilibrium when (a) a learnable equilibrium exists and (b) the base model does not already approximate it through instruction-following (convergence summary in Appendix~B). SFT consistently \emph{degrades} exploit resistance across games: learning from cooperative strategy traces makes the model over-accommodating toward adversarial opponents; \sepo{}'s per-rollout exploit gradient is necessary to correct this regression (full SFT degradation table in Appendix~C). \sepo{} optimizes for safety, not raw payoff: on Gemma~4 GTBench it improves payoff by $+81\%$ over base while reaching safety $+2.187$, and on Kuhn Poker it maintains zero exploit while improving payoff to $+0.249$ per hand (Tables~\ref{tab:negotiation}, \ref{tab:kuhn}). Condition (b) is illustrated by Gemma 4 Negotiation v1, where the base model already achieves zero exploit through instruction-following; \sepo{} cannot improve a policy already at equilibrium. An ablation confirming that per-round normalization is a \emph{correctness requirement} (not a design choice) is in Appendix~D.

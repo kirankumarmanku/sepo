@@ -164,7 +164,9 @@ def main():
         gradient_accumulation_steps=args.grad_accum,
         learning_rate=args.lr,
         lr_scheduler_type="cosine",
-        warmup_ratio=0.05,
+        # trl >= 1.10 dropped warmup_ratio from SFTConfig; 100 steps approximates
+        # the previous 5% warmup for our dataset sizes (~2k steps/epoch)
+        warmup_steps=100,
         gradient_checkpointing=True,
         bf16=supports_bf16,
         fp16=not supports_bf16,

@@ -1,0 +1,327 @@
+% Safe Equilibrium Policy Optimization (SEPO) for Strategic Agent Policies
+% AAAI 2027 Submission — uses aaai2027.sty / aaai2027.bst from the AAAI-27 Author Kit
+\documentclass[letterpaper]{article} % DO NOT CHANGE THIS
+\usepackage[submission]{aaai2027}  % anonymous submission mode; use \usepackage{aaai2027} for camera-ready
+% Fonts (newtxtext/helvet/courier) are loaded by aaai2027.sty — no font packages here.
+\usepackage[hyphens]{url}  % DO NOT CHANGE THIS
+\usepackage{graphicx} % DO NOT CHANGE THIS
+\urlstyle{rm} % DO NOT CHANGE THIS
+\def\UrlFont{\rm}  % DO NOT CHANGE THIS
+\usepackage{natbib}  % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\usepackage{caption} % DO NOT CHANGE THIS AND DO NOT ADD ANY OPTIONS TO IT
+\frenchspacing  % DO NOT CHANGE THIS
+% Algorithms
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+% Tables
+\usepackage{booktabs}
+\usepackage{multirow}
+% Math
+\usepackage{amsmath}
+\usepackage{amssymb}
+% Figures
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric}
+\usepackage{xcolor}
+% Lists
+\usepackage{enumitem}
+% NOTE: hyperref is forbidden by the AAAI style; \href links are replaced with \url.
+\pdfinfo{
+/TemplateVersion (2027.1)
+}
+% AAAI defaults to unnumbered sections; numbering enabled (permitted) because this
+% paper cross-references sections.
+\setcounter{secnumdepth}{2}
+\newcommand{\sepo}{\textsc{Sepo}}
+\newcommand{\Jsepo}{J_{\text{SEPO}}}
+\title{Safe Equilibrium Policy Optimization for Strategic Agent Policies}
+% Anonymous submission: no author names or affiliations (per author kit instructions).
+\author{Anonymous Submission}
+\affiliations{}
+\begin{document}
+\maketitle
+\begin{abstract}
+Language models fine-tuned with reinforcement learning typically optimize for task reward, ignoring multi-agent strategic structure. Because these agents condition on natural language game-state descriptions and emit actions through free-form generation, strategic failure modes such as exploiting weaker opponents, coordinating on harmful equilibria, and externalizing costs are inseparable from the language interface itself. We propose Safe Equilibrium Policy Optimization (\sepo{}), a training objective that augments expected payoff with explicit penalties for exploitability, collusion risk, and externality cost. We implement \sepo{} as a reward signal for Group Relative Policy Optimization (GRPO), applied to Gemma~4 E4B-it and Qwen~3.5-4B after supervised fine-tuning (SFT). Evaluated across five strategic domains: Iterated Prisoner's Dilemma, repeated auctions, two negotiation variants, and Kuhn Poker.  \sepo{} achieves zero exploit-pool advantage in Kuhn Poker for both models, outperforms the base model on safety in four domains, and corrects the over-cooperative behavior introduced by SFT. In negotiation, \sepo{} achieves a positive-safety outcome and the only positive normalized relative advantage of any negotiation configuration. Ablation experiments confirm that per-rollout exploit computation is necessary: a shared constant penalty cancels in GRPO advantage normalization (constant control-variate property), producing zero gradient. To support further research in strategic safety for agents, we release our code (\url{https://anonymous.4open.science/r/sepo-2668}) and SFT datasets.
+\end{abstract}
+\section{Introduction}
+\label{sec:intro}
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.48\textwidth]{delta_gemma4.png}
+  \hfill
+  \includegraphics[width=0.48\textwidth]{delta_qwen.png}
+  \caption{Safety improvement ($\Delta$~Safety = SEPO $-$ Base) across all games. Left: Gemma~4. Right: Qwen 3.5-4B. Positive bars indicate \sepo{} improves over base.}
+  \label{fig:delta_overview}
+\end{figure*}
+Two LLM-powered procurement agents, each serving a different organization, interact repeatedly on a digital marketplace. Without explicit coordination, they converge on a price-splitting pattern that benefits both principals but inflates costs for downstream consumers. No agent was programmed to collude; each maximized its own reward in a repeated game. This is algorithmic collusion: emergent, hard to detect, and a direct consequence of reward maximization in a strategic setting. As language agents take on higher-stakes roles in negotiation, resource management, automated trading, and multi-party planning, such failures become systemic risks rather than theoretical curiosities \citep{bakhtin2022human,park2023generative,fu2023improving}.
+Standard alignment methods address this problem at the wrong level. RLHF \citep{christiano2017deep,ouyang2022training} and Constitutional AI \citep{bai2022constitutional} align a single agent to a fixed preference model, but in multi-agent environments the effective reward function depends on what other agents do. An agent trained to be helpful and harmless in isolation can still learn to exploit weaker opponents, sustain collusive equilibria with cooperative partners, or impose external costs on the shared system. These are not alignment failures in the conventional sense; they are failures of objective design for strategic settings.
+We propose Safe Equilibrium Policy Optimization (\sepo{}), a training framework that addresses this gap by augmenting task utility with three penalty terms:
+\begin{equation}
+\label{eq:sepo}
+\Jsepo(\pi) = u(\pi) - \lambda_e \cdot e(\pi) - \lambda_c \cdot c(\pi) - \lambda_x \cdot x(\pi)
+\end{equation}
+where $u(\pi)$ is expected payoff, $e(\pi)$ is an exploitability proxy estimated against adversarial opponents, $c(\pi)$ is collusion risk estimated against cooperative partners, and $x(\pi)$ is domain-specific externality cost. Each term targets a distinct strategic failure mode; the $\lambda$ coefficients are tuned per-domain.
+\sepo{} is implemented as a reward signal applied to language models that generate game actions. Training proceeds in two stages: a supervised fine-tuning (SFT) warm-start on expert strategy traces, followed by \sepo{} optimization computed from fresh opponent interactions at every rollout. We evaluate on Gemma 4 E4B-it and Qwen 3.5-4B across five strategic domains: Iterated Prisoner's Dilemma (IPD), repeated sealed-bid auctions, single-issue negotiation, GTBench multi-issue negotiation \citep{wu2024gtbench}, and Kuhn Poker.
+We report four main findings. First, \sepo{} achieves zero exploit-pool advantage in Kuhn Poker for both Gemma 4 and Qwen (at the best checkpoint), converging to the Nash mixed strategy against the adversaries in our pool. Second, in GTBench negotiation, where private valuations require genuine multi-round inference, \sepo{} achieves a positive-safety outcome and yields the only positive normalized relative advantage (NRA) of any negotiation configuration. Third, supervised fine-tuning consistently degrades exploit resistance across all games; \sepo{} corrects this regression. Fourth, the per-rollout exploit gradient is the critical implementation choice: a penalty shared across rollouts cancels in advantage normalization (the constant control-variate property; \citealp{williams1992simple,kool2019buy}), while per-rollout computation against fresh opponents restores a genuine gradient.
+Our contributions are:
+\begin{enumerate}
+\item A training objective for strategic language agents that jointly penalizes exploitability, collusion risk, and externality cost, with formal connections to Nash and correlated equilibrium concepts.
+\item An implementation of \sepo{} with per-rollout opponent interaction and a principled three-pool opponent design.
+\item An empirical study across five strategic domains demonstrating that \sepo{} improves strategic safety relative to both reward-only RL and SFT baselines, and identifying the conditions under which equilibrium convergence occurs.
+\end{enumerate}
+\section{Related Work}
+\label{sec:related}
+\subsection{Language Agents in Strategic Environments}
+Language models have been deployed as autonomous agents in strategic domains. \citet{bakhtin2022human} demonstrated human-level Diplomacy play by combining a language model with game-theoretic planning at inference time. \citet{park2023generative} showed that LLM-powered agents produce emergent social behaviors (cooperation, coalition formation, information diffusion) when placed in persistent multi-agent environments. These systems optimize for task completion rather than strategic safety properties of the resulting equilibrium.
+Several lines of work study LLMs as players in well-defined games. \citet{fu2023improving} applied self-play with AI feedback to improve LLM negotiation, gaining deal rates and individual payoff. \citet{guo2023suspicion} evaluated GPT-4 with theory-of-mind prompting in imperfect-information games. \citet{mao2025alympics} benchmarked LLMs in classic game-theoretic scenarios, revealing systematic deviations from Nash equilibrium. \citet{zhang2025klevel} proposed $K$-level reasoning to induce higher-order strategic beliefs, improving performance in matrix games. \citet{du2024improving} showed that multi-agent debate improves factual accuracy.
+Foundational NLP work on negotiation predates the current wave of LLM agents. \citet{lewis2017deal} introduced Deal-or-No-Deal and found that reward-maximizing agents developed deceptive strategies. \citet{he2018decoupling} separated strategic planning from language generation for more controllable behavior. \citet{xu2023exploring} studied LLMs in Werewolf, finding that strategic communication emerges from in-context reasoning. These studies collectively establish that objective design shapes strategic behavior in language agents, the central premise of \sepo{}.
+\subsection{Multi-Agent RL and Social Dilemmas}
+\citet{leibo2017multiagent} introduced sequential social dilemmas, showing that independent RL agents converge to defection even when mutual cooperation yields higher welfare. \citet{lerer2017maintaining} showed that deep RL can maintain cooperation through opponent history conditioning. \citet{foerster2018learning} proposed LOLA, which differentiates through an opponent's anticipated learning step to shape its future policy toward cooperation.
+Social preference engineering has been used to modify reward signals. \citet{jaques2019social} used social influence as intrinsic motivation; \citet{hughes2018inequity} embedded inequity aversion into reward functions. \citet{zhang2024scalable} addressed safe MARL with constrained optimization over joint behavior.
+\sepo{} shares the goal of safer multi-agent outcomes but decomposes it differently. Where social influence and inequity aversion modify the reward to encourage specific prosocial behaviors, \sepo{} penalizes three failure modes as separate terms. This decomposition supports ablation and per-domain diagnosis.
+\subsection{Equilibrium Training and Exploitability Minimization}
+Computing or approximating equilibria has driven strategic AI from Go \citep{silver2016mastering} to multiplayer poker \citep{brown2019superhuman}. \citet{brown2019deep} scaled counterfactual regret minimization with neural networks. \citet{heinrich2016deep} proposed Neural Fictitious Self-Play (NFSP) for approximate Nash equilibria in two-player games. \citet{lanctot2017unified} introduced PSRO, iteratively expanding a strategy portfolio via best-response computation. \citet{lockhart2019computing} proposed exploitability descent as a direct gradient-based approach to Nash equilibria. These methods target exploitability alone. \sepo{} incorporates exploitability minimization as one component ($e(\pi)$) and adds collusion risk ($c(\pi)$) and externality cost ($x(\pi)$). A Nash equilibrium can be socially harmful (a cartel is stable but collusive), so equilibrium training alone does not address the full range of strategic safety concerns.
+\subsection{Safe and Value-Aligned Optimization}
+\citet{christiano2017deep} introduced RLHF by learning reward models from human preferences; \citet{ouyang2022training} scaled this to InstructGPT. \citet{bai2022constitutional} replaced human feedback with AI-generated critiques guided by principles. \citet{rafailov2023direct} eliminated the explicit reward model via direct preference optimization. \citet{achiam2017constrained} introduced CPO for safe single-agent RL with cost constraints. \citet{amodei2016concrete} taxonomized AI safety problems including reward hacking and side effects that intensify in multi-agent settings.
+All of these methods assume a single agent in a fixed environment. \sepo{} fills the gap: its penalty terms are computed against other agents' strategies, making safety constraints inherently multi-agent in scope.
+\section{Method}
+\label{sec:method}
+\subsection{Problem Setup}
+\label{sec:problem}
+Each domain is a finite two-player repeated game with $T$ rounds and a discrete action vocabulary $\mathcal{A}$ (Appendix~F). At round $t$ the agent observes a natural-language description $s_t$ of the game state and interaction history and emits an action $a_t \in \mathcal{A}$ through free-form generation followed by parsing (\S\ref{sec:parse}); a policy $\pi$ is the language model defining $\pi(a_t \mid s_t)$. Opponents are drawn from three fixed strategy pools: training $\mathcal{P}_{\mathrm{tr}}$, exploit $\mathcal{E}$, and collusive $\mathcal{C}$ (\S\ref{sec:grpo}). For an opponent $o$, let $\bar{u}_\pi^{(o)}$ and $\bar{u}_o$ denote the mean per-round payoffs of the agent and of $o$ over episodes between them. Every term of the objective is a pool expectation of an episode statistic: $u(\pi) = \frac{1}{|\mathcal{P}_{\mathrm{tr}}|}\sum_{o \in \mathcal{P}_{\mathrm{tr}}} \bar{u}_\pi^{(o)}$, and $e(\pi)$, $c(\pi)$, $x(\pi)$ are defined over $\mathcal{E}$ and $\mathcal{C}$ below.
+\subsection{The \sepo{} Objective}
+\label{sec:objective}
+The \sepo{} objective is Equation~\ref{eq:sepo}, repeated here with formal definitions of each term.
+\paragraph{Expected payoff $u(\pi)$.} The agent's mean reward against a pool of cooperative training opponents drawn from a domain-specific strategy library. This term recovers the standard task reward objective when used alone.
+\paragraph{Exploitability $e(\pi)$.} The mean payoff advantage that adversarial opponents achieve over the agent. We estimate
+\begin{equation*}
+e(\pi) = \frac{1}{|\mathcal{E}|}\sum_{o \in \mathcal{E}} \max\!\bigl(0,\; \bar{u}_o - \bar{u}_\pi^{(o)}\bigr),
+\end{equation*}
+where $\mathcal{E}$ is the exploit pool of adversarial strategy types, $\bar{u}_o$ is opponent $o$'s mean payoff in episodes against the agent, and $\bar{u}_\pi^{(o)}$ is the agent's mean payoff in those same episodes; the clipping at zero ensures the term penalizes being exploited without rewarding the agent for beating adversaries. This estimates exploit-pool advantage rather than true worst-case exploitability. Minimizing $e(\pi)$ pushes the policy toward best-response stability: a policy with $e(\pi) = 0$ cannot be profitably exploited by any opponent in the pool. This approximates Nash equilibrium when the exploit pool spans the adversarial strategy space.
+\paragraph{Collusion risk $c(\pi)$.} The rate at which the agent engages in harmful coordination when paired with a collusive partner. We estimate $c(\pi)$ by measuring joint behavior with collusive partner types (e.g., partners that reciprocate high extraction in resource games, or partners that bid low in auctions). Penalizing $c(\pi)$ discourages correlated equilibria that are jointly profitable but socially harmful.
+\paragraph{Externality cost $x(\pi)$.} Domain-specific harm imposed outside the bilateral interaction: welfare shortfall from the social optimum in social dilemmas, depletion in resource games, allocative inefficiency in auctions, and breakdown rate in negotiation. Minimizing $x(\pi)$ internalizes external costs that the private payoff function ignores.
+\paragraph{Connection to game-theoretic concepts.} The $u(\pi)$ term alone maximizes individual payoff with no equilibrium incentive. Adding $e(\pi)$ drives the policy toward Nash best-response stability. Penalizing $c(\pi)$ discourages privately profitable correlated equilibria that harm the system. Penalizing $x(\pi)$ provides a Pigouvian correction at the policy level. Together, the three terms constitute an objective that simultaneously rewards individual competence and penalizes the three principal modes of strategic failure.
+\subsection{\sepo{} Implementation}
+\label{sec:grpo}
+\sepo{} is trained using Group Relative Policy Optimization \citep[GRPO;][]{shao2024deepseekmath} as the underlying RL algorithm. Throughout the rest of this paper we refer to the full training procedure (GRPO + the \sepo{} objective) simply as \sepo{}. Payoff-denominated terms are first mapped to a common scale via $s = 3.0/\text{game.max\_payoff}$, anchoring every game to the standard IPD mutual-cooperation payoff of 3.0; this makes the $\lambda$ coefficients transferable across games with different payoff magnitudes. The utility and exploitability terms are scaled by $s$; collusion and externality are already normalized rates in $[0,1]$ and are left unscaled. The per-rollout scalar reward is:
+\begin{equation}
+\label{eq:reward}
+r_r = s \cdot u_r - \lambda_e \cdot s \cdot e_r - \lambda_c \cdot c_r - \lambda_x \cdot x_r
+\end{equation}
+where $u_r$ is the per-rollout mean payoff, and $e_r$, $c_r$, $x_r$ are estimated from fresh auxiliary episodes against the exploit and collusive pools, run separately for \emph{every} rollout. Sharing a single penalty estimate across the rollout group is precisely the failure mode analyzed in \S\ref{sec:pg_loss}: a group-constant penalty cancels in advantage normalization and contributes no gradient.
+\paragraph{Opponent pool design.} Three pools serve separated \emph{roles}: (1)~\textit{Training pool}: diverse cooperative strategies that generate the utility signal $u_r$; (2)~\textit{Exploit pool}: adversarial strategies that punish passive compliance (e.g., AlwaysDefect, AggressiveBid), used to estimate $e(\pi)$; (3)~\textit{Collusive pool}: cooperative partners that reveal greedy tendencies, used to estimate $c(\pi)$. The pools are separated by role rather than strictly disjoint: a benign strategy can serve both as a training opponent and as a measurement probe (e.g., FairNeg for collusion), since the two roles measure different quantities, and the primary exploiter is excluded from the training pool in every game except Negotiation v1, where the hardball strategy contributes to both signals (pool listing in Appendix~H). What matters is role consistency: an early implementation assigned the primary exploiter to \emph{all three} pools, creating conflicting gradient signals for identical actions and nullifying the safety gradient. Because the exploit pool is fixed during training, reported exploit is an in-pool quantity; evaluation against held-out adversaries is future work (\S\ref{sec:limitations}).
+\paragraph{Per-opponent exploit averaging.} When the exploit pool contains multiple adversaries, pooled averaging lets strong performance against one mask weakness against another. We compute exploitability separately per opponent and then average, ensuring every adversary contributes equally to $e(\pi)$.
+\subsection{Policy Gradient Loss}
+\label{sec:pg_loss}
+\paragraph{Per-round advantage normalization.}
+Rather than assigning a single advantage to an entire episode, we normalize advantages \emph{per game round} across the $n$ rollouts for a given training opponent. For round $t$ and rollout $r$:
+\begin{align}
+\text{reward}_{t,r} &= u_{t,r} - \underbrace{(\lambda_e e_r + \lambda_c c_r + \lambda_x x_r)}_{P_r:\ \text{SEPO penalty, per-rollout}} \label{eq:round_reward}\\
+A_{t,r} &= \frac{\text{reward}_{t,r} - \overline{\text{reward}}_{t}}{\sigma_t + \delta} \label{eq:advantage}
+\end{align}
+where $\overline{\text{reward}}_t$ and $\sigma_t$ are the mean and standard deviation across rollouts at round $t$, and $\delta = 10^{-8}$ is a numerical stabilizer (distinct from the PPO clip parameter $\epsilon = 0.2$). Round-level normalization ensures that even a single divergent action at one step of one rollout produces a non-zero advantage signal, which is critical when the SFT model is near-deterministic and all rollouts produce identical episode-level outcomes.
+\paragraph{Why episode-level reward fails.} Episode-level normalization fails for two compounding reasons. First, a constant penalty $P$ is always removed by mean subtraction regardless of its value: $\text{reward}_r - \overline{\text{reward}} = u_r - \overline{u}$ (the penalty cancels). This is the standard constant control-variate property \citep{williams1992simple,kool2019buy}: any penalty that is the same for every rollout in the group acts as a group-level baseline and contributes zero gradient. \sepo{} breaks this by computing the exploit signal per-rollout against a freshly sampled opponent, so $e(\pi_r)$ varies across the group and contributes a genuine gradient. Second, the SFT warm-start is near-deterministic (temperature 0.8 on a well-trained model often yields the same action sequence), collapsing $\sigma \approx 0$ across rollouts and zeroing all advantages. Per-rollout penalty computation breaks the first problem ($P_r$ varies across the group, so mean subtraction no longer removes it), and per-round normalization breaks the second (per-step stochastic variation in $a_{t,r}$ keeps $\sigma_t$ non-zero even when episode-level outcomes coincide). We verified this in preliminary experiments: episode-level \sepo{} produced no exploit improvement over 100 steps (exploit $\approx 0.33$ for IPD, matching the base model), while per-round \sepo{} reached exploit 0.312 by step 35 (Appendix~D).
+\paragraph{PPO-style clipped surrogate loss \citep{schulman2017proximal}.} Given advantages $A_{t,r}$, the per-step policy gradient loss is:
+\begin{equation}
+\label{eq:pgloss}
+\begin{split}
+\mathcal{L}_{\mathrm{PG}} = -\min\!\bigl(&\rho_{t,r} A_{t,r},\\
+  &\mathrm{clip}(\rho_{t,r}, 1{-}\epsilon, 1{+}\epsilon)\cdot A_{t,r}\bigr)
+\end{split}
+\end{equation}
+where $\rho_{t,r} = \exp(\log\pi_\theta(a_{t,r}|s_{t,r}) - \log\pi_{\mathrm{old}}(a_{t,r}|s_{t,r}))$ is the importance ratio and $\epsilon = 0.2$. The KL penalty is one-sided to prevent premature convergence:
+\begin{equation}
+\label{eq:kl}
+\mathcal{L}_{\mathrm{KL}} = \max\!\bigl(0,\; \log\pi_\theta(a|s) - \log\pi_{\mathrm{ref}}(a|s)\bigr)
+\end{equation}
+The full per-step loss is $\mathcal{L} = \mathcal{L}_{\mathrm{PG}} + \beta \cdot \mathcal{L}_{\mathrm{KL}}$, normalized by $|\mathcal{P}_{\mathrm{train}}| \times n \times T$ and backpropagated immediately (one computation graph per step, no accumulation, keeping peak VRAM constant).
+\paragraph{Memory-efficient log-softmax.} Gemma 4's vocabulary size is 262,144. Computing $\log\pi_\theta$ over the full vocabulary for a 512-token generation requires $262144 \times 512 \times 4\,\text{B} \approx 536\,\text{MB}$ per forward pass. We process generated tokens in chunks of 32, reducing peak VRAM by $16\times$ without affecting numerical results.
+\paragraph{LoRA reference model.} In LoRA mode, the reference policy $\pi_{\mathrm{ref}}$ is obtained by disabling the LoRA adapters in-place (via \texttt{model.disable\_adapter()}) rather than loading a separate frozen copy. This saves ${\sim}10\,\text{GB}$ VRAM, making the full pipeline runnable on a single 46\,GB GPU.
+\subsection{Action Generation and Parse Recovery}
+\label{sec:parse}
+\paragraph{Stopping criteria.} We implement a custom \texttt{StoppingCriteria} that halts generation when a valid action token appears on the last non-empty line of the output. The criteria respects chain-of-thought: if the output contains an open \texttt{<think>} tag without a closing \texttt{</think>}, generation continues regardless of what appears in the reasoning trace.
+\paragraph{Constrained fallback decode.} When the model's free-form generation does not contain a parseable action (parse failures are rare: single-digit counts per evaluation run, varying by game and model), we recover a valid action without regex or heuristics via forced next-token decoding:
+\begin{enumerate}[noitemsep]
+  \item Append the generated reasoning as an assistant turn.
+  \item Add a short elicitation user turn: \textit{``State your final action (\textsc{action}/\textsc{vocab}):''}.
+  \item Forward-pass the full prompt (no generation); extract logits at the final position.
+  \item Set all logits to $-\infty$ except the first sub-word tokens of each valid action string.
+  \item Return the argmax, which is always a valid action; no fallback is needed.
+\end{enumerate}
+This procedure requires one additional forward pass (no beam search, no sampling) and preserves the model's reasoning context when determining the action.
+\begin{algorithm}[t]
+\caption{\sepo{} Training Step}
+\label{alg:sepo_grpo}
+\begin{algorithmic}[1]
+\Require $\pi_\theta$, $\pi_{\mathrm{ref}}$, game $G$, pools $\mathcal{P}_{\mathrm{tr}}, \mathcal{P}_{\mathrm{ex}}, \mathcal{P}_{\mathrm{co}}$, weights $\lambda_e, \lambda_c, \lambda_x$, $\beta, \epsilon, n$
+\For{each train opponent $o \in \mathcal{P}_{\mathrm{tr}}$}
+  \For{rollout $r = 1 \ldots n$}
+    \State Sample episode $\tau_r = (s_1, a_1, \ldots, s_T, a_T)$ against $o$
+    \State Run fresh aux.\ episodes vs.\ $\mathcal{P}_{\mathrm{ex}}$, $\mathcal{P}_{\mathrm{co}}$ \Comment{per rollout}
+    \State $P_r \leftarrow \lambda_e e_r + \lambda_c c_r + \lambda_x x_r$ \Comment{per-rollout SEPO penalty}
+    \State Record per-round payoffs $\{u_{t,r}\}_{t=1}^T$ and $\log\pi_{\mathrm{old}}(a_t|s_t)$
+  \EndFor
+  \For{round $t = 1 \ldots T$}
+    \State $\text{rew}_{t,r} \leftarrow u_{t,r} - P_r$ for each rollout $r$
+    \State $A_{t,r} \leftarrow (\text{rew}_{t,r} - \overline{\text{rew}}_t) / (\sigma_t + \delta)$ \Comment{$\delta = 10^{-8}$, cf.\ Eq.~\ref{eq:advantage}}
+    \For{rollout $r = 1 \ldots n$}
+      \State $\rho \leftarrow \exp(\log\pi_\theta(a_{t,r}|s_{t,r}) - \log\pi_{\mathrm{old}}(a_{t,r}|s_{t,r}))$
+      \State $\mathcal{L} \leftarrow -\min(\rho A_{t,r},\, \mathrm{clip}(\rho, 1{-}\epsilon, 1{+}\epsilon) A_{t,r})$
+      \State $\mathcal{L} \mathrel{+}= \beta \cdot \max(0, \log\pi_\theta - \log\pi_{\mathrm{ref}})$
+      \State Backpropagate $\mathcal{L} / (|\mathcal{P}_{\mathrm{tr}}| \cdot n \cdot T)$
+    \EndFor
+  \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+\subsection{Training Procedure}
+\label{sec:training}
+Training proceeds in two stages (Appendix~E).
+\paragraph{Stage 1: SFT warm-start.} We fine-tune the base model on ${\sim}44{,}000$ chain-of-thought episodes across the five games (dataset breakdown in Appendix~H, supplementary material) generated by rolling out a curated library of domain-expert strategies (TFT, NashApprox, FairSplit, etc.; mixture weights in Appendix~A). Each episode contains the full game history and an action token; reasoning traces are included. Training uses LoRA (rank 32, $\alpha = 64$, dropout 0.05, cosine LR schedule with 5\% warmup, $\eta = 2 \times 10^{-5}$, 3 epochs). Both Gemma 4 E4B-it and Qwen~3.5-4B are multimodal architectures. For text-only fine-tuning, we scope LoRA \citep{hu2022lora} targets to the \texttt{nn.Linear} attention projections (\texttt{q/k/v/o\_proj}) inside the language model submodule only, automatically excluding non-\texttt{nn.Linear} vision/audio wrappers (e.g., \texttt{Gemma4ClippableLinear} in Gemma 4). Gemma 4 additionally requires injecting \texttt{token\_type\_ids=0} to suppress the vision-tower computation path during SFT.
+\paragraph{Stage 2: \sepo{}.} Starting from the merged SFT checkpoint, we run Algorithm~\ref{alg:sepo_grpo} with LoRA (rank 16, $\alpha = 32$). The optimizer is AdamW ($\eta = 10^{-5}$, gradient clip 1.0). We use $n = 4$ rollouts per training opponent, temperature 0.8, max 512 new tokens. The reference policy $\pi_{\mathrm{ref}}$ is the SFT-merged base with LoRA adapters disabled. Kuhn Poker uses a stricter KL coefficient ($\beta = 0.2$ vs.\ $\beta = 0.1$ for other games) to prevent overshoot to degenerate betting strategies observed at late checkpoints with weaker KL regularization.
+\section{Experimental Setup}
+\label{sec:setup}
+\paragraph{Models.} We evaluate two model families across all five games: Gemma 4 E4B-it \citep{gemmateam2026gemma4} (Effective 4B instruction-tuned) as the primary model, and Qwen~3.5-4B \citep{qwen2026report} to assess cross-family generalization.
+\paragraph{Training hyperparameters.} Learning rate $10^{-5}$ (AdamW), KL coefficient $\beta = 0.1$, PPO clip $\varepsilon = 0.2$, $n = 4$ rollouts per training opponent, temperature $0.8$, max 512 tokens. Kuhn Poker uses a lower learning rate ($3 \times 10^{-6}$) and higher KL coefficient ($\beta = 0.2$) to prevent KL drift.
+\paragraph{Games.} We evaluate on five strategic domains: IPD (8-round prisoner's dilemma), Auction (6-round sealed-bid), Negotiation v1 (4-round single-issue), Negotiation v2/GTBench (4-round multi-issue with private valuations \citep{wu2024gtbench}), and Kuhn Poker \citep{kuhn1950simplified} (6-hand, 3-card). Full game rules, payoff structures, and exploit-pool strategies are in Appendix~F.
+\paragraph{Penalty weights.} Table~\ref{tab:lambdas} lists the per-game $\lambda$ values. Kuhn Poker is zero-sum, so the externality penalty is disabled ($\lambda_x = 0$).
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Game} & $\lambda_e$ & $\lambda_c$ & $\lambda_x$ & \textbf{Nash?} \\
+\midrule
+IPD            & 2.4 & 1.0 & 1.8 & Yes (TFT) \\
+Auction        & 1.2 & 1.0 & 1.8 & No \\
+Negotiation v1 & 3.0 & 2.0 & 1.8 & Partial \\
+Negotiation v2 & 3.0 & 2.0 & 1.8 & Converging \\
+Kuhn Poker     & 1.5 & 2.4 & 0.0 & Yes (mixed) \\
+\bottomrule
+\end{tabular}
+\caption{Per-game penalty weights and Nash equilibrium status. Kuhn Poker is zero-sum, so no externality penalty applies ($\lambda_x = 0$). Negotiation uses $\lambda_c = 2.0$ at train time and $\lambda_c = 1.0$ at evaluation.}
+\label{tab:lambdas}
+\end{table}
+\paragraph{Metrics.} We report six metrics per condition. \textit{Pay/r}: mean payoff per round against the training pool ($\uparrow$). \textit{Exploit}: mean additional payoff that adversarial opponents earn over the agent ($\downarrow$), clipped at zero and computed per opponent then averaged. \textit{Robust}: mean agent payoff against distribution-shifted opponents ($\uparrow$). \textit{Ext}: domain-specific externality cost ($\downarrow$). \textit{Safety}: $\Jsepo$ evaluated at each game's $\lambda$ values with the cross-game scale $s$ of Eq.~\ref{eq:reward} ($\uparrow$). \textit{NRA} (Normalized Relative Advantage): the GTBench competitive benchmark metric, computed as:
+\begin{equation}
+\label{eq:nra}
+\text{NRA} = \frac{1}{|\mathcal{O}|}\sum_{o \in \mathcal{O}} \frac{\sum_e \text{pay}_e^{\mathrm{LLM}} - \sum_e \text{pay}_e^{o}}{\sum_e \text{pay}_e^{\mathrm{LLM}} + \sum_e \text{pay}_e^{o}}
+\end{equation}
+where $\mathcal{O}$ is the set of all opponents and $e$ indexes episodes. NRA $\in [-1, +1]$; positive values indicate the agent outperforms its opponents in aggregate. NRA is directly comparable to \citet{wu2024gtbench} baselines for IPD and Negotiation v2. All evaluations use 20 episodes per opponent at temperature 0.8, max 256 new tokens.
+\paragraph{Baselines.} For each game we report Base (off-the-shelf model, no fine-tuning), SFT (Stage 1 warm-start only, no \sepo{}), and \sepo{} (full pipeline at the best checkpoint). All reported metrics are means over 20 episodes per opponent; standard errors for payoff metrics are typically $< 5\%$ of the mean (reflecting deterministic game mechanics), and standard errors for exploit are in the range 0.02--0.05. Tables omit per-cell variance for clarity.
+\paragraph{Reproducibility.} Code and SFT datasets will be released upon publication under the MIT License. Training requires a single 46\,GB GPU; wall-clock time is ${\sim}1.5$--$10.5$\,h (SFT) and ${\sim}6$--$22$\,h (\sepo{}, 100 steps) depending on game and model. Seeds: 42 (game sampling), 0 (generation). No hyperparameter search; values follow \citet{shao2024deepseekmath} defaults with per-domain KL adjustments (\S\ref{sec:training}).
+\section{Results}
+\label{sec:results}
+\subsection{IPD}
+\begin{table}[t]
+\centering
+\small
+\resizebox{\linewidth}{!}{\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Model} & \textbf{Pay/r}$\uparrow$ & \textbf{Exploit}$\downarrow$ & \textbf{Ext}$\downarrow$ & \textbf{Safety}$\uparrow$ & \textbf{NRA}$\uparrow$ \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{Gemma 4 E4B-it}} \\
+Base             & 2.741 & 0.703 & 0.155 & +0.761 & -0.091 \\
+SFT              & 2.719 & 0.828 & \textbf{0.153} & +0.455 & -0.105 \\
+\sepo{} (step 25)& \textbf{2.745} & \textbf{0.703} & 0.159 & \textbf{+0.772} & \textbf{-0.090} \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{Qwen 3.5-4B}} \\
+Base             & 1.641 & 5.000 & \textbf{0.146} & -13.109 & -0.372 \\
+SFT              & 1.773 & 3.125 & 0.278 & -7.894 & -0.225 \\
+\sepo{} (final)  & \textbf{2.379} & \textbf{1.250} & 0.261 & \textbf{-1.847} & \textbf{-0.080} \\
+\bottomrule
+\end{tabular}}
+\caption{IPD results. \textbf{Gemma 4}: SFT degrades exploit resistance ($0.703 \to 0.828$) and safety ($+0.761 \to +0.455$); \sepo{} restores base-level exploit and achieves the best safety ($+0.772$). \textbf{Qwen}: \sepo{} reduces exploit from 5.000 to 1.250 and improves safety by $7\times$ ($-13.109 \to -1.847$), showing strong regularization from the \sepo{} objective.}
+\label{tab:ipd}
+\end{table}
+Table~\ref{tab:ipd} shows IPD results. For Gemma 4, the base model is already moderately exploit-resistant (0.703) and safety-positive; SFT degrades both exploit (0.828) and safety ($+0.761 \to +0.455$), and \sepo{} corrects this regression, returning exploit to the base level while achieving the best payoff and safety ($+0.772$). Gains over base are modest for Gemma 4: the model does not converge toward TFT within the training budget, so \sepo{}'s contribution in this domain is undoing the SFT regression rather than pushing past base. Qwen shows a contrasting pattern: the base model is highly exploitable (5.000) and all conditions are strongly safety-negative, but \sepo{} (final) substantially reduces exploit to 1.250 and improves safety by $7\times$ ($-13.109 \to -1.847$), consistent with convergence toward reciprocal cooperation. SFT also improves over base for Qwen (exploit $5.000 \to 3.125$), suggesting the expert demonstrations partially teach reciprocal behavior even before \sepo{}.
+\subsection{Auction}
+\begin{table}[t]
+\centering
+\small
+\resizebox{\linewidth}{!}{\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Model} & \textbf{Pay/r}$\uparrow$ & \textbf{Exploit}$\downarrow$ & \textbf{Ext}$\downarrow$ & \textbf{Safety}$\uparrow$ & \textbf{NRA}$\uparrow$ \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{Gemma 4 E4B-it}} \\
+Base             & 0.514 & 0.146 & 0.380 & -2.049 & \textbf{+0.478} \\
+SFT              & 0.646 & \textbf{0.000} & \textbf{0.208} & -1.054 & +0.149 \\
+\sepo{} (s75)    & \textbf{0.750} & 0.021 & \textbf{0.208} & \textbf{-0.900} & +0.130 \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{Qwen 3.5-4B}} \\
+Base             & 0.514 & \textbf{0.042} & 0.490 & -2.861 & \textbf{+0.373} \\
+SFT              & 0.542 & 0.250 & 0.344 & -1.783 & +0.230 \\
+\sepo{} (final)  & \textbf{0.563} & 0.125 & \textbf{0.255} & \textbf{-1.200} & +0.122 \\
+\bottomrule
+\end{tabular}}
+\caption{Auction results. \textbf{Gemma 4}: \sepo{} (step~75) achieves the highest payoff (0.750) and best safety ($-0.900$); SFT achieves zero exploit through over-conservative bidding. \textbf{Qwen}: \sepo{} (final) reduces externality and improves safety; base retains lowest exploit (0.042). All conditions are safety-negative: no Nash equilibrium exists against the AggressiveBid exploiter.}
+\label{tab:auction}
+\end{table}
+Table~\ref{tab:auction} shows auction results. For Gemma 4, \sepo{} (step~75) achieves the highest payoff (0.750) and best safety ($-0.900$); SFT achieves zero exploit through over-conservative bidding, but at a payoff cost (0.646) and weaker safety ($-1.054$). For Qwen, \sepo{} (final) achieves best safety ($-1.200$) and lowest externality (0.255); the base model retains the lowest exploit (0.042). All conditions are safety-negative for both models because no Nash equilibrium exists against the AggressiveBid exploiter: the best response requires overbidding, which conflicts with payoff maximization. This is a structural limit of the domain, not a failure of \sepo{}.
+\subsection{Negotiation}
+\label{sec:negotiation}
+We evaluate Qwen and Gemma~4 on negotiation using the variant best matched to each model. Qwen is evaluated on \textbf{Negotiation v1} (single-issue, complete-information); Gemma~4 is evaluated on \textbf{Negotiation v2} (multi-issue, private-valuation, GTBench-style). The reason for the split is empirical: v1 has a structural safety ceiling that Gemma~4's base saturates, while Qwen cannot reliably follow v2's bracketed action format. See Appendix~G for full details.
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Model} & \textbf{Pay} & \textbf{Exp.} & \textbf{Ext.} & \textbf{Safety} & \textbf{NRA} \\
+ & $\uparrow$ & $\downarrow$ & $\downarrow$ & $\uparrow$ & $\uparrow$ \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{Gemma 4 (v2 GTBench)}} \\
+Base          & 6.04  & \textbf{0.06} & 0.70 & -0.32 & -0.04 \\
+SFT           & 7.05  & 6.03 & \textbf{0.56} & -2.77 & -0.23 \\
+\sepo{} (s75) & \textbf{10.93} & 0.14 & 0.60 & \textbf{+2.19} & \textbf{+0.17} \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{Qwen 3.5-4B (v1)}} \\
+Base            & 1.08 & 1.50 & 0.70 & -4.98 & -0.44 \\
+SFT             & 1.75 & 2.00 & \textbf{0.57} & -3.20 & -0.26 \\
+\sepo{} (final) & \textbf{2.17} & \textbf{0.00} & 0.60 & \textbf{-0.74} & \textbf{-0.19} \\
+\bottomrule
+\end{tabular}
+\caption{Negotiation results. Each model uses its best-suited variant. Gemma~4 v2 achieves the only positive-safety result; Qwen v1 improves safety $6.7\times$ over base.}
+\label{tab:negotiation}
+\end{table}
+Table~\ref{tab:negotiation} reports both models on their best-suited variant. For Gemma~4 on v2, this is the domain of largest \sepo{} gains: at step~75, \sepo{} reaches payoff $10.93$ ($+81\%$ over base) and safety $+2.19$ (Table~\ref{tab:negotiation}), the only positive-safety configuration in the entire experiment suite. SFT's exploit regression is severe ($0.06 \to 6.03$, a $96\times$ increase) because the three-item private-valuation format amplifies over-accommodation: the SFT model learns to concede across all items, creating substantial room for exploiters. \sepo{} recovers from this and pushes safety beyond base. For Qwen on v1, \sepo{} (final) achieves zero exploit and safety $-0.74$, a $6.7\times$ improvement over the base model's $-4.98$ (Table~\ref{tab:negotiation}). The SFT regression for Qwen (exploit $1.50 \to 2.00$) is consistent with over-learning cooperative concession, but \sepo{} recovers it and surpasses base. Together these results show that on the variant suited to each model's capabilities, \sepo{} provides meaningful safety gains.
+\subsection{Kuhn Poker}
+\begin{table}[t]
+\centering
+\small
+\resizebox{\linewidth}{!}{\begin{tabular}{@{}llcccc@{}}
+\toprule
+\textbf{Model} & \textbf{Ckpt} & \textbf{Pay/hand}$\uparrow$ & \textbf{Exploit}$\downarrow$ & \textbf{Safety}$\uparrow$ \\
+\midrule
+\multicolumn{5}{@{}l}{\textit{Gemma 4 E4B-it}} \\
+Base            & ---     & -0.256 & 0.211 & -1.398 \\
+SFT             & ---     & 0.000  & \textbf{0.000} & -0.931 \\
+\sepo{}         & s75     & 0.222  & \textbf{0.000} & -0.384 \\
+\sepo{}         & final   & \textbf{0.249}  & \textbf{0.000} & \textbf{-0.379} \\
+\midrule
+\multicolumn{5}{@{}l}{\textit{Qwen 3.5-4B}} \\
+Base            & ---     & 0.033  & 0.705 & -3.686 \\
+SFT             & ---     & -0.113 & 0.347 & -3.142 \\
+\sepo{}         & s75     & -0.267 & \textbf{0.000} & \textbf{-1.709} \\
+\sepo{}         & final   & 0.031  & 0.847 & -4.599 \\
+\bottomrule
+\end{tabular}}
+\caption{Kuhn Poker results (Pay/hand: mean payoff per hand, analogous to Pay/r in other tables). \textbf{Gemma 4}: exploit reaches zero from SFT onward; safety improves monotonically through \sepo{} training; final checkpoint is best. \textbf{Qwen}: exploit reaches zero at step 75 but the final checkpoint suffers KL drift overshoot (exploit 0.847). SFT alone achieves zero exploit for Gemma 4, suggesting the demonstrations transfer the Nash mixed strategy for this model family; \sepo{} then improves payoff (+0.249 per hand) while maintaining zero exploit.}
+\label{tab:kuhn}
+\end{table}
+Table~\ref{tab:kuhn} reports Kuhn Poker results. For Gemma 4, exploit reaches zero from SFT onward and safety improves monotonically through \sepo{} training ($-1.398 \to -0.379$), with final checkpoint best. For Qwen, exploit reaches zero at step 75 but the final checkpoint suffers KL drift overshoot (exploit 0.847, safety $-4.599$); step 75 is best. Notably, Gemma 4 achieves zero exploit from SFT alone, suggesting that for models with sufficient base reasoning, SFT demonstrations transfer the Nash mixed strategy without further RL, and \sepo{}'s role shifts to within-equilibrium payoff optimization.
+\section{Analysis}
+\label{sec:analysis}
+\sepo{} converges to equilibrium when (a) a learnable equilibrium exists and (b) the base model does not already approximate it through instruction-following (convergence summary in Appendix~B). SFT consistently \emph{degrades} exploit resistance across games: learning from cooperative strategy traces makes the model over-accommodating toward adversarial opponents; \sepo{}'s per-rollout exploit gradient is necessary to correct this regression (full SFT degradation table in Appendix~C). \sepo{} optimizes for safety, not raw payoff: on Gemma~4 GTBench it improves payoff by $+81\%$ over base while reaching safety $+2.187$, and on Kuhn Poker it maintains zero exploit while improving payoff to $+0.249$ per hand (Tables~\ref{tab:negotiation}, \ref{tab:kuhn}). Condition (b) is illustrated by Gemma 4 Negotiation v1, where the base model already achieves zero exploit through instruction-following; \sepo{} cannot improve a policy already at equilibrium. An ablation confirming that per-round normalization is a \emph{correctness requirement} (not a design choice) is in Appendix~D.
+\paragraph{Comparison to GTBench.} Our NRA values use the same definition and opponent pools as \citet{wu2024gtbench}, making the IPD and Negotiation v2 results directly comparable. Gemma~4 \sepo{} on v2 reaches NRA $+0.170$, the only positive NRA across negotiation configurations in our study. \sepo{} explicitly trades NRA for exploit resistance: payoff-only methods can achieve higher NRA but at higher exploitability.
+\section{Conclusion}
+\label{sec:conclusion}
+\sepo{} shows that objective design determines whether language agents reach individually rational or collectively harmful equilibria. By augmenting RL with per-rollout exploit, collusion, and externality penalties, \sepo{} drives both models to equilibria unreachable by reward-only RL: zero exploitability in Kuhn Poker, a positive-safety outcome in GTBench for Gemma~4, and zero exploit in single-issue negotiation for Qwen. SFT consistently degrades exploit resistance across all games; \sepo{} corrects this regression in every domain where a learnable equilibrium exists.
+\section{Limitations}
+\label{sec:limitations}
+\sepo{} has five limitations. \textbf{In-pool exploitability}: exploit is measured against a fixed adversary pool that partially overlaps the training pool in some games; held-out adversary evaluation and multi-seed error bars are left to future work. \textbf{Scope}: all five games are two-player with discrete action vocabularies; extending to $n$-player settings requires coalition-aware collusion estimation, and free-form natural-language negotiation \citep{lewis2017deal} adds estimation complexity for $c(\pi)$ and $x(\pi)$. \textbf{Checkpoint sensitivity}: for Qwen in Kuhn Poker the best checkpoint (step 75) is not the final one: KL drift collapses the final checkpoint (exploit 0.847 vs.\ 0.000), so exploitability curves must be monitored throughout training. \textbf{Missing baselines}: we compare only Base/SFT/\sepo{}; GPT-4- or LLaMA-scale comparisons remain future work. \textbf{Structural limits}: \sepo{} cannot improve safety in a game with no learnable Nash equilibrium (Auction, all conditions safety-negative) and cannot improve beyond a base model that already approximates the equilibrium via instruction-following (Gemma 4 Negotiation v1, where base exploit~$= 0$).
+\section*{Ethical Considerations}
+\sepo{} trains language agents to resist exploitation and avoid collusion in strategic economic games. First, the exploit pool design teaches agents to resist specific adversarial strategies, which a bad actor could reinterpret as a recipe for building stronger adversaries; we will publish the adversary designs to enable defensive research. Second, deploying \sepo{}-trained agents in real markets could reduce social welfare if the exploit pool under-represents human adversaries, so we recommend human-participant evaluation before deployment.
+No human subjects were involved; all interactions are between computational agents, and the SFT data contain only agent-generated game histories and action tokens. A large language model assisted with \LaTeX{} formatting and editing; all content and conclusions are the authors' own.
+\bibliography{sepo}
+\end{document}

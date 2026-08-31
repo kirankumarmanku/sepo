@@ -167,7 +167,8 @@ We use two distinct negotiation variants: \textbf{v1} (single-issue, complete-in
 When free-form generation contains no parseable action, the constrained decode (main \S3.5) supplies one. Because this changes what behavior is being measured, we report per-condition fallback counts for the Kuhn Poker evaluations (16 episodes $\times$ 6 opponents, ${\approx}550$ decisions each): Qwen base 135 (${\sim}25\%$ of decisions), Qwen SFT 39, Qwen original-pipeline checkpoints 45--60, Gemma~4 conditions single-digit counts per evaluation. The high base-Qwen rate means a quarter of its measured actions are argmax-over-action-tokens rather than sampled free-form commitments; conclusions about base Qwen's strategy carry this caveat. All corrected-pipeline evaluations use \texttt{max\_new\_tokens} $= 512$, matching training.
 \subsection{Original-Pipeline Qwen Results (Historical)}
 The original submission reported Qwen results across IPD, Auction, Negotiation v1, and Kuhn Poker, including a model-to-variant routing of negotiation (Qwen to v1, Gemma~4 to v2) motivated by the format-reliability analysis above. Those numbers were produced by the defective pipeline (Appendix~E) under greedy evaluation and are superseded; we do not reproduce them here as comparable results. For transparency they remain available in the released repository (\texttt{eval\_results/qwen/}), and the Kuhn Poker subset is re-evaluated under the corrected protocol in Appendix~D, where the checkpoint trajectory is shown to be a random walk. The v1/v2 format analysis above is retained because the underlying observation---Qwen commits to actions after $1{,}000+$ tokens of reasoning, stressing any fixed generation budget---is confirmed under the corrected pipeline as well (fallback rates above).
-\subsection{Cross-variant supplementary results}
+\subsection{Cross-variant supplementary results (original pipeline; historical)}
+The two tables below are retained verbatim from the original submission for transparency. They were produced by the defective pipeline under greedy evaluation (Appendix~E) and are \emph{not comparable} to the main-paper results; they document the routing rationale of the original study, which the corrected study drops.
 \begin{table}[h]
 \centering
 \small
@@ -204,7 +205,7 @@ SFT             & 5.41 & 1.72 & \textbf{0.56} & -2.23 & +0.12 \\
 \label{tab:neg2-supplementary}
 \end{table}
 \subsection{Implications}
-The variant-model coupling reflects a broader observation: \sepo{} performance depends on both the model's reasoning capacity and the game's structural depth. For models with strong instruction-following but limited multi-step inference (Qwen), simpler variants where the dominant strategy is partially derivable produce the cleanest gradient signal. For models with stronger reasoning capacity (Gemma~4), simple variants saturate too quickly and richer variants are required to give \sepo{} meaningful headroom. Future work should consider task-adaptive variant selection or joint training across multiple variants.
+Under the corrected pipeline we treat variant choice as a property of the study design rather than a per-model routing decision: the main paper reports Gemma~4 on v2 (the variant requiring genuine multi-round inference) and drops per-model routing, which the reviewer-facing concern about post-hoc selection makes untenable. The broader observation that survives is about SFT adequacy (main \S5, Kuhn): a model's ability to benefit from \sepo{} on a variant is gated by whether its SFT installs that variant's basic structure, not by the variant's headroom alone.
 \section{Dataset Details and Compute Budget}
 \label{app:datasets-compute}
 \subsection{Datasets}

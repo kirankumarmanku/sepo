@@ -140,7 +140,7 @@ The full per-step loss is $\mathcal{L} = \mathcal{L}_{\mathrm{PG}} + \beta \cdot
 \paragraph{LoRA reference model.} In LoRA mode, the reference policy $\pi_{\mathrm{ref}}$ is obtained by disabling the LoRA adapters in-place (via \texttt{model.disable\_adapter()}) rather than loading a separate frozen copy. This saves ${\sim}10\,\text{GB}$ VRAM, making the full pipeline runnable on a single 46\,GB GPU.
 \subsection{Action Generation and Parse Recovery}
 \label{sec:parse}
-\paragraph{Stopping criteria.} We implement a custom \texttt{StoppingCriteria} that halts generation when a valid action token appears on the last non-empty line of the output. The criteria respects chain-of-thought: if the output contains an open \texttt{<think>} tag without a closing \texttt{</think>}, generation continues regardless of what appears in the reasoning trace.
+\paragraph{Stopping criteria.} We implement a custom \texttt{StoppingCriteria} that halts generation only when a \emph{completed} (newline-terminated) line consists exactly of a bare action from the game's vocabulary, stripped of punctuation. Both restrictions are load-bearing: evaluating the still-streaming last line lets action-stem regexes fire on incomplete text (mid-decode, the fragment ``No defection'' parses as DEFECT although the completed sentence continues ``\ldots yet.\ Cooperating keeps the relationship stable.\ COOPERATE''), and matching sentences that merely mention actions truncates reasoning at phrases like ``opponent played DEFECT.'' Either failure silently replaces the model's decisions with artifacts of its reasoning prefix---a defect present in our original pipeline that inverted recorded actions on cooperative-reasoning traces (Appendix~E). An answer followed by end-of-sequence terminates generation natively, so the criteria is purely an early-exit optimization and cannot truncate reasoning. The criteria also respects chain-of-thought: an open \texttt{<think>} tag without its closing tag suppresses stopping entirely.
 \paragraph{Constrained fallback decode.} When the model's free-form generation does not contain a parseable action (parse failures are rare: single-digit counts per evaluation run, varying by game and model), we recover a valid action without regex or heuristics via forced next-token decoding:
 \begin{enumerate}[noitemsep]
   \item Append the generated reasoning as an assistant turn.
@@ -191,16 +191,15 @@ Training proceeds in two stages (Appendix~E).
 \small
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Game} & $\lambda_e$ & $\lambda_c$ & $\lambda_x$ & \textbf{Nash?} \\
+\textbf{Game} & $\lambda_e$ & $\lambda_c$ & $\lambda_x$ & \textbf{Exploit reducible?} \\
 \midrule
-IPD            & 2.4 & 1.0 & 1.8 & Yes (TFT) \\
-Auction        & 1.2 & 1.0 & 1.8 & No \\
-Negotiation v1 & 3.0 & 2.0 & 1.8 & Partial \\
-Negotiation v2 & 3.0 & 2.0 & 1.8 & Converging \\
-Kuhn Poker     & 1.5 & 2.4 & 0.0 & Yes (mixed) \\
+IPD            & 2.4 & 1.0 & 1.8 & Yes (reciprocity) \\
+Auction        & 2.4 & 2.4 & 2.4 & No (conflicts w/ payoff) \\
+Negotiation v2 & 2.4 & 2.4 & 2.4 & Partially (Table~\ref{tab:negotiation}) \\
+Kuhn Poker     & 1.5 & 2.4 & 0.0 & Yes (mixed eq., Table~\ref{tab:kuhn}) \\
 \bottomrule
 \end{tabular}
-\caption{Per-game penalty weights and Nash equilibrium status. Kuhn Poker is zero-sum, so no externality penalty applies ($\lambda_x = 0$). Negotiation uses $\lambda_c = 2.0$ at train time and $\lambda_c = 1.0$ at evaluation.}
+\caption{Per-game penalty weights, identical at train and evaluation time. Kuhn Poker is zero-sum, so no externality penalty applies ($\lambda_x = 0$). The final column states whether reducing exploit-pool advantage is compatible with maintaining training-pool payoff in that domain (a structural property; every finite game has Nash equilibria, but not every domain admits a policy that is simultaneously unexploited by our adversary pool and payoff-competitive against the training pool).}
 \label{tab:lambdas}
 \end{table}
 \paragraph{Metrics.} We report six metrics per condition. \textit{Pay/r}: mean payoff per round against the training pool ($\uparrow$). \textit{Exploit}: mean additional payoff that adversarial opponents earn over the agent ($\downarrow$), clipped at zero and computed per opponent then averaged. \textit{Coll}: collusion rate against the trusting-partner pool ($\downarrow$; e.g., defection rate against AlwaysCooperate in IPD). \textit{Ext}: domain-specific externality cost ($\downarrow$). \textit{Safety}: $\Jsepo$ evaluated at each game's $\lambda$ values with the cross-game scale $s$ of Eq.~\ref{eq:reward} ($\uparrow$). \textit{NRA} (Normalized Relative Advantage): the GTBench competitive benchmark metric, computed as:

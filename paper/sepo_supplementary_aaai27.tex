@@ -89,14 +89,14 @@ Table~\ref{tab:sft_weights} shows the strategy mixture weights used to generate 
 \toprule
 \textbf{Game} & \textbf{Equilibrium} & \textbf{\sepo{} behavior} \\
 \midrule
-IPD           & TFT (behavioral)    & G4: \sepo{} recovers SFT regression to base-level exploit; Qwen \sepo{} reduces $5.000 \to 1.250$ \\
-Auction       & No                  & G4: \sepo{} (s75) best safety; Qwen: base retains lowest exploit \\
-Neg.\ v1      & Partial (base solves)& G4: base at exploit 0.000; SFT/\sepo{} cannot recover; Qwen \sepo{} achieves exploit 0.000 \\
-Neg.\ v2      & G4 converges        & G4 \sepo{} (s75): safety $+2.187$; Qwen: base best \\
-Kuhn          & Yes (Nash mixed)    & Exploit $\to$ 0 (Gemma 4 from SFT; Qwen step 75) \\
+IPD           & Reciprocity         & G4: exploit $0.430 \to 0.313$ at s25 with collusion 0; collapse after s25 (main Table~2) \\
+Auction       & Structurally blocked & G4: payoff/externality gains only; exploit floor at base level \\
+Neg.\ v2      & Partial             & G4: SFT regression $17\times$; \sepo{} recovers $40\%$ at s50, not to base \\
+Kuhn          & Yes (Nash mixed)    & G4: bluff rate $\to 1/3$ monotonically (main Table~5); Qwen: no convergence (SFT precondition unmet) \\
 \bottomrule
 \end{tabular}
-\caption{Equilibrium convergence summary across Gemma 4 E4B-it (G4) and Qwen~3.5-4B. \sepo{} is most effective when a learnable equilibrium exists and the base model does not already approximate it. In Neg.\ v1, Gemma 4's base already achieves zero exploit through instruction-following, creating a structural ceiling. In Auction, no Nash equilibrium exists against the exploit pool, preventing convergence for either model.}
+\caption{Convergence summary under the corrected pipeline and stochastic protocol (Gemma 4 = G4). Qwen is covered on Kuhn Poker only (\S Limitations).
+\textbf{Qwen \sepo{} checkpoint trajectory (Kuhn, corrected pipeline)}: bet rates J/Q/K remain card-unconditioned at every evaluated checkpoint (s25: $0.26/0.36/0.20$; s50: $0.26/0.29/0.18$), matching its SFT ($0.22/0.26/0.15$) and base ($0.34/0.45/0.29$); no equilibrium structure emerges.}
 \label{tab:convergence}
 \end{table}
 \section{SFT Degradation Across All Games}
@@ -108,25 +108,22 @@ Kuhn          & Yes (Nash mixed)    & Exploit $\to$ 0 (Gemma 4 from SFT; Qwen st
 \toprule
 \textbf{Game} & \textbf{Model} & \textbf{Base} & \textbf{SFT} & \textbf{\sepo{}} & \textbf{vs.\ Base} \\
 \midrule
-IPD            & Gemma 4 & \textbf{0.703} & 0.828 & \textbf{0.703} & $=$ \\
-IPD            & Qwen    & 5.000 & 3.125 & \textbf{1.250} & $\checkmark$ \\
-Auction        & Gemma 4 & 0.146 & \textbf{0.000}$^*$ & 0.021 & $\checkmark$ \\
-Auction        & Qwen    & \textbf{0.042} & 0.250 & 0.125 & $\times$ \\
-Neg.\ v1       & Gemma 4 & \textbf{0.000} & 3.000 & 2.000 & $\times$ \\
-Neg.\ v1       & Qwen    & 1.500 & 2.000 & \textbf{0.000} & $\checkmark$ \\
-Neg.\ v2       & Gemma 4 & 0.063 & 6.031 & 0.141 & $\times$ \\
-Neg.\ v2       & Qwen    & \textbf{0.781} & 1.719 & 2.031 & $\times$ \\
-Kuhn           & Gemma 4 & 0.211 & \textbf{0.000} & \textbf{0.000} & $\checkmark$ \\
-Kuhn           & Qwen    & 0.705 & 0.347 & \textbf{0.000} & $\checkmark$ \\
+IPD            & Gemma 4 & 0.859 & 0.430 & \textbf{0.313} & $\checkmark$ \\
+Auction        & Gemma 4 & \textbf{0.208} & \textbf{0.208} & 0.240 & $=$ \\
+Neg.\ v2       & Gemma 4 & \textbf{0.391} & 6.766 & 4.094 & $\times$ \\
+Kuhn           & Gemma 4 & \textbf{0.000} & \textbf{0.000} & \textbf{0.000} & $=$ (see freq.) \\
+Kuhn           & Qwen    & \textbf{0.337} & 0.431 & 0.596$^\dagger$ & $\times$ \\
 \bottomrule
 \end{tabular}}
-\caption{Exploit across training stages for all game/model configurations (lower is better). SFT degrades exploit in the majority of configurations; \sepo{} corrects the regression where a learnable equilibrium exists. The $^*$ for Gemma 4 Auction SFT reflects over-conservative bidding (trades payoff for surface exploit reduction without strategic benefit). In GTBench (Neg.\ v2), \sepo{} beats SFT by $97\%$ for Gemma 4 but base exploit remains lowest for both models.}
+\caption{Exploit-pool advantage across training stages under the corrected pipeline and stochastic protocol (lower is better; \sepo{} at its $\Jsepo$-selected checkpoint; $^\dagger$Qwen at s50, training incomplete at submission). The SFT exploit regression is \emph{domain-dependent}: dramatic on Negotiation v2 ($17\times$), mild on Qwen Kuhn, absent on IPD and Auction---revising the across-the-board degradation claim from the original pipeline, whose training-time behavior was dominated by action-parsing artifacts (Appendix~E). Where the regression exists, \sepo{} partially corrects it. In Kuhn Poker, exploit-pool advantage does not discriminate between conditions; the card-conditioned action frequencies (main Table~5) are the informative measurement.}
 \label{tab:sft_degradation}
 \end{table}
-\section{Ablation: Per-Round vs.\ Episode-Level Normalization}
+\section{Original-Pipeline Control Arms}
 \label{app:ablation}
-We compared two \sepo{} variants on IPD to verify that per-round advantage normalization is a correctness requirement. (1)~\emph{Episode-level}: the \sepo{} reward $r_r$ is assigned uniformly to all tokens of an episode, and advantages are normalized across rollouts at the episode level. (2)~\emph{Per-round} (\sepo{}): advantages are normalized per game round (Eq.~4 of the main paper).
-Episode-level \sepo{} produced no exploit improvement over 100 training steps: exploit remained at $0.33 \pm 0.02$ (matching the base model). Per-round \sepo{} reached exploit $0.312 \pm 0.011$ by step 35 and stabilized. The reason is two-fold: (a)~a constant penalty $P$ always cancels in mean subtraction ($\text{reward}_r - \overline{\text{reward}} = u_r - \overline{u}$), so the penalty contributes zero gradient regardless. This is the well-known constant control-variate (REINFORCE baseline) property \citep{williams1992simple,kool2019buy}; \sepo{}'s per-rollout opponent sampling ensures the exploit signal varies across the group, breaking this cancellation. (b)~Near-deterministic SFT collapses $\sigma \approx 0$ across episode-level rollouts, zeroing all advantages. Per-round normalization breaks both failure modes.
+This appendix reports the re-evaluation, under the corrected stochastic protocol, of checkpoints trained by the original (defective) pipeline and by the intermediate per-rollout-auxiliary variant---the reward-only arms of the mechanism study (main \S6).
+\paragraph{IPD arms (Gemma 4), best checkpoints.} Per-rollout auxiliary arm: exploit $0.313$, safety $+1.741$ (s50). Credited arm trained with a defective action-extraction sensor: exploit $0.313$, safety $+1.752$ (final). Corrected \sepo{}: exploit $0.313$, safety $+1.648$ (s25). As discussed in main \S6, best-checkpoint exploit and safety are similar across arms---the payoff signal alone suffices for retaliation learning in IPD---but the arms differ sharply in trajectory: the per-rollout arm's training-time collusion rises to $1.0$ (unconditional defection) while the corrected arm's falls to $0.25$ before the normalization-driven collapse; only the corrected arm has a live gradient opposing trusting-partner exploitation.
+\paragraph{Kuhn Poker arms (Qwen), full trajectories.} The original-pipeline checkpoints execute a random walk under identical evaluation: exploit $0.409$ (s25), $0.520$ (s50), $0.289$ (s75), $0.501$ (final), with card-conditioning never emerging (bet rates for J/Q/K statistically indistinguishable at every checkpoint) and dominated actions drifting (call-K falls to $0.02$ at s50). The originally-reported ``zero exploit-pool advantage at the best checkpoint'' corresponds to selecting a favorable point on this walk. Contrast the corrected pipeline's monotone Gemma trajectory (main Table~5).
+\paragraph{Per-round normalization.} The per-round (vs.\ episode-level) advantage normalization of Eq.~4 remains necessary independently of penalty crediting: the SFT prior is near-deterministic, so episode-level outcomes frequently coincide across rollouts ($\sigma \approx 0$), while per-step stochasticity keeps $\sigma_t$ non-zero. Our original claim that per-rollout \emph{penalty} computation breaks the constant-baseline cancellation was incorrect---an auxiliary-sampled penalty varies across the group but is independent of the credited actions, contributing variance rather than signal (main \S3.3); crediting is what breaks the cancellation.
 \section{Training Pipeline}
 \label{app:pipeline}
 \begin{figure}[h]
@@ -147,9 +144,13 @@ Episode-level \sepo{} produced no exploit improvement over 100 training steps: e
 \node[above=0.1cm of grpo, font=\scriptsize, text=black!60, text width=3.8cm, align=center]
       {$r = u{\cdot}s - \lambda_e e{\cdot}s - \lambda_c c - \lambda_x x$};
 \end{tikzpicture}}
-\caption{\sepo{} training pipeline. SFT warms up the model; \sepo{} then trains against three opponent pools with per-round advantage normalization (Eq.~4 of the main paper).}
+\caption{\sepo{} training pipeline. SFT warms up the model; \sepo{} then trains every (pool, opponent) pair as a rollout group with per-round advantage normalization (Eq.~4 of the main paper).}
 \label{fig:training_loop}
 \end{figure}
+\subsection{Forensic Timeline and Log Signatures}
+\label{app:forensics}
+The gradient-cancellation defect (main \S6) has the following documented history, reconstructible from our released repository. \textbf{May 11}: the per-rollout fix landed on the development branch (commit ``Fix GRPO reward: per-rollout exploit episodes so SEPO penalty varies in advantage''). \textbf{May 15}: a merge-conflict resolution on the working branch, bundled inside an unrelated data-generation commit, resolved the training file back to the shared-penalty version (the pre-resolution state was preserved as a \texttt{.bak} file in the same commit, which is what makes this forensically checkable). \textbf{May 17--23}: all originally-reported GRPO runs executed on the reverted file.
+Which code path a run executed is identifiable post hoc from its training log. The shared/cached path writes step records in which exploitability, collusion, and externality are all exactly $0.000$ (the cache skips their computation); these appear on 11--65\% of steps across the six original runs, on the cache's refresh schedule (steps $1$--$4$, $6$--$9$, \ldots between refreshes at multiples of 5). The corrected pipeline computes per-episode penalties every step and cannot emit this signature; it additionally logs each rollout's penalty $P_r$ explicitly, so a group-constant penalty---the failure mode---is visible in the first minutes of any run. Two further defects shared the same provenance and are documented in the released diffs: rollout prompts were generated without the assistant-turn marker (training on a format evaluation never sees), and the generation stopping criteria fired on incomplete lines, truncating chain-of-thought at the first action-word mention and parsing reasoning fragments as decisions (e.g., the fragment ``No defection'' recorded as DEFECT on traces that conclude COOPERATE; 10/10 reproduction on held prompts).
 \section{Game Descriptions and Payoff Structures}
 \label{app:games}
 \paragraph{IPD.} 8-round iterated prisoner's dilemma. Actions: COOPERATE / DEFECT. Payoff matrix: mutual cooperation $(3,3)$, mutual defection $(1,1)$, unilateral defect $(5,0)$. Subgame-perfect equilibrium of the finite game is mutual defection; in practice LLMs exhibit bounded rationality and TFT is the cooperative benchmark.\footnote{We treat TFT convergence as the behavioral equilibrium following the behavioral economics literature.} GrimTrigger cooperates until any defection, then defects permanently.
@@ -162,10 +163,10 @@ Episode-level \sepo{} produced no exploit improvement over 100 training steps: e
 We use two distinct negotiation variants: \textbf{v1} (single-issue, complete-information) and \textbf{v2} (multi-issue, private-valuation, GTBench-style). This appendix explains the variants, why we route each model to a different one, and what happens when we attempt cross-variant evaluation.
 \paragraph{v1 (single-issue, complete information).} Two agents repeatedly bargain over a divisible pie of size~10. Each round, both submit an integer demand $a \in \{1,\dots,9\}$. If $a_1+a_2 \le 10$, each receives their demand; otherwise both receive zero (breakdown). 4 rounds per episode. Action space is a single integer; payoff structure is fully derivable from action history alone.
 \paragraph{v2 (multi-issue, GTBench).} Two agents bargain over three item types (books, hats, balls) with random pool sizes and private per-item values. Each round, agents submit a demand vector $[a, b, c]$. If both demands fit within the pool elementwise, each receives their demand; otherwise both receive zero. Per-round payoff is the dot product of received items with private values. 4 rounds per episode. Opponent pool: fair-neg, tit-for-tat-neg, concede-neg, greedy-neg, hardball-neg. This variant introduces incomplete information, Pareto-optimal trades, and welfare considerations not present in v1.
-\subsection{Why we split models across variants}
-\paragraph{v1 has a structural ceiling.} The complete-information format makes the dominant counter-strategy directly derivable: $a_\text{self} = 10 - a_\text{opp,last}$. Any model that can perform this single-step inference will approximate the strategy without training. Gemma~4's base already achieves exploit $0.00$ and safety $-1.32$ on v1 (Table~\ref{tab:neg1-supplementary}), saturating the safety ceiling. SFT actively degrades the policy by over-learning cooperative concessions (exploit $0.00 \to 3.00$), and \sepo{} partially recovers ($-3.34 \to -2.01$) but cannot restore zero exploit. This produces a misleading negative result: \sepo{} appears harmful when in fact base already occupies the optimum. Qwen, by contrast, has safety $-4.98$ on v1, giving \sepo{} substantial headroom.
-\paragraph{v2 requires reliable bracketed-action format.} Negotiation v2's action format is the bracket vector $[a, b, c]$. During SFT, Qwen learns this format ($98\%$ token accuracy, all 3{,}200 SFT examples contain brackets) but at inference produces $1{,}000+$ tokens of structured reasoning before committing. In Qwen's verbose style, the bracket pattern appears mid-text (e.g., \textit{``Let's demand [1, 1, 1]''}) rather than on a final line, making parsing brittle. Across \sepo{} training, safety oscillates from $-1.97$ to $-2.63$ with no convergence (Table~\ref{tab:neg2-supplementary}); exploit grows from $0.78$ (base) to $2.86$ (final), the opposite of the desired direction. We attempted three mitigations: bumping \texttt{max\_new\_tokens} from 512 to 1500; patching the stopping criteria to fire on any bracketed pattern rather than only on the last line; and sampling at temperature $0.7$. None produced a positive-safety \sepo{} checkpoint for Qwen on v2.
-Gemma~4 does not exhibit this issue. Commit-to-action latency is $\approx 200$--$400$ tokens, within the 512-token budget, and the bracket pattern appears reliably as the final output. This explains why Gemma~4 produces the strongest result in the suite on v2 (safety $+2.19$) while Qwen underperforms its own v1 result.
+\subsection{Constrained-Fallback-Decode Rates}
+When free-form generation contains no parseable action, the constrained decode (main \S3.5) supplies one. Because this changes what behavior is being measured, we report per-condition fallback counts for the Kuhn Poker evaluations (16 episodes $\times$ 6 opponents, ${\approx}550$ decisions each): Qwen base 135 (${\sim}25\%$ of decisions), Qwen SFT 39, Qwen original-pipeline checkpoints 45--60, Gemma~4 conditions single-digit counts per evaluation. The high base-Qwen rate means a quarter of its measured actions are argmax-over-action-tokens rather than sampled free-form commitments; conclusions about base Qwen's strategy carry this caveat. All corrected-pipeline evaluations use \texttt{max\_new\_tokens} $= 512$, matching training.
+\subsection{Original-Pipeline Qwen Results (Historical)}
+The original submission reported Qwen results across IPD, Auction, Negotiation v1, and Kuhn Poker, including a model-to-variant routing of negotiation (Qwen to v1, Gemma~4 to v2) motivated by the format-reliability analysis above. Those numbers were produced by the defective pipeline (Appendix~E) under greedy evaluation and are superseded; we do not reproduce them here as comparable results. For transparency they remain available in the released repository (\texttt{eval\_results/qwen/}), and the Kuhn Poker subset is re-evaluated under the corrected protocol in Appendix~D, where the checkpoint trajectory is shown to be a random walk. The v1/v2 format analysis above is retained because the underlying observation---Qwen commits to actions after $1{,}000+$ tokens of reasoning, stressing any fixed generation budget---is confirmed under the corrected pipeline as well (fallback rates above).
 \subsection{Cross-variant supplementary results}
 \begin{table}[h]
 \centering
